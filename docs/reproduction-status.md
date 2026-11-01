@@ -7,6 +7,8 @@ Sources for every number below: the committed files under `results/` (sections 1
 (`docs/scout-report.html`, cited by section). The goal is to understand the paper's ideas, not to match its tables.
 Setup the results were produced with: user 0 (13,100 statements, 2,700 questions), upstream commit `a24953c`.
 
+Per-experiment deep-dives (paper counterpart, code walkthrough, provenance, how to run): `experiments/README.md` and the README in each `experiments/<folder>/`.
+
 Status values: reproduced / partially / not reproduced.
 
 ## 1. No-LLM probes (run here, reproducible offline)
