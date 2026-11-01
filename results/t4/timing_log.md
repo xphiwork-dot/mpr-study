@@ -82,3 +82,36 @@ Timestamps are UTC; appended by scripts/t4/t4.sh.
   grid (900 questions x 4 memories) 1,288 s of generation (sum of `s1/timing.jsonl` wall_s) = 2,201 s, about 37 minutes, plus
   pulls and the one-minute polling granularity (about 40-45 minutes), after the one-time install. The real wall clock from
   VM creation to the end of the grid (09:58Z) was 76 minutes because of the debugging described above.
+- 2026-11-01T11:30:03Z session mpr-t4-s2 created (T4)
+- 2026-11-01T11:31:51Z session mpr-t4-s2 already exists, reusing
+- 2026-11-01T11:32:08Z job retrieve start: retrieve.py 
+- 2026-11-01T11:35:34Z job retrieve finished rc=0 wall=206 s
+- 2026-11-01T11:35:42Z pulled results from mpr-t4-s2
+- 2026-11-01T11:39:34Z vLLM healthy after 225 s of waiting
+- 2026-11-01T11:39:34Z job grid2_ignoramus start: grid.py --slice results/slices/s306.json --reason seq --max-step 5 --memories ignoramus --topk 20 --tag s2 --workers 48
+- 2026-11-01T11:49:20Z job grid2_ignoramus finished rc=0 wall=586 s
+- 2026-11-01T11:49:28Z pulled results from mpr-t4-s2
+- 2026-11-01T11:49:28Z job grid2_oracle start: grid.py --slice results/slices/s306.json --reason seq --max-step 5 --memories oracle --topk 20 --tag s2 --workers 48
+- 2026-11-01T12:00:29Z job grid2_oracle finished rc=0 wall=661 s
+- 2026-11-01T12:00:47Z pulled results from mpr-t4-s2
+- 2026-11-01T12:00:47Z job grid2_sparse start: grid.py --slice results/slices/s306.json --reason seq --max-step 5 --memories sparse --topk 20 --tag s2 --workers 48
+- 2026-11-01T12:20:34Z job grid2_sparse finished rc=0 wall=1187 s
+- 2026-11-01T12:20:42Z pulled results from mpr-t4-s2
+- 2026-11-01T12:20:42Z job grid2_dense start: grid.py --slice results/slices/s306.json --reason seq --max-step 5 --memories dense --topk 20 --tag s2 --workers 48
+- 2026-11-01T12:41:24Z job grid2_dense finished rc=0 wall=1242 s
+- 2026-11-01T12:41:32Z pulled results from mpr-t4-s2
+
+## Session 2 notes (written by hand after the run; the driver lines above are untouched)
+
+- Session `mpr-t4-s2` (not `mpr-t4`, so a parallel worker could not collide) was created at 11:30:03Z, T4 granted on the first try. The
+  first `up` call ended with a `TimeoutError` from the colab client while installing/unpacking on the VM (about 1.5 minutes after
+  creation); the driver exited. Rerunning `session2.sh` (11:31:51Z, "already exists, reusing") passed `up` and everything after it,
+  with no further failures. vLLM was already importable on this VM, so no install was needed.
+- Retrieval re-ran (206 s) because the resume tarball from session 1 is not committed; the output is identical to the committed
+  `retrieval/recall.csv.gz` (checked after decompression).
+- Generation per memory type (wall of each job): no memory 586 s, Oracle 661 s, BM25 1,187 s, e5 1,242 s, sum 3,676 s (61 minutes).
+  The planning estimate was 47 minutes (`estimates.md`): the real run was about 30% slower, mainly BM25 and e5 (estimate 16 min each,
+  real about 20-21 min). The in-job rates (`s2/timing.jsonl`) were 937-1,079 prompt tokens/s, close to the throughput test.
+- All four jobs ended rc=0 with 306 questions each (1,530 calls each, no failed calls); nothing needed a rerun.
+- Wall clock from VM creation (11:30Z) to the last pull (12:41:32Z): 71 minutes. `session2.sh` does not call `t4.sh down`; the
+  session was no longer listed when checked afterwards and `colab stop -s mpr-t4-s2` answered "not found", so none is left running.
