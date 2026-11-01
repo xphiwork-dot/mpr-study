@@ -3,7 +3,7 @@
 What of the MPR paper (Explicit v.s. Implicit Memory, KDD '26) is reproduced in this repo, what is not, and
 where the evidence is. This file is the single source of truth; the README only links here.
 
-Sources for every number below: the committed files under `results/`, or the scout report
+Sources for every number below: the committed files under `results/` (sections 1-5 and 6 for the Colab T4 run), or the scout report
 (`docs/scout-report.html`, cited by section). The goal is to understand the paper's ideas, not to match its tables.
 Setup the results were produced with: user 0 (13,100 statements, 2,700 questions), upstream commit `a24953c`.
 
@@ -56,19 +56,36 @@ The farm patch (`patches/farm.patch`) adds an Azure OpenAI client for the Bosch 
 |---|---|---|---|
 | Paper tables on Qwen2.5-7B (8 A800 GPUs) | not reproduced, not comparable | none | Different model (farm model), tiny subset, our own scorer. Absolute numbers cannot be compared; only the ordering Oracle >> RAG >> no memory and the retrieval pattern carry over. |
 
-## What a Google Colab T4 could add next
+## 6. Colab T4 run (session 1 of 4): Qwen2.5-7B-Instruct, 900 questions
 
-Plans, not results. Nothing in this section has been run. A free T4 has 16 GB VRAM, supports fp16 only (no bf16),
-and sessions are time-limited and can be reclaimed, so every job needs checkpoints and a resumable output file.
+Run on a free-tier Colab T4 with `Qwen/Qwen2.5-7B-Instruct-AWQ` (4-bit AWQ, fp16 compute) served by vLLM 0.32.0, greedy
+decoding, with our own thin runner (`scripts/t4/grid.py`) and the upstream NaiveReason / SequentialReason call flow and prompt
+templates. Not the paper's setup: 4-bit weights, greedy decoding, our scorer (`scripts/score.py`), a slice over all 12 users
+(100 questions per hop for hops 2-10, seed 0, `results/t4/slices/s900.json`) instead of user 0. Absolute numbers are not
+comparable with the paper's tables. How to rerun: `scripts/t4/README.md`. All numbers below are in the quoted files.
 
-- Explicit-memory baselines with a real 7B: Qwen2.5-7B-Instruct as a 4-bit AWQ build served with vLLM, running
-  Ignoramus / Oracle / SparseRAG / DenseRAG with NR and SR on a 300-900 question slice (stratified by hop).
-- Top-k sweep and reasoning-step sweep (number of SR steps) on the same slice, to test the retrieval-mismatch story.
-- MR and DR reasoning, which were not run here.
-- Leak-free rescoring: score the slice again with the questions that restate gold numbers removed (the rule in
-  `scripts/leak_check.py`), to separate arithmetic on the question text from real memory use.
-- Small-model LoRA (0.5B-3B) on a 300-2000 fact slice with the SFT padding bug fixed (upstream pads every sample to
-  4,608 tokens; `docs/upstream-notes.md` item 4), in fp16.
-- HybridMem with few clusters (for example 5) and the adapter-name crash fixed (`docs/upstream-notes.md` item 5).
+| Item | Status | Evidence | Reason / notes |
+|---|---|---|---|
+| vLLM serving Qwen2.5-7B-Instruct-AWQ on a T4 | reproduced (our own setup) | `results/t4/timing_log.md`, `results/t4/throughput/throughput.jsonl` | Works with fp16, the Triton attention backend and the Marlin AWQ kernel, `--max-model-len 8192`. Restart with cached weights takes 84-121 s. |
+| Throughput on the T4 | measured | `results/t4/summary_throughput.md` | Cold-cache, real grid prompts (about 560 prompt tokens per call): 2.05-2.10 calls/s at 8, 32 and 64 concurrent requests, i.e. prefill-bound at about 1.15k prompt tokens/s; a single request decodes at 38 tokens/s; SR with 5 steps at 64 concurrent questions: 19.2 questions/min. A first throughput run that repeated prompts reported far higher numbers because of prefix caching and was discarded (`results/t4/timing_log.md`). |
+| Retrieval-only error bars, all 12 users, 32,399 questions | reproduced, with error bars | `results/t4/retrieval/recall.csv.gz`, `results/t4/summary_retrieval.md` | Recall@20 of gold facts over all users, mean (std of the 12 per-user means): BM25 0.488 (0.008), e5 0.498 (0.007). Hop 2: BM25 0.877, e5 0.997. Hop 10: BM25 0.340, e5 0.284. e5 ahead on hops 2-4, BM25 ahead from hop 5; the 95% bootstrap intervals (over questions) do not overlap at any single hop. All-gold@20 at hop 10: BM25 0.016, e5 0.005. Also has recall@10/30/50 for the later top-k sweep. Consistent with the user-0 probe in section 1. |
+| One-call grid NR: no memory / Oracle / BM25 / e5, 900 questions | reproduced (Qwen 7B AWQ) | `results/t4/s1/*.jsonl`, `results/t4/summary_s1.md` | EM [95% CI]: no memory 0.041 [0.029, 0.054], Oracle 0.257 [0.229, 0.286], BM25 0.114 [0.094, 0.136], e5 0.109 [0.089, 0.129]. Paired difference Oracle minus BM25: +0.142 [+0.113, +0.170]; e5 minus BM25: -0.006 [-0.027, +0.016] (no detectable difference); BM25 minus no memory: +0.073 [+0.053, +0.094]. Same ordering as the farm run and the scout (Oracle > RAG > no memory). By hop group (EM, n = 300 each): Oracle 0.383 / 0.223 / 0.163, BM25 0.200 / 0.063 / 0.080 for hops 2-4 / 5-7 / 8-10. Oracle is far lower than the farm model's 0.89 (n = 9, different model); the responses were inspected and are well-formed answers, the misses are wrong arithmetic or dates by the 4-bit 7B model. |
+| Leak-free rescoring | reproduced | `results/t4/summary_s1.md` (sections "Leak-free") | 479 of the 900 questions restate a number from their own gold statements (338 with the 3+ digit rule), flags stored in the slice file. On the 421 leak-free questions: no memory 0.014 (vs 0.065 on the leaking ones), Oracle 0.290, BM25 0.128, e5 0.121. So part of the no-memory score is arithmetic on the question text; the gap memory vs no memory is larger without the leaking questions (e5 minus no memory: +0.107 [+0.076, +0.140] leak-free vs +0.068 [+0.047, +0.090] on all). |
+| Wall time and tokens of the grid | measured | `results/t4/s1/timing.jsonl`, `results/t4/summary_s1.md` | 900 questions x 4 memories took 1,288 s of generation in total (no memory 166 s, Oracle 208 s, BM25 435 s, e5 480 s), 1.57M prompt tokens. |
+| SR (chain of thought) grid on 306 questions | plan, code smoke-tested | `scripts/t4/session2.sh`, `results/t4/smoke_seq/` | Smoke run only (6 questions, 5 calls each, all 4 memories) to check the code path; no result is claimed. Estimate: about 47 minutes of generation (`results/t4/estimates.md`). |
+| Top-k sweep (10/30/50) and step sweep (2/3/8) | plan, code smoke-tested | `scripts/t4/session3.sh`, `results/t4/smoke_s3/` | Smoke run only (4 questions each). Estimate: about 143 minutes in total, so the script is split into `topk` (about 59 min) and `steps` (about 84 min); no result is claimed. |
+| Small LoRA and HybridMem (5 clusters, crash fixed) | plan, code smoke-tested | `scripts/t4/sft.py`, `scripts/t4/session4.sh`, `results/t4/sft/sft_smoke/` | Smoke run only: 40 facts, 2 epochs, 5 adapters trained, reloaded under distinct names and evaluated in one process (the upstream crash does not occur). The smoke numbers (8 questions, 80 training pairs) mean nothing and are not quoted. Finding: Qwen2.5-0.5B cannot write the two-line self-ask format (almost no pairs passed the parser in the first smoke attempt), so `sft.py` has the 7B server write the pairs. |
+| MR and DR reasoning, TreeRAG, GraphRAG, 7B LoRA | not planned for the T4 here | none | Unchanged from sections 3-4. |
+
+Issues found on the way, all fixed in the scripts and listed in `scripts/t4/README.md` and `results/t4/timing_log.md`:
+importing vllm in the Colab kernel starves the server of GPU memory; bm25s pulls in jax which preallocates the GPU; Colab's
+torchao 0.10 is refused by peft 0.21; one e5 run failed on all questions (a bug in `grid.py`, rerun and fixed).
+
+## What a Google Colab T4 could still add
+
+Plans, not results (everything not in section 6 has not been run). A free T4 has 16 GB VRAM, fp16 only, and sessions can be
+cut, so all scripts write resumable output. Remaining sessions and their estimates: session 2 (SR grid, about 47 min),
+session 3 (top-k about 59 min, step sweep about 84 min, run separately), session 4 (LoRA / HybridMem on 0.5B, not yet timed).
+`results/t4/estimates.md` explains how the estimates were made.
 
 Not planned for a T4: TreeRAG and GraphRAG (the index build cost is in LLM calls, not GPU), and 7B LoRA with 50 adapters.

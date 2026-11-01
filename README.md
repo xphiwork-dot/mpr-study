@@ -9,11 +9,12 @@ not to match its tables.
 
 ## Start here
 
-1. Open `docs/index.html` (the study guide: paper in 60 seconds, glossary, 4 flow charts, quizzes, talk plan).
-2. Run `scripts/retrieval_recall.py`: why one question-only retrieval cannot find the facts of a long chain.
-3. Run `scripts/leak_check.py`: why long-hop accuracy partly measures arithmetic on the question text.
-4. Read `docs/reproduction-status.md` (what is reproduced) and skim `docs/upstream-notes.md`, then (optional) run the farm baselines with `scripts/farm_run.sh`.
-5. Read upstream, in `upstream/MPR/` after setup: `reasonings/SequentialReason.py`, `baselines/SparseRAG.py`,
+1. Read the paper (arXiv v1): `papers/2508.13250v1.pdf`.
+2. Open `docs/index.html` (the study guide: paper in 60 seconds, glossary, 4 flow charts, quizzes, talk plan).
+3. Run `scripts/retrieval_recall.py`: why one question-only retrieval cannot find the facts of a long chain.
+4. Run `scripts/leak_check.py`: why long-hop accuracy partly measures arithmetic on the question text.
+5. Read `docs/reproduction-status.md` (what is reproduced) and skim `docs/upstream-notes.md`, then (optional) run the farm baselines with `scripts/farm_run.sh`.
+6. Read upstream, in `upstream/MPR/` after setup: `reasonings/SequentialReason.py`, `baselines/SparseRAG.py`,
    `baselines/DenseRAG.py`, `baselines/BlockSFT.py` (HybridMem), `baselines/SelfAskSFT.py`, `prompts.py`, `utils.py`.
 
 ## Layout
@@ -31,9 +32,11 @@ scripts/
   make_subset.py          stratified question subset in upstream format
   farm_run.sh             run run_qa.py on the LLM Farm (credentials read at run time)
   common.py               dataset loading
+  t4/                     Colab T4 experiments: driver, 4 session scripts, vLLM runner, summaries (t4/README.md)
 results/                  committed evidence (the rest of results/ is gitignored)
   probes/                 retrieval_recall.md, leak_check.md: per-hop tables printed by the scripts
   farm/                   raw run_qa.py jsonl (NaiveReason/, SequentialReason/), summary.md, usage.md
+  t4/                     Colab T4 run: raw jsonl, retrieval error bars, throughput, timing log, summary_*.md
 docs/
   reproduction-status.md  what is and is not reproduced, with evidence and reasons
   index.html              study guide (diagrams/ holds its 4 iframe charts)
@@ -64,15 +67,24 @@ The subset is 1 question per hop (9 questions) on user 0 with the user's full 13
 `python scripts/make_subset.py --per-hop 5` plus `MPR_DATA_TITLE=user0_5perhop` gives the 45-question
 set of the original scout (about 650k tokens).
 
+## Running on a Colab T4
+
+A free-tier T4 serves Qwen2.5-7B-Instruct (4-bit AWQ) with vLLM. Four re-runnable sessions, driven by the `colab` CLI:
+`scripts/t4/session1.sh` .. `session4.sh`. Commands, resumability notes and pitfalls: [`scripts/t4/README.md`](scripts/t4/README.md).
+Session 1 (throughput, 12-user retrieval error bars, one-call grid on 900 questions, leak-free rescoring) has been run;
+results are in `results/t4/` and summarised in [`docs/reproduction-status.md`](docs/reproduction-status.md) section 6.
+Sessions 2-4 are scripted and smoke-tested only. Always finish with `scripts/t4/t4.sh down`.
+
 ## What is reproduced, and what is not
 
 Full tables (status, evidence file, reason for every gap) and a plan for what a Colab T4 could add:
 [`docs/reproduction-status.md`](docs/reproduction-status.md). In short:
 
-- Reproduced: BM25 and e5 retrieval recall per hop, the leakage check, a scorer, and a 9-question farm run
-  (NR with Ignoramus / Oracle / SparseRAG / DenseRAG, SR with Ignoramus / Oracle / SparseRAG).
-- Not reproduced: SR with DenseRAG, the 45-question grid, implicit memory (LoRA at 7B and the 0.5B probe), HybridMem,
-  MaskSFT, TreeRAG, GraphRAG, MR and DR reasoning, and any Qwen2.5-7B number from the paper.
+- Reproduced: BM25 and e5 retrieval recall per hop (user 0, and with error bars over all 12 users), the leakage check, a scorer,
+  a 9-question farm run, and on a Colab T4 the one-call grid (NR with no memory / Oracle / BM25 / e5) on 900 questions with
+  Qwen2.5-7B-Instruct AWQ, with leak-free rescoring.
+- Not reproduced: chain-of-thought and top-k / step sweeps at 7B (scripted, not run), implicit memory (LoRA, HybridMem: scripted,
+  smoke-tested only), MaskSFT, TreeRAG, GraphRAG, MR and DR reasoning, and any paper number (different model setup).
 
 The farm run is tiny (n = 9, one question is 0.11): only the large gaps mean anything.
 
