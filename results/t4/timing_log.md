@@ -115,3 +115,36 @@ Timestamps are UTC; appended by scripts/t4/t4.sh.
 - All four jobs ended rc=0 with 306 questions each (1,530 calls each, no failed calls); nothing needed a rerun.
 - Wall clock from VM creation (11:30Z) to the last pull (12:41:32Z): 71 minutes. `session2.sh` does not call `t4.sh down`; the
   session was no longer listed when checked afterwards and `colab stop -s mpr-t4-s2` answered "not found", so none is left running.
+
+## Session 3 (top-k sweep 3a, then step sweep 3b)
+
+Driver lines appended by scripts/t4/t4.sh (session `mpr-t4-s3`; set with `T4_SESSION`).
+
+- 2026-11-01T16:10:46Z session mpr-t4-s3 created (T4)
+- 2026-11-01T16:13:31Z session mpr-t4-s3 already exists, reusing
+- 2026-11-01T16:14:00Z job retrieve start: retrieve.py 
+- 2026-11-01T16:17:21Z job retrieve finished rc=0 wall=201 s
+- 2026-11-01T16:17:29Z pulled results from mpr-t4-s3
+- 2026-11-01T16:21:38Z vLLM healthy after 244 s of waiting
+- 2026-11-01T16:21:38Z job grid3_k10 start: grid.py --slice results/slices/s900.json --reason naive --memories sparse,dense --topk 10 --tag s3_topk
+- 2026-11-01T16:32:48Z job grid3_k10 finished rc=0 wall=670 s
+- 2026-11-01T16:32:56Z pulled results from mpr-t4-s3
+- 2026-11-01T16:32:56Z job grid3_k30 start: grid.py --slice results/slices/s900.json --reason naive --memories sparse,dense --topk 30 --tag s3_topk
+- 2026-11-01T16:54:49Z job grid3_k30 finished rc=0 wall=1313 s
+- 2026-11-01T16:54:57Z pulled results from mpr-t4-s3
+- 2026-11-01T16:54:57Z job grid3_k50 start: grid.py --slice results/slices/s900.json --reason naive --memories sparse,dense --topk 50 --tag s3_topk
+- 2026-11-01T17:30:06Z job grid3_k50 finished rc=0 wall=2109 s
+- 2026-11-01T17:30:15Z pulled results from mpr-t4-s3
+- 2026-11-01T17:31:01Z pulled results from mpr-t4-s3
+- 2026-11-01T17:31:05Z session mpr-t4-s3 stopped
+
+### Session 3a notes (written by hand after the run; the driver lines above are untouched)
+
+- Session `mpr-t4-s3` was created by the driver at 16:10:46Z, T4 granted on the first try. As in session 2, the first `up` call ended with a
+  `TimeoutError` from the colab client (about 2.5 minutes after creation, during the unpack/install step); rerunning `session3.sh topk` (16:13:31Z,
+  "already exists, reusing") passed `up` and everything after it. No other failure; vLLM was already importable on the VM. Retrieval re-ran (201 s) because
+  the resume tarball is not committed (output identical in purpose to session 2). vLLM took 244 s to become healthy (weights download).
+- Generation per run file (`s3_topk/timing.jsonl`, 900 questions, 900 calls each, no failed calls): k = 10: BM25 309 s, e5 332 s; k = 30: BM25 614 s, e5 664 s;
+  k = 50: BM25 979 s, e5 1,079 s; sum 3,977 s = 66.3 minutes (estimate 58.8 minutes, `estimates.md`; real was 13% slower). Job walls: 670 s, 1,313 s, 2,109 s.
+  Prompt rate in the job logs about 1,050-1,060 tokens/s (the estimate assumed 1,120-1,200).
+- Wall clock from VM creation (16:10:46Z) to the stop (17:31:05Z): 80 minutes. The VM was stopped with `t4.sh down`; `colab sessions` then listed none.
