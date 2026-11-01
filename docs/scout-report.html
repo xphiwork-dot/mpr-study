@@ -206,7 +206,7 @@ Code: https://github.com/nuster1128/MPR (official). Scout date: 2026-10-25.</p>
 <h3 id="51-repo-facts">5.1 Repo facts</h3>
 <ul>
 <li>URL https://github.com/nuster1128/MPR. 3 commits (2025-07-12 "Initiate", 2025-08-24 "Update"). 2 stars, 0 forks, 0 issues. <strong>No LICENSE file</strong> (<code>gh api repos/nuster1128/MPR</code> → <code>"license": null</code>). That means no reuse rights beyond viewing; fine for a class demo, but don't redistribute modified code.</li>
-<li>About 1.6k lines of Python: <code>run_qa.py</code>, <code>config.py</code>, <code>utils.py</code>, <code>baselines/*</code> (11 methods), <code>reasonings/*</code> (4 structures), <code>prompts.py</code>.</li>
+<li>About 1.6k lines of Python: <code>run_qa.py</code>, <code>config.py</code>, <code>utils.py</code>, <code>baselines/*</code> (11 methods), <code>reasonings/*</code> (4 structures), <code>baselines/prompts.py</code>.</li>
 <li>Pinned deps: torch 2.6.0+cu118, transformers 4.49, peft 0.15.1, sentence-transformers 3.4.1, bm25s 0.2.9, openai 1.77. <code>scikit-learn</code> is used (<code>baselines/BlockSFT.py:9</code>) but <strong>missing from requirements.txt</strong>.</li>
 <li>Dataset: Google Drive zip (9.3 MB), 12 JSON files <code>{message: {id: text}, qa: {hop: {rc_id: {question, answer, message[gold ids], fold_tag}}}}</code>.</li>
 </ul>
@@ -756,7 +756,7 @@ uvx gdown 1a0Ya9buk1I0hsGoaRX8bW0QJjsKuN4FR -O mpr_dataset.zip                 #
 <ol>
 <li>Load one user (13k statements) and a 45-90 question subset, stratified by hop.</li>
 <li>Explicit memory: BM25 (bm25s) and e5 retrieval, k=20, ~40 lines.</li>
-<li>Reasoning: NR + SR (5 steps, re-retrieve with the last thought), using the paper's prompts (App. B / <code>prompts.py</code>), ~60 lines.</li>
+<li>Reasoning: NR + SR (5 steps, re-retrieve with the last thought), using the paper's prompts (App. B / <code>baselines/prompts.py</code>), ~60 lines.</li>
 <li>Score with EM; plot accuracy vs hop for Ignoramus/Oracle/Sparse/Dense; plot retrieval recall@k vs hop (no LLM, instant).</li>
 <li>"Critique" slide: the leakage table and the Ignoramus score; optionally a leak-free subset (drop questions that restate a gold number) and re-score.</li>
 <li>Optional implicit-memory slide: the 0.5B AskSFT/HybridMem probe from section 5.4B (15-30 min GPU on the laptop).</li>

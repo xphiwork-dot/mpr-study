@@ -47,7 +47,7 @@ the first retrieved ids, the thoughts and token counts.
 | Script / function | Label | Reference |
 |---|---|---|
 | `../_shared/grid.py: Runner.solve` (seq branch) | ADAPTED | upstream `reasonings/SequentialReason.py:7-29`: start thought (12-15), middle loop `range(1, max_step-1)` (18-24), final answer (26-29), the `'(Step %d) %s'` join (23, 28), retrieval keyed on the question for the start and on `previous_thoughts[-1]` afterwards (15, 24, 29). Prompt templates are upstream's `baselines/prompts.py:115-206` (`Sequential_{Start,Middle,Final}_{RAG,Ignoramus}_Prompt_Template`), loaded from the pinned clone at run time. Ours calls a vLLM endpoint with 200-token thoughts and a 64-token answer instead of upstream's `LLM.fast_run` (`utils.py:110-119`). Checked: with a stub memory, our prompts and retrieval keys equal upstream's for 2, 3, 5 and 8 steps. |
-| `../_shared/grid.py: Runner.refs` | ADAPTED | `baselines/BaseMethod.py:41-43` (`response`: retrieve then infer), `Oracle.py:15-17`, `SparseRAG.py:21-26`, `DenseRAG.py:32-39`, `Ignoramus.py:14-15`. |
+| `../_shared/grid.py: Runner.refs` | ADAPTED | `baselines/BaseMethod.py:41-43` (`response`: retrieve then infer), `baselines/Oracle.py:15-17`, `baselines/SparseRAG.py:21-26`, `baselines/DenseRAG.py:32-39`, `baselines/Ignoramus.py:14-15`. |
 | `../_shared/summarize.py: compare` | ORIGINAL TO THIS REPO | no upstream reference (upstream ships no analysis code); paired bootstrap SR minus NR is ours. |
 | `session2.sh`, `s2_t4_chain_of_thought.ipynb` | ORIGINAL TO THIS REPO | no upstream reference. |
 | other shared files | see [`../_shared/README.md`](../_shared/README.md) (d) | |
