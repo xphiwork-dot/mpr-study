@@ -6,5 +6,12 @@ upstream/
 results/*
 !results/farm/
 !results/probes/
+!results/t4/
 results/**/*.log
 __pycache__/
+# T4 runs: keep raw jsonl, summaries and slices; drop the resume tarball, VM logs, adapters and per-user partials
+results/t4/vm_results.tgz
+results/t4/logs/
+results/t4/sft/**/lora_*/
+results/t4/sft/**/cluster.pkl
+results/t4/retrieval/recall_user*
