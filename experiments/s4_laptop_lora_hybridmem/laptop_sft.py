@@ -20,7 +20,8 @@ import torch
 from peft import PeftModel
 from sklearn.cluster import KMeans
 
-sys.path.insert(0, str(Path(__file__).parent / 't4'))
+HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE.parent / '_shared'))  # lib.py, score.py; sft.py is in this folder
 import lib
 import sft
 from score import contains, em
@@ -135,4 +136,4 @@ for preset in ('strong', 'upstream'):
         lines.append(f"- {preset}, {mode} adapter(s): " + ', '.join(f'{k}={v}' for k, v in timing.items()))
 (OUT / 'summary.md').write_text('\n'.join(lines) + '\n')
 (OUT / 'timing.json').write_text(json.dumps(times, indent=2))
-runpy.run_path('scripts/laptop_sft_compare.py')
+runpy.run_path(str(HERE / 'laptop_sft_compare.py'))

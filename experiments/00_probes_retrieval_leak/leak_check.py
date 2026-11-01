@@ -9,12 +9,15 @@ leaking questions per hop count, for any number and for numbers with 3+ digits
 
 Runs over all 12 users (32,400 questions) by default. Stdlib only.
 
-Usage: python scripts/leak_check.py [--users 0 1 2 ...]
+Usage: python experiments/00_probes_retrieval_leak/leak_check.py [--users 0 1 2 ...]
 """
 import argparse
+import os
 import re
+import sys
 from collections import defaultdict
 
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "_shared"))  # common.py, lib.py, score.py
 from common import DEFAULT_DATA_DIR, hops, load_user
 
 NUM = re.compile(r"\d+(?:\.\d+)?")

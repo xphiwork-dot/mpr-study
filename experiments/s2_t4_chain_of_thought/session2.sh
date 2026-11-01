@@ -5,12 +5,12 @@
 # Order is cheapest memory first so a cut session loses the least; rerun to continue.
 set -uo pipefail
 cd "$(dirname "$0")/../.."
-T=scripts/t4/t4.sh
+T=experiments/_shared/t4.sh
 $T up || exit 1
 $T job retrieve retrieve.py || exit 1   # no-op when the embeddings are restored; needed before vLLM starts
 $T serve || exit 1
 for mem in ignoramus oracle sparse dense; do
   $T job "grid2_$mem" grid.py --slice results/slices/s306.json --reason seq --max-step 5 --memories $mem --topk 20 --tag s2 --workers 48 || exit 1
 done
-python3 scripts/t4/summarize.py grid --tag s2 --slice results/t4/slices/s306.json >/dev/null
+python3 experiments/_shared/summarize.py grid --tag s2 --slice results/t4/slices/s306.json >/dev/null
 echo "session 2 done; stop the VM with: $T down"

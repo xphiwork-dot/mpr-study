@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# Run upstream run_qa.py on the LLM Farm. Usage: scripts/farm_run.sh <Naive|Sequential> <Oracle|Ignoramus|SparseRAG|DenseRAG>
+# Run upstream run_qa.py on the LLM Farm. Usage: experiments/01_farm_small_run/farm_run.sh <Naive|Sequential> <Oracle|Ignoramus|SparseRAG|DenseRAG>
 # Credentials: taken from the environment, else from .env, else from $FARM_ENV_FILE.
 # Only the three variable names below are read, at run time; values are never written anywhere.
 set -euo pipefail
-cd "$(dirname "$0")/.."
+cd "$(dirname "$0")/../.."   # repo root
 [ $# -eq 2 ] || { echo "usage: $0 <Naive|Sequential> <Oracle|Ignoramus|SparseRAG|DenseRAG>" >&2; exit 2; }
 
 load_vars() {  # $1 = file

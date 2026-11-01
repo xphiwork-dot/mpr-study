@@ -7,7 +7,7 @@
 # Raw outputs land in results/t4/sft/<tag>/c<clusters>_<preset>/ (eval.jsonl, summary.json).
 set -uo pipefail
 cd "$(dirname "$0")/../.."
-T=scripts/t4/t4.sh
+T=experiments/_shared/t4.sh
 MODEL="${MODEL:-Qwen/Qwen2.5-0.5B-Instruct}"
 $T up || exit 1
 $T serve || exit 1

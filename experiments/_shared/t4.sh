@@ -5,12 +5,14 @@
 #   t4.sh up                      create the T4 session (retries), upload code + dataset + earlier results, install vLLM
 #   t4.sh serve                   start the vLLM server on the VM (Qwen2.5-7B-Instruct-AWQ, fp16) and wait until healthy
 #   t4.sh unserve                 stop the vLLM server (frees the GPU for retrieval / LoRA)
-#   t4.sh job NAME SCRIPT [ARGS]  run scripts/t4/SCRIPT ARGS on the VM in the background, poll, then pull results
+#   t4.sh job NAME SCRIPT [ARGS]  run SCRIPT ARGS on the VM in the background, poll, then pull results (SCRIPT is a bare file
+#                                 name such as grid.py; `up` ships every experiment script flat into /content/t4/scripts/t4/)
 #   t4.sh pull                    download results/t4 from the VM into the repo
 #   t4.sh status                  session, server and job state
 #   t4.sh down                    pull, then stop the session (always do this when finished)
 #
-# Env: T4_SESSION (default mpr-t4). Paths on the VM: /content/t4/{scripts,upstream,data,cache,results,logs}.
+# Env: T4_SESSION (default mpr-t4). Paths on the VM: /content/t4/{scripts/t4,upstream,data,cache,results,logs}.
+# Lives in experiments/_shared/; the repo root is two levels up.
 set -uo pipefail
 cd "$(dirname "$0")/../.."
 S="${T4_SESSION:-mpr-t4}"
@@ -24,7 +26,7 @@ vm() { colab exec -s "$S" 2>&1; }          # python on stdin
 
 cmd_up() {
   mkdir -p results/t4 data
-  [ -f "$LOG" ] || printf '# Colab T4 timing log\n\nTimestamps are UTC; appended by scripts/t4/t4.sh.\n\n' > "$LOG"
+  [ -f "$LOG" ] || printf '# Colab T4 timing log\n\nTimestamps are UTC; appended by experiments/_shared/t4.sh.\n\n' > "$LOG"
   if colab sessions 2>&1 | grep -q "$S"; then
     note "session $S already exists, reusing"
   else
@@ -40,7 +42,12 @@ cmd_up() {
 import os; os.makedirs('/content/t4/logs', exist_ok=True); print('dirs ok')
 PY
   # code, dataset zip, earlier results (so a fresh VM resumes where the last one stopped)
-  tar czf /tmp/t4_code.tgz --transform 's,^results/t4/,results/,' scripts/t4 scripts/score.py scripts/leak_check.py scripts/common.py results/t4/slices
+  # The VM keeps the original flat layout scripts/t4/<name>.py, so scripts import each other by bare name there.
+  local stage=/tmp/t4_stage
+  rm -rf "$stage"; mkdir -p "$stage/scripts/t4" "$stage/results"
+  cp experiments/_shared/*.py experiments/s*/*.py experiments/00_probes_retrieval_leak/leak_check.py "$stage/scripts/t4/"
+  cp -r results/t4/slices "$stage/results/slices"
+  tar czf /tmp/t4_code.tgz -C "$stage" scripts results
   colab upload -s "$S" /tmp/t4_code.tgz /content/t4_code.tgz
   [ -f data/mpr_dataset.zip ] && colab upload -s "$S" data/mpr_dataset.zip /content/t4_dataset.zip
   if [ -f results/t4/vm_results.tgz ]; then colab upload -s "$S" results/t4/vm_results.tgz /content/t4_prev.tgz; fi

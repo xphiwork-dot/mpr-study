@@ -17,7 +17,7 @@ import threading
 import time
 from types import SimpleNamespace
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "_shared"))  # lib.py, grid.py, score.py (flat next to this file on the Colab VM)
 import grid  # noqa: E402
 import lib  # noqa: E402
 

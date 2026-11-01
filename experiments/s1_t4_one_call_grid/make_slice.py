@@ -4,9 +4,9 @@ For every hop (2-10) all valid questions of all users are shuffled once with Ran
 and the first N are kept. Slices are nested: the --per-hop 34 slice (306 questions, used for
 chain-of-thought runs) is a subset of the --per-hop 100 slice (900 questions), so paired
 comparisons across sessions use the same questions. Each entry also carries the leakage flags
-from scripts/leak_check.py (the question restates a number from its own gold statements).
+from experiments/00_probes_retrieval_leak/leak_check.py (the question restates a number from its own gold statements).
 
-Usage: python scripts/t4/make_slice.py --per-hop 100 --out results/t4/slices/s900.json
+Usage: python experiments/s1_t4_one_call_grid/make_slice.py --per-hop 100 --out results/t4/slices/s900.json
 """
 import argparse
 import json
@@ -15,10 +15,11 @@ import random
 import sys
 from collections import Counter
 
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
+HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.join(HERE, "..", "00_probes_retrieval_leak"))
 from leak_check import numbers  # noqa: E402  (the rule is defined there)
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(HERE, "..", "_shared"))  # lib.py, grid.py, score.py (flat next to this file on the Colab VM)
 import lib  # noqa: E402
 
 

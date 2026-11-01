@@ -17,8 +17,6 @@ import threading
 import time
 import urllib.request
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, os.path.join(HERE, ".."))  # scripts/ for score.py / leak_check.py
 
 # Locations. On the VM everything lives under /content/t4; locally under the repo.
 ROOT = os.environ.get("T4_ROOT", "/content/t4")

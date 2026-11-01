@@ -15,7 +15,8 @@ from pathlib import Path
 
 from openai import AzureOpenAI
 
-sys.path.insert(0, str(Path(__file__).parent / 't4'))
+HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE.parent / '_shared'))  # lib.py, score.py; sft.py is in this folder
 import lib
 import sft
 

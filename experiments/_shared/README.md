@@ -1,4 +1,8 @@
-# Running on a Colab T4
+# Running on a Colab T4 (shared driver and helpers)
+
+This folder holds the pieces every T4 session uses: `t4.sh` (the `colab` CLI driver), `lib.py`, `grid.py`, `summarize.py`,
+`score.py`, `common.py`, `estimate.py`. Each session has its own folder with a README, its driver script and a Colab notebook:
+`experiments/s1_t4_one_call_grid/`, `s2_t4_chain_of_thought/`, `s3a_t4_topk_sweep/`, `s3b_t4_step_sweep_not_run/`.
 
 Experiments for a free-tier Colab T4 (16 GB, fp16 only, 12 GB RAM, 2 vCPU, sessions can be cut at any time).
 Everything is driven from your machine with the `colab` CLI (google-colab-cli, already authorised; the scripts never
@@ -18,21 +22,22 @@ Each session script is re-runnable; finished work is skipped, so run it again af
 
 | Script | Content |
 |---|---|
-| `scripts/t4/session1.sh` | VM + vLLM setup, throughput test, retrieval-only error bars (12 users), one-call grid on 900 questions (no memory, Oracle, BM25, e5) |
-| `scripts/t4/session2.sh` | chain-of-thought (SequentialReason, 5 steps) grid on the 306-question slice, four memory types |
-| `scripts/t4/session3.sh topk` / `steps` | top-k sweep (10/30/50); reasoning-step sweep (2/3/8); two halves because the estimate (`results/t4/estimates.md`) exceeds one session |
-| `scripts/t4/session4.sh` | small-model LoRA and HybridMem (5 clusters), no vLLM |
+| `experiments/s1_t4_one_call_grid/session1.sh` | VM + vLLM setup, throughput test, retrieval-only error bars (12 users), one-call grid on 900 questions (no memory, Oracle, BM25, e5) |
+| `experiments/s2_t4_chain_of_thought/session2.sh` | chain-of-thought (SequentialReason, 5 steps) grid on the 306-question slice, four memory types |
+| `experiments/s3a_t4_topk_sweep/session3a.sh` | top-k sweep (10/30/50), NaiveReason, BM25 and e5, 900 questions; run |
+| `experiments/s3b_t4_step_sweep_not_run/session3b.sh` | reasoning-step sweep (2/3/8); NOT run (no T4 available); the estimate (`results/t4/estimates.md`) exceeds one session together with 3a, hence two scripts |
+| `experiments/s4_laptop_lora_hybridmem/session4.sh` | small-model LoRA and HybridMem (5 clusters) on a T4, no vLLM during training; only the smoke test ran on a T4, the real run was done on the laptop |
 
 Measured durations and which sessions have been run: `results/t4/timing_log.md` and `docs/reproduction-status.md`.
 
 ```bash
-scripts/t4/session1.sh                  # needs: colab CLI, data/mpr_dataset.zip, python3
-scripts/t4/t4.sh down                   # ALWAYS: pulls results, stops the VM (idle VMs burn quota)
+experiments/s1_t4_one_call_grid/session1.sh   # needs: colab CLI, data/mpr_dataset.zip, python3
+experiments/_shared/t4.sh down              # ALWAYS: pulls results, stops the VM (idle VMs burn quota)
 colab sessions                          # must list nothing of yours
-python3 scripts/t4/summarize.py grid --tag s1 --slice results/t4/slices/s900.json
+python3 experiments/_shared/summarize.py grid --tag s1 --slice results/t4/slices/s900.json
 ```
 
-## The exact `colab` commands the driver issues (`scripts/t4/t4.sh`)
+## The exact `colab` commands the driver issues (`experiments/_shared/t4.sh`)
 
 ```bash
 colab new -s mpr-t4 --gpu T4                          # up (4 attempts, growing sleep, then it reports and stops)
@@ -44,6 +49,10 @@ colab exec  -s mpr-t4                                 # start `vllm serve` / sta
 colab download -s mpr-t4 /content/vm_results.tgz results/t4/vm_results.tgz   # after every job
 colab stop -s mpr-t4                                  # down
 ```
+
+In the repo the scripts live in `experiments/_shared/` and the per-session folders and import each other through a relative
+`../_shared` path; `up` copies them flat into `/content/t4/scripts/t4/` on the VM (so `t4.sh job NAME grid.py ...` takes a bare file name),
+and the slice files to `/content/t4/results/slices/`.
 
 Jobs run as background processes on the VM (`/content/t4/logs/<name>.log`, `<name>.exit`), so a dropped local
 connection does not kill them; `t4.sh job` polls once a minute.

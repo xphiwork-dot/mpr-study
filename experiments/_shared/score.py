@@ -7,7 +7,7 @@ ground_truth, fold_tag. This script reports, per file, overall and per hop group
   contains lenient: normalised gold appears in the normalised response as a whole
            word sequence (forgives "800 millimeters" vs "800 (millimeters)")
 
-Usage: python scripts/score.py upstream/MPR/results/*/*.jsonl
+Usage: python experiments/_shared/score.py upstream/MPR/results/*/*.jsonl
 Stdlib only.
 """
 import argparse
