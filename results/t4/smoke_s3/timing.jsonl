@@ -1,0 +1,4 @@
+{"file": "SequentialReason_SparseRAG_k50_s2", "questions": 4, "calls": 8, "prompt_tokens": 8549, "completion_tokens": 255, "wall_s": 15.2, "workers": 48}
+{"file": "SequentialReason_DenseRAG_k50_s2", "questions": 4, "calls": 8, "prompt_tokens": 8964, "completion_tokens": 379, "wall_s": 29.7, "workers": 48}
+{"file": "NaiveReason_SparseRAG_k10", "questions": 4, "calls": 4, "prompt_tokens": 1612, "completion_tokens": 29, "wall_s": 4.0, "workers": 48}
+{"file": "NaiveReason_DenseRAG_k10", "questions": 4, "calls": 4, "prompt_tokens": 1522, "completion_tokens": 29, "wall_s": 14.3, "workers": 48}
