@@ -1,0 +1,9 @@
+{"k_hop": "2", "rc_id": "RC000197#02", "response": "5 (amperes)", "ground_truth": "5 (Amperes)", "fold_tag": 1}
+{"k_hop": "3", "rc_id": "RC000215#03", "response": "2023-10-15", "ground_truth": "2023-10-15", "fold_tag": 0}
+{"k_hop": "4", "rc_id": "RC000020#04", "response": "Cannot be determined", "ground_truth": "124 (days)", "fold_tag": 0}
+{"k_hop": "5", "rc_id": "RC000132#05", "response": "2023-07-22", "ground_truth": "2023-07-22", "fold_tag": 2}
+{"k_hop": "6", "rc_id": "RC000261#06", "response": "320 pages", "ground_truth": "320", "fold_tag": 1}
+{"k_hop": "7", "rc_id": "RC000248#07", "response": "5000", "ground_truth": "5000", "fold_tag": 0}
+{"k_hop": "8", "rc_id": "RC000207#08", "response": "128 (GB)", "ground_truth": "128 (GB)", "fold_tag": 0}
+{"k_hop": "9", "rc_id": "RC000155#09", "response": "2023-01-15", "ground_truth": "2023-01-15", "fold_tag": 0}
+{"k_hop": "10", "rc_id": "RC000244#10", "response": "45", "ground_truth": "45", "fold_tag": 1}
