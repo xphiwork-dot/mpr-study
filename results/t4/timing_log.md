@@ -1,6 +1,6 @@
 # Colab T4 timing log
 
-Timestamps are UTC; appended by scripts/t4/t4.sh.
+Timestamps are UTC; appended by experiments/_shared/t4.sh.
 
 - 2026-11-01T08:49:02Z session mpr-t4 already exists, reusing
 - 2026-11-01T08:49:44Z job thr start: throughput.py --slice results/slices/s900.json --seconds 90
@@ -118,7 +118,7 @@ Timestamps are UTC; appended by scripts/t4/t4.sh.
 
 ## Session 3 (top-k sweep 3a, then step sweep 3b)
 
-Driver lines appended by scripts/t4/t4.sh (session `mpr-t4-s3`; set with `T4_SESSION`).
+Driver lines appended by experiments/_shared/t4.sh (session `mpr-t4-s3`; set with `T4_SESSION`).
 
 - 2026-11-01T16:10:46Z session mpr-t4-s3 created (T4)
 - 2026-11-01T16:13:31Z session mpr-t4-s3 already exists, reusing
@@ -141,7 +141,7 @@ Driver lines appended by scripts/t4/t4.sh (session `mpr-t4-s3`; set with `T4_SES
 ### Session 3a notes (written by hand after the run; the driver lines above are untouched)
 
 - Session `mpr-t4-s3` was created by the driver at 16:10:46Z, T4 granted on the first try. As in session 2, the first `up` call ended with a
-  `TimeoutError` from the colab client (about 2.5 minutes after creation, during the unpack/install step); rerunning `session3.sh topk` (16:13:31Z,
+  `TimeoutError` from the colab client (about 2.5 minutes after creation, during the unpack/install step); rerunning `session3a.sh` (16:13:31Z,
   "already exists, reusing") passed `up` and everything after it. No other failure; vLLM was already importable on the VM. Retrieval re-ran (201 s) because
   the resume tarball is not committed (output identical in purpose to session 2). vLLM took 244 s to become healthy (weights download).
 - Generation per run file (`s3_topk/timing.jsonl`, 900 questions, 900 calls each, no failed calls): k = 10: BM25 309 s, e5 332 s; k = 30: BM25 614 s, e5 664 s;
@@ -167,7 +167,7 @@ Driver lines appended by scripts/t4/t4.sh (session `mpr-t4-s3`; set with `T4_SES
 
 ### Session 3b notes (written by hand; the driver lines above are untouched)
 
-- 3b (reasoning-step sweep, `session3.sh steps`, session name `mpr-t4-s3b`) was NOT run. Every `colab new -s mpr-t4-s3b --gpu T4` call was answered with
+- 3b (reasoning-step sweep, `session3b.sh`, session name `mpr-t4-s3b`) was NOT run. Every `colab new -s mpr-t4-s3b --gpu T4` call was answered with
   `ColabRequestError ... Service Unavailable` (HTTP 503 from the Colab runtime-assign endpoint): 16 attempts in 4 rounds of the driver's 4-attempt retry loop,
   17:33:57Z to 18:48:12Z (about 75 minutes), with growing sleeps inside a round and 10-minute pauses between rounds. The same account had been granted a T4
   on the first try at 16:10Z for 3a, which was stopped at 17:31Z. No session was created, so none needed stopping; `colab sessions` lists none. Not a

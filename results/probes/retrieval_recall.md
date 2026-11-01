@@ -1,6 +1,6 @@
 # Retrieval recall probe (user 0)
 
-Output of `scripts/retrieval_recall.py` (defaults: user 0, k = 20, e5-base-v2 without prefixes as upstream does), re-run on 2026-11-01 for this commit. BM25 uses bm25s with English stopwords. rec = mean fraction of a question's gold statements found in the top 20; all = share of questions whose gold statements were all found in one retrieval; gold = mean number of unique gold statements. Timings are from a run with a CUDA GPU.
+Output of `experiments/00_probes_retrieval_leak/retrieval_recall.py` (defaults: user 0, k = 20, e5-base-v2 without prefixes as upstream does), re-run on 2026-11-01 for this commit. BM25 uses bm25s with English stopwords. rec = mean fraction of a question's gold statements found in the top 20; all = share of questions whose gold statements were all found in one retrieval; gold = mean number of unique gold statements. Timings are from a run with a CUDA GPU.
 
 ```
 user 0: 13100 statements, 2700 questions, top-20
@@ -19,4 +19,4 @@ e5 done in 37.7s
           10 |          300 |         6.54 |        0.351 |        0.257 |        0.003 |        0.000
 ```
 
-Command: `REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt .venv/bin/python scripts/retrieval_recall.py`
+Command: `REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt .venv/bin/python experiments/00_probes_retrieval_leak/retrieval_recall.py`
