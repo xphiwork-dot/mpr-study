@@ -42,7 +42,7 @@ upstream/  data/  results/   gitignored: fetched clone, dataset, run outputs
 
 ```bash
 ./setup.sh                                  # needs uv and git; TORCH_INDEX=<url> for a GPU wheel
-.venv/bin/python scripts/retrieval_recall.py        # BM25 ~3 s; e5 ~3 min incl. the first model download
+.venv/bin/python scripts/retrieval_recall.py        # BM25 ~3 s; e5 ~1 min on a GPU after the first model download (~3 min including it)
 .venv/bin/python scripts/leak_check.py --show-example
 # optional, spends farm tokens (about 95k for the grid below): needs LLM_FARM_ENDPOINT, LLM_FARM_KEY, SMALL_MODEL_NAME
 cp env.example .env   # fill in, or: export FARM_ENV_FILE=/path/to/a/file/that/defines them
@@ -73,7 +73,7 @@ within about 0.02; hops 2-4 come out higher here (0.13, 0.07, 0.27 vs 0.08, 0.03
 rule was not recorded, so this script uses a plain `\d+(\.\d+)?` match; this is a rule difference, not a data difference.
 
 Small LLM re-run on the farm (user 0, 9 questions = 1 per hop 2-10, k=20, model from `SMALL_MODEL_NAME`, reasoning effort low;
-about 94k farm tokens in total). EM / lenient contains:
+about 95k farm tokens in total). EM / lenient contains:
 
 | Reasoning | Ignoramus | Oracle | SparseRAG | DenseRAG |
 |---|---|---|---|---|
