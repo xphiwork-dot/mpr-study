@@ -3,5 +3,8 @@
 !env.example
 data/
 upstream/
-results/
+results/*
+!results/farm/
+!results/probes/
+results/**/*.log
 __pycache__/
