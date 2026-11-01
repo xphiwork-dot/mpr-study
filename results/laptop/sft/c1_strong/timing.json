@@ -1,0 +1,8 @@
+{
+  "training_seconds": 241.08,
+  "load_seconds": 2.23,
+  "base_closed_seconds": 47.43,
+  "adapter_closed_seconds": 20.69,
+  "base_retrieval_seconds": 12.78,
+  "adapter_retrieval_seconds": 17.0
+}

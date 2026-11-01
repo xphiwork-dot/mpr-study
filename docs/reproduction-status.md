@@ -38,8 +38,8 @@ The farm patch (`patches/farm.patch`) adds an Azure OpenAI client for the Bosch 
 | Item | Status | Evidence | Reason / notes |
 |---|---|---|---|
 | Implicit memory, LoRA SFT at 7B (50 adapters) | not reproduced | none | Does not fit a 6 GB laptop GPU (scout report, summary and section 5.4B). |
-| Implicit memory, 0.5B probe (Qwen2.5-0.5B, AskSFT) | not reproduced here | scout report section 5.4B (original run only) | The scout ran it once: LoRA recalls at most 11% of trained facts, SFT+RAG no better than RAG. Its scripts and adapters were not rebuilt in this repo, so no committed result files exist. |
-| HybridMem (BlockSFT: k-means clusters, one LoRA per cluster) | not reproduced | none | Upstream crashes when it trains and evaluates in one run (`ValueError: Adapter 1 not found`, `BlockSFT.py:209`; `docs/upstream-notes.md` item 5). The scout worked around it only at 5 clusters on 0.5B. Not run here. |
+| Implicit memory, 0.5B probe (Qwen2.5-0.5B, AskSFT) | partially reproduced | `results/laptop/sft/summary.md` | Laptop run on 300 facts with farm-generated pairs; strong single-LoRA closed-book contains recall was 6/60 seen and 7/60 paraphrased, versus 0/60 and 1/60 for the base model. Small, non-independent probe; not the paper's 7B setup. |
+| HybridMem (BlockSFT: k-means clusters, one LoRA per cluster) | partially reproduced | `results/laptop/sft/summary.md`, `scripts/laptop_sft.py` | Five fact clusters, distinct adapters reloaded after training and selected by a vote over e5-retrieved facts. With retrieval, HybridMem scored 38/60 seen and 36/60 paraphrased at the strong rate, versus plain retrieval 41/60 and 43/60; neither rate beat single LoRA with retrieval on this slice. This is not evidence of a general ordering. |
 | MaskSFT | not reproduced | none | Not run (needs LoRA training). |
 
 ## 4. Other explicit-memory methods and reasoning styles
@@ -74,7 +74,7 @@ comparable with the paper's tables. How to rerun: `scripts/t4/README.md`. All nu
 | Wall time and tokens of the grid | measured | `results/t4/s1/timing.jsonl`, `results/t4/summary_s1.md` | 900 questions x 4 memories took 1,288 s of generation in total (no memory 166 s, Oracle 208 s, BM25 435 s, e5 480 s), 1.57M prompt tokens. |
 | SR (chain of thought) grid on 306 questions | plan, code smoke-tested | `scripts/t4/session2.sh`, `results/t4/smoke_seq/` | Smoke run only (6 questions, 5 calls each, all 4 memories) to check the code path; no result is claimed. Estimate: about 47 minutes of generation (`results/t4/estimates.md`). |
 | Top-k sweep (10/30/50) and step sweep (2/3/8) | plan, code smoke-tested | `scripts/t4/session3.sh`, `results/t4/smoke_s3/` | Smoke run only (4 questions each). Estimate: about 143 minutes in total, so the script is split into `topk` (about 59 min) and `steps` (about 84 min); no result is claimed. |
-| Small LoRA and HybridMem (5 clusters, crash fixed) | plan, code smoke-tested | `scripts/t4/sft.py`, `scripts/t4/session4.sh`, `results/t4/sft/sft_smoke/` | Smoke run only: 40 facts, 2 epochs, 5 adapters trained, reloaded under distinct names and evaluated in one process (the upstream crash does not occur). The smoke numbers (8 questions, 80 training pairs) mean nothing and are not quoted. Finding: Qwen2.5-0.5B cannot write the two-line self-ask format (almost no pairs passed the parser in the first smoke attempt), so `sft.py` has the 7B server write the pairs. |
+| Small LoRA and HybridMem (5 clusters, crash fixed) | partially reproduced on laptop | `results/laptop/sft/summary.md`, `results/laptop/sft/farm_usage.json`, `scripts/laptop_farm_pairs.py`, `scripts/laptop_sft.py` | RTX A3000 laptop, fp16 Qwen2.5-0.5B, 300 facts and 600 farm-generated AskSFT pairs; both learning-rate presets trained and evaluated on 60 seen and 60 farm-paraphrased questions. Dynamic contiguous padding fixes the upstream SFT padding bug. The five adapters were trained then loaded by distinct names in one process. Farm use: 89,200 tokens; per-step timings and all condition counts are in the summary. The 1.5B model was not tried because of runtime and memory constraints, not a measured failure. |
 | MR and DR reasoning, TreeRAG, GraphRAG, 7B LoRA | not planned for the T4 here | none | Unchanged from sections 3-4. |
 
 Issues found on the way, all fixed in the scripts and listed in `scripts/t4/README.md` and `results/t4/timing_log.md`:
@@ -83,9 +83,9 @@ torchao 0.10 is refused by peft 0.21; one e5 run failed on all questions (a bug 
 
 ## What a Google Colab T4 could still add
 
-Plans, not results (everything not in section 6 has not been run). A free T4 has 16 GB VRAM, fp16 only, and sessions can be
+Plans, not results for the remaining T4 sessions. A free T4 has 16 GB VRAM, fp16 only, and sessions can be
 cut, so all scripts write resumable output. Remaining sessions and their estimates: session 2 (SR grid, about 47 min),
-session 3 (top-k about 59 min, step sweep about 84 min, run separately), session 4 (LoRA / HybridMem on 0.5B, not yet timed).
+session 3 (top-k about 59 min, step sweep about 84 min, run separately). Session 4 ran on the laptop instead.
 `results/t4/estimates.md` explains how the estimates were made.
 
 Not planned for a T4: TreeRAG and GraphRAG (the index build cost is in LLM calls, not GPU), and 7B LoRA with 50 adapters.

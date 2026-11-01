@@ -7,6 +7,7 @@ results/*
 !results/farm/
 !results/probes/
 !results/t4/
+!results/laptop/
 results/**/*.log
 __pycache__/
 # T4 runs: keep raw jsonl, summaries and slices; drop the resume tarball, VM logs, adapters and per-user partials

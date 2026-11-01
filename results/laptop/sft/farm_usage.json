@@ -1,0 +1,8 @@
+{
+  "calls": 660,
+  "prompt_tokens": 66276,
+  "completion_tokens": 22924,
+  "wall_seconds": 311.86,
+  "pairs": 600,
+  "probe_facts": 60
+}

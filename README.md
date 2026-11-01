@@ -83,8 +83,10 @@ Full tables (status, evidence file, reason for every gap) and a plan for what a 
 - Reproduced: BM25 and e5 retrieval recall per hop (user 0, and with error bars over all 12 users), the leakage check, a scorer,
   a 9-question farm run, and on a Colab T4 the one-call grid (NR with no memory / Oracle / BM25 / e5) on 900 questions with
   Qwen2.5-7B-Instruct AWQ, with leak-free rescoring.
-- Not reproduced: chain-of-thought and top-k / step sweeps at 7B (scripted, not run), implicit memory (LoRA, HybridMem: scripted,
-  smoke-tested only), MaskSFT, TreeRAG, GraphRAG, MR and DR reasoning, and any paper number (different model setup).
+- Partially reproduced on the laptop: small-model LoRA and HybridMem, with farm-generated training pairs; see
+  `results/laptop/sft/summary.md`.
+- Not reproduced: chain-of-thought and top-k / step sweeps at 7B (scripted, not run), MaskSFT, TreeRAG, GraphRAG,
+  MR and DR reasoning, and any paper number (different model setup).
 
 The farm run is tiny (n = 9, one question is 0.11): only the large gaps mean anything.
 
