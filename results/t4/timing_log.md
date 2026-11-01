@@ -148,3 +148,28 @@ Driver lines appended by scripts/t4/t4.sh (session `mpr-t4-s3`; set with `T4_SES
   k = 50: BM25 979 s, e5 1,079 s; sum 3,977 s = 66.3 minutes (estimate 58.8 minutes, `estimates.md`; real was 13% slower). Job walls: 670 s, 1,313 s, 2,109 s.
   Prompt rate in the job logs about 1,050-1,060 tokens/s (the estimate assumed 1,120-1,200).
 - Wall clock from VM creation (16:10:46Z) to the stop (17:31:05Z): 80 minutes. The VM was stopped with `t4.sh down`; `colab sessions` then listed none.
+- 2026-11-01T17:33:57Z colab new failed (attempt 1)
+- 2026-11-01T17:36:12Z colab new failed (attempt 2)
+- 2026-11-01T17:39:27Z colab new failed (attempt 3)
+- 2026-11-01T17:43:43Z colab new failed (attempt 4)
+- 2026-11-01T17:56:00Z colab new failed (attempt 1)
+- 2026-11-01T17:58:16Z colab new failed (attempt 2)
+- 2026-11-01T18:01:38Z colab new failed (attempt 3)
+- 2026-11-01T18:05:54Z colab new failed (attempt 4)
+- 2026-11-01T18:17:14Z colab new failed (attempt 1)
+- 2026-11-01T18:19:30Z colab new failed (attempt 2)
+- 2026-11-01T18:22:45Z colab new failed (attempt 3)
+- 2026-11-01T18:27:02Z colab new failed (attempt 4)
+- 2026-11-01T18:38:24Z colab new failed (attempt 1)
+- 2026-11-01T18:40:40Z colab new failed (attempt 2)
+- 2026-11-01T18:43:56Z colab new failed (attempt 3)
+- 2026-11-01T18:48:12Z colab new failed (attempt 4)
+
+### Session 3b notes (written by hand; the driver lines above are untouched)
+
+- 3b (reasoning-step sweep, `session3.sh steps`, session name `mpr-t4-s3b`) was NOT run. Every `colab new -s mpr-t4-s3b --gpu T4` call was answered with
+  `ColabRequestError ... Service Unavailable` (HTTP 503 from the Colab runtime-assign endpoint): 16 attempts in 4 rounds of the driver's 4-attempt retry loop,
+  17:33:57Z to 18:48:12Z (about 75 minutes), with growing sleeps inside a round and 10-minute pauses between rounds. The same account had been granted a T4
+  on the first try at 16:10Z for 3a, which was stopped at 17:31Z. No session was created, so none needed stopping; `colab sessions` lists none. Not a
+  login problem (the same `colab` call authenticated and reached the endpoint). No quota message was returned, so whether this is the free-tier T4 pool being empty or a usage limit after
+  80 minutes of 3a VM time is unknown. Total generation for 3b: none; no result file under `results/t4/s3_steps`.

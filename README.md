@@ -86,7 +86,7 @@ Full tables (status, evidence file, reason for every gap) and a plan for what a 
   (`results/t4/summary_s2_vs_s1.md`).
 - Partially reproduced on the laptop: small-model LoRA and HybridMem, with farm-generated training pairs; see
   `results/laptop/sft/summary.md`.
-- Not reproduced: top-k / step sweeps at 7B (scripted, not run), MaskSFT, TreeRAG, GraphRAG,
+- Run, no support for the paper's top-k claims: top-k sweep k = 10/20/30/50 at 7B (`results/t4/summary_s3_topk_sweep.md`; answer EM is flat in k although retrieval recall rises). Not reproduced: reasoning-step sweep at 7B (scripted, 3b not run: no T4 available), MaskSFT, TreeRAG, GraphRAG,
   MR and DR reasoning, and any paper number (different model setup).
 
 The farm run is tiny (n = 9, one question is 0.11): only the large gaps mean anything.
