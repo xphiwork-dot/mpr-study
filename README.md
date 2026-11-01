@@ -12,7 +12,7 @@ not to match its tables.
 1. Open `docs/index.html` (the study guide: paper in 60 seconds, glossary, 4 flow charts, quizzes, talk plan).
 2. Run `scripts/retrieval_recall.py`: why one question-only retrieval cannot find the facts of a long chain.
 3. Run `scripts/leak_check.py`: why long-hop accuracy partly measures arithmetic on the question text.
-4. Skim `docs/upstream-notes.md`, then (optional) run the farm baselines with `scripts/farm_run.sh`.
+4. Read `docs/reproduction-status.md` (what is reproduced) and skim `docs/upstream-notes.md`, then (optional) run the farm baselines with `scripts/farm_run.sh`.
 5. Read upstream, in `upstream/MPR/` after setup: `reasonings/SequentialReason.py`, `baselines/SparseRAG.py`,
    `baselines/DenseRAG.py`, `baselines/BlockSFT.py` (HybridMem), `baselines/SelfAskSFT.py`, `prompts.py`, `utils.py`.
 
@@ -31,24 +31,33 @@ scripts/
   make_subset.py          stratified question subset in upstream format
   farm_run.sh             run run_qa.py on the LLM Farm (credentials read at run time)
   common.py               dataset loading
+results/                  committed evidence (the rest of results/ is gitignored)
+  probes/                 retrieval_recall.md, leak_check.md: per-hop tables printed by the scripts
+  farm/                   raw run_qa.py jsonl (NaiveReason/, SequentialReason/), summary.md, usage.md
 docs/
+  reproduction-status.md  what is and is not reproduced, with evidence and reasons
   index.html              study guide (diagrams/ holds its 4 iframe charts)
   scout-report.html       full technical notes of the original scouting run
   upstream-notes.md       upstream gaps and bugs, with file and line
-upstream/  data/  results/   gitignored: fetched clone, dataset, run outputs
+upstream/  data/  results/logs/   gitignored: fetched clone, dataset, raw farm logs
 ```
 
 ## Quick start
 
 ```bash
 ./setup.sh                                  # needs uv and git; TORCH_INDEX=<url> for a GPU wheel
-.venv/bin/python scripts/retrieval_recall.py        # BM25 ~3 s; e5 ~1 min on a GPU after the first model download (~3 min including it)
+.venv/bin/python scripts/retrieval_recall.py        # BM25 ~3 s; e5 ~40 s on a GPU after the first model download (~3 min including it)
 .venv/bin/python scripts/leak_check.py --show-example
-# optional, spends farm tokens (about 95k for the grid below): needs LLM_FARM_ENDPOINT, LLM_FARM_KEY, SMALL_MODEL_NAME
+# optional, spends farm tokens (about 94k for the runs listed in `results/farm/usage.md`): needs LLM_FARM_ENDPOINT, LLM_FARM_KEY, SMALL_MODEL_NAME
 cp env.example .env   # fill in, or: export FARM_ENV_FILE=/path/to/a/file/that/defines them
 for m in Ignoramus Oracle SparseRAG DenseRAG; do scripts/farm_run.sh Naive $m; done
 .venv/bin/python scripts/score.py upstream/MPR/results/*/*.jsonl
+.venv/bin/python scripts/score.py results/farm/*/*.jsonl   # the committed outputs of our run
 ```
+
+Committed results: `results/probes/` (the two probe tables) and `results/farm/` (raw jsonl, `summary.md`, `usage.md`).
+To regenerate a probe table, rerun the script and compare with the file; behind a corporate proxy set
+`REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt` (e5 downloads its model on first use).
 
 `farm_run.sh Sequential <memory>` runs the 5-step chain-of-thought structure (about 4-5x the tokens).
 The subset is 1 question per hop (9 questions) on user 0 with the user's full 13,100-statement memory.
@@ -57,41 +66,15 @@ set of the original scout (about 650k tokens).
 
 ## What is reproduced, and what is not
 
-Reproduced (numbers from this repo's scripts, user 0, 2,700 questions):
+Full tables (status, evidence file, reason for every gap) and a plan for what a Colab T4 could add:
+[`docs/reproduction-status.md`](docs/reproduction-status.md). In short:
 
-| Probe | Result here | Scout report |
-|---|---|---|
-| BM25 recall@20, hop 2 / hop 10 | 0.847 / 0.351 | 0.847 / 0.351 |
-| e5-base-v2 recall@20, hop 2 / hop 10 | 1.000 / 0.257 | 1.000 / 0.257 |
-| Pattern | dense wins on hops 2-3, BM25 wins from hop 5 on; almost no hop-10 question gets all gold facts in one retrieval (all-gold@20: BM25 0.003, e5 0.000) | same |
+- Reproduced: BM25 and e5 retrieval recall per hop, the leakage check, a scorer, and a 9-question farm run
+  (NR with Ignoramus / Oracle / SparseRAG / DenseRAG, SR with Ignoramus / Oracle / SparseRAG).
+- Not reproduced: SR with DenseRAG, the 45-question grid, implicit memory (LoRA at 7B and the 0.5B probe), HybridMem,
+  MaskSFT, TreeRAG, GraphRAG, MR and DR reasoning, and any Qwen2.5-7B number from the paper.
 
-The full per-hop table is printed by the script and matches the scout's recall columns.
-
-Leakage (`leak_check.py`, all 32,399 non-null questions): any number restated from gold, overall 0.53, hop 10
-0.82; numbers with 3+ digits, hop 10 0.62. The scout report states 0.51, 0.82 and 0.61. Hops 5-10 agree
-within about 0.02; hops 2-4 come out higher here (0.13, 0.07, 0.27 vs 0.08, 0.03, 0.19). The scout's exact number
-rule was not recorded, so this script uses a plain `\d+(\.\d+)?` match; this is a rule difference, not a data difference.
-
-Small LLM re-run on the farm (user 0, 9 questions = 1 per hop 2-10, k=20, model from `SMALL_MODEL_NAME`, reasoning effort low;
-about 95k farm tokens in total). EM / lenient contains:
-
-| Reasoning | Ignoramus | Oracle | SparseRAG | DenseRAG |
-|---|---|---|---|---|
-| NR (1 call) | 0.11 / 0.11 | 0.89 / 1.00 | 0.78 / 0.78 | 0.67 / 0.67 |
-| SR (5 calls) | 0.11 / 0.11 | 0.78 / 0.89 | 0.67 / 0.89 | not run (budget) |
-
-With n = 9, one question is 0.11, so only the large gaps mean anything: Oracle >> RAG >> no memory, as in the scout's
-45-question run (NR: Ignoramus 0.20, Oracle 0.76, SparseRAG 0.44, DenseRAG 0.31). RAG scores are higher here than in
-the scout's run; that is sampling noise on a different 9-question draw, not evidence against the scout. SR did not beat NR,
-as in the scout. We do not claim to reproduce the paper's SR gain (+10-20 points) or any Qwen2.5-7B number.
-
-Not reproduced:
-- The paper's tables on Qwen2.5-7B (8 A800 GPUs): the farm model is different, so absolute numbers are not comparable.
-- Implicit memory (LoRA SFT) and HybridMem at paper scale (7B, 50 adapters): does not fit a 6 GB laptop. The scout's
-  0.5B probe (LoRA recalls at most 11% of trained facts; SFT+RAG no better than RAG) is documented in
-  `docs/scout-report.html` section 5.4B and its scripts were not rebuilt here.
-- TreeRAG, GraphRAG, MaskSFT, MR and DR reasoning: not run.
-- DenseRAG with SR and the 45-question grid: not re-run here; see the scout report for those numbers.
+The farm run is tiny (n = 9, one question is 0.11): only the large gaps mean anything.
 
 Known upstream problems (missing server, no scorer, HybridMem train-then-eval crash, SFT padding, prompt mismatch): `docs/upstream-notes.md`.
 
