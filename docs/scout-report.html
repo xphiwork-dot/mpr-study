@@ -1,0 +1,826 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Scout report: Explicit vs Implicit Memory (MPR)</title><style>
+:root{--fg:#1d2330;--mut:#5b6476;--bg:#fbfbfd;--card:#fff;--acc:#2e86de;--bd:#e3e6ee}
+@media (prefers-color-scheme:dark){:root{--fg:#e6e9ef;--mut:#a3abbb;--bg:#141821;--card:#1c212c;--bd:#323a4a}}
+body{font:16px/1.55 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:var(--fg);background:var(--bg);margin:0}
+main{max-width:1000px;margin:0 auto;padding:24px 22px 80px}
+h1{font-size:1.65em;line-height:1.25;border-bottom:3px solid var(--acc);padding-bottom:10px}
+h2{margin-top:2.2em;padding-top:.4em;border-top:1px solid var(--bd)} h3{margin-top:1.6em}
+.tw{overflow-x:auto;margin:1em 0} table{border-collapse:collapse;font-size:.92em;min-width:60%}
+th,td{border:1px solid var(--bd);padding:6px 9px;text-align:left;vertical-align:top} th{background:rgba(46,134,222,.12)}
+tr:nth-child(even) td{background:rgba(127,127,127,.05)}
+code{background:rgba(127,127,127,.14);padding:1px 4px;border-radius:4px;font-size:.9em}
+pre{background:rgba(127,127,127,.12);padding:12px;border-radius:8px;overflow-x:auto} pre code{background:none}
+figure{margin:1.4em 0;background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:10px}
+.chart{width:100%;height:auto} .chart .ct{font-size:13px;font-weight:600;fill:var(--fg)} .chart .ax{font-size:11px;fill:var(--mut)}
+.chart .grid{stroke:var(--bd)} .chart .box{fill:rgba(46,134,222,.10);stroke:var(--acc)} .chart .bt{font-size:14px;font-weight:700;fill:var(--fg)}
+.chart .bs{font-size:10.5px;fill:var(--mut)}
+blockquote{border-left:4px solid var(--acc);margin:1em 0;padding:.2em 1em;color:var(--mut)}
+nav.toc{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:8px 18px;font-size:.92em}
+</style></head>
+<body><main><h1 id="scout-report-explicit-vs-implicit-memory-exploring-multi-hop-complex-reasoning-over-personalized-information-arxiv-250813250v1">Scout report: "Explicit v.s. Implicit Memory: Exploring Multi-hop Complex Reasoning Over Personalized Information" (arXiv 2508.13250v1)</h1><nav class="toc"><strong>Contents</strong><div class="toc">
+<ul>
+<li><a href="#scout-report-explicit-vs-implicit-memory-exploring-multi-hop-complex-reasoning-over-personalized-information-arxiv-250813250v1">Scout report: "Explicit v.s. Implicit Memory: Exploring Multi-hop Complex Reasoning Over Personalized Information" (arXiv 2508.13250v1)</a><ul>
+<li><a href="#1-tldr">1. TL;DR</a></li>
+<li><a href="#2-problem-and-core-idea-plain-language">2. Problem and core idea (plain language)</a></li>
+<li><a href="#3-method-step-by-step">3. Method, step by step</a><ul>
+<li><a href="#31-task-definition-def-1-sec-31">3.1 Task definition (Def. 1, Sec. 3.1)</a></li>
+<li><a href="#32-solution-paradigms-sec-32">3.2 Solution paradigms (Sec. 3.2)</a></li>
+<li><a href="#33-dataset-construction-sec-33-fig-2a">3.3 Dataset construction (Sec. 3.3, Fig. 2a)</a></li>
+<li><a href="#34-memory-mechanisms-sec-4-6">3.4 Memory mechanisms (Sec. 4-6)</a></li>
+<li><a href="#35-reasoning-structures-sec-343-app-b">3.5 Reasoning structures (Sec. 3.4.3, App. B)</a></li>
+<li><a href="#36-metric">3.6 Metric</a></li>
+</ul>
+</li>
+<li><a href="#4-experiments-in-the-paper">4. Experiments in the paper</a></li>
+<li><a href="#5-code-state-what-i-ran-evidence">5. Code: state, what I ran, evidence</a><ul>
+<li><a href="#51-repo-facts">5.1 Repo facts</a></li>
+<li><a href="#52-gaps-and-bugs-found-code-reading-confirmed-by-runs-where-noted">5.2 Gaps and bugs found (code reading, confirmed by runs where noted)</a></li>
+<li><a href="#53-environment-and-no-llm-probes">5.3 Environment and no-LLM probes</a></li>
+<li><a href="#54-re-runs-with-llms">5.4 Re-runs with LLMs</a></li>
+</ul>
+</li>
+<li><a href="#6-re-implementation-plan-for-the-presentation-demo">6. Re-implementation plan for the presentation demo</a></li>
+<li><a href="#7-presentation-fit">7. Presentation fit</a></li>
+<li><a href="#8-scores">8. Scores</a></li>
+<li><a href="#appendix-artifacts-in-the-worktree-discarded-at-teardown">Appendix: artifacts (in the worktree, discarded at teardown)</a><ul>
+<li><a href="#farm-patch-the-essential-change-utilspy-in-class-llm">Farm patch (the essential change, utils.py in class LLM)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</nav>
+<p>Paper: Zhang, Zhang, Tan, Li, Chen (Renmin Univ. + NUS), arXiv 18 Aug 2025, ACM template with placeholder venue ("Conference'17"). PDF: <code>papers/2508.13250v1.pdf</code>.
+Code: https://github.com/nuster1128/MPR (official). Scout date: 2026-10-25.</p>
+<h2 id="1-tldr">1. TL;DR</h2>
+<p>The paper is a benchmark/analysis paper. It defines a "multi-hop personalized reasoning" (MPR) task: answer a question that needs a chain of 2-10 facts about one user. It builds a synthetic dataset from a sampled knowledge graph, then compares explicit memory (RAG: BM25, dense e5, MemTree-style tree, GraphRAG), implicit memory (LoRA fine-tuning on the user's facts) and hybrids across four reasoning structures (single call, CoT chain, ToT-style multi-path, decomposition). Headline: explicit memory wins clearly. Implicit memory alone is near useless. Their HybridMem (k-means clusters of facts, one LoRA per cluster, the adapter picked by vote over retrieved facts) gives only small, inconsistent gains. The ideas map almost one-to-one onto the presenter's daily work (agent memory, RAG, chat history), and the explicit-memory half re-runs cheaply. I patched the code to use the LLM Farm (gpt-6-luna) and ran 8 configurations on 45 questions for about 650k tokens in 16 min. The qualitative claims reproduced: Oracle &gt;&gt; BM25 &gt; dense &gt; no memory, and BM25 overtakes dense on long hops. I also found three things worth presenting: (a) a dataset leak (61% of 10-hop questions restate a number from their own gold facts, so a no-memory LLM still gets 20-27% on hops 5-10), (b) the repo is missing pieces needed to run it (LLM server, scorer, license), and (c) at the paper's scale the implicit/HybridMem half cannot run on a 6 GB laptop. A local Qwen2.5-0.5B demo of implicit memory ran end-to-end through the repo's own SFT/HybridMem code (after working around a crash). It reproduces the paper's story in miniature: LoRA recalls ≤11% of the facts it was trained on, retrieval gives 67%, and SFT+RAG/HybridMem is no better than RAG alone on reworded questions. <strong>Verdict: strong candidate. It is easy to understand, easy to demo with the API, and fits the presenter's background very well. Its weaknesses are moderate novelty and a messy, unlicensed codebase, and both can become critique material in the talk.</strong></p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Criterion</th>
+<th>Score (1-5)</th>
+<th>One-line reason</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Understandability</td>
+<td>5</td>
+<td>RAG vs fine-tuning vs CoT; no heavy math; a toy example (Alice -&gt; husband -&gt; boss -&gt; city) carries the whole idea</td>
+</tr>
+<tr>
+<td>Presentation deliverability</td>
+<td>4</td>
+<td>Clear story and many figures; the many result heatmaps need curating; the HybridMem contribution is thin</td>
+</tr>
+<tr>
+<td>Re-run feasibility</td>
+<td>4</td>
+<td>Explicit memory re-runs with a ~20-line API patch in about 16 min; implicit/HybridMem at paper scale (7B, 50 LoRAs) do not fit 6 GB</td>
+</tr>
+<tr>
+<td>Re-implementation feasibility</td>
+<td>5</td>
+<td>The core pipeline is ~200 lines (BM25/e5 retrieval + prompts + EM); the dataset is downloadable (9 MB)</td>
+</tr>
+<tr>
+<td>Cost</td>
+<td>5</td>
+<td>~1.1k farm calls ≈ 0.47M input + 0.18M output tokens for the full demo grid; $0 local</td>
+</tr>
+<tr>
+<td>Background fit</td>
+<td>5</td>
+<td>It is literally "agent chat memory" evaluated as a data-mining benchmark: retrieval, KG/GraphRAG, clustering (k-means), LoRA</td>
+</tr>
+<tr>
+<td>Novelty / interest</td>
+<td>3</td>
+<td>The task/dataset framing is new and timely; the methods are known; HybridMem gains are within noise</td>
+</tr>
+<tr>
+<td><strong>Overall</strong></td>
+<td><strong>4.4 / 5</strong></td>
+<td><strong>Recommended: the explicit-memory demo plus a critique (leakage, implicit-memory tuning) makes a strong 30-40 min talk</strong></td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="2-problem-and-core-idea-plain-language">2. Problem and core idea (plain language)</h2>
+<p>An assistant that "remembers you" stores thousands of small facts ("Alice's husband is Bob", "Bob is David's department leader", "David's department is in New York"). A real question ("Which city does Alice's husband work in?") needs several facts chained together, and none of them contains the answer alone. Earlier personalization benchmarks (LaMP, PerLTQA, LongMemEval) mostly test preference/style or 1-2-hop lookups.</p>
+<p>The paper asks: <strong>when an agent must reason over many hops of personal facts, should the facts live in text that is retrieved at question time (explicit memory, RAG), or inside the model weights via fine-tuning (implicit memory, LoRA SFT)?</strong> Is a mix better?</p>
+<p>Two difficulties combine:</p>
+<ul>
+<li><strong>Memory problem:</strong> for explicit memory the first retrieval only "sees" the question, so facts needed in later hops ("David's department...") don't match it lexically or semantically (retrieval mismatch between hops). For implicit memory, can LoRA store 13k precise facts at all?</li>
+<li><strong>Reasoning problem:</strong> chaining facts needs multi-step inference (CoT, tree search, decomposition), and the retrieval can be refreshed at each step.</li>
+</ul>
+<h2 id="3-method-step-by-step">3. Method, step by step</h2>
+<figure><svg viewBox="0 0 775 170" class="chart" role="img" aria-label="MPR evaluation pipeline">
+<defs><marker id="ar" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 z" fill="#555"/></marker></defs>
+<rect x="10" y="40" width="165" height="92" rx="10" class="box"/><text x="92.5" y="62" text-anchor="middle" class="bt">User facts</text>
+<text x="92.5" y="82" text-anchor="middle" class="bs">13.1k statements / user</text>
+<line x1="177" y1="86" x2="201" y2="86" stroke="#555" stroke-width="2" marker-end="url(#ar)"/>
+<rect x="205" y="40" width="165" height="92" rx="10" class="box"/><text x="287.5" y="62" text-anchor="middle" class="bt">Memory</text>
+<text x="287.5" y="82" text-anchor="middle" class="bs">explicit: BM25 / e5 / Tree / Graph</text>
+<text x="287.5" y="97" text-anchor="middle" class="bs">implicit: LoRA SFT</text>
+<text x="287.5" y="112" text-anchor="middle" class="bs">hybrid: SFT+RAG, HybridMem</text>
+<line x1="372" y1="86" x2="396" y2="86" stroke="#555" stroke-width="2" marker-end="url(#ar)"/>
+<rect x="400" y="40" width="165" height="92" rx="10" class="box"/><text x="482.5" y="62" text-anchor="middle" class="bt">Reasoning</text>
+<text x="482.5" y="82" text-anchor="middle" class="bs">NR · SR(CoT) · MR(ToT) · DR</text>
+<line x1="567" y1="86" x2="591" y2="86" stroke="#555" stroke-width="2" marker-end="url(#ar)"/>
+<rect x="595" y="40" width="165" height="92" rx="10" class="box"/><text x="677.5" y="62" text-anchor="middle" class="bt">Answer</text>
+<text x="677.5" y="82" text-anchor="middle" class="bs">Exact Match vs gold</text>
+<text x="387.5" y="20" text-anchor="middle" class="ct">Question q (2-10 hops) → retrieve/recall facts → multi-step reasoning → â</text>
+<path d="M 400 132 C 400 160, 300 160, 290 134" fill="none" stroke="#c0392b" stroke-dasharray="4 3" marker-end="url(#ar)"/><text x="420" y="160" class="bs" fill="#c0392b">SR/MR re-retrieve with the latest thought</text>
+</svg></figure>
+
+<h3 id="31-task-definition-def-1-sec-31">3.1 Task definition (Def. 1, Sec. 3.1)</h3>
+<p>Given user statements S = {s1..sn} (single-hop facts) and question q, predict â = f(q; S) such that (1) some non-empty subset of S is necessary and sufficient to infer a, and (2) no single s_i gives a by itself (the multi-hop condition).</p>
+<h3 id="32-solution-paradigms-sec-32">3.2 Solution paradigms (Sec. 3.2)</h3>
+<ul>
+<li>Naive full-context: â = g(s1 ‖ ... ‖ sn ‖ q; θ). This is infeasible: about 104k words per user.</li>
+<li><strong>Explicit memory:</strong> Ŝ = RAG(q, S) (top-k, k=20), â = g(Ŝ ‖ q; θ).</li>
+<li><strong>Implicit memory:</strong> θ̂ = SFT(θ; S), â = g(q; θ̂).</li>
+<li><strong>Multi-step reasoning:</strong> o_i = g_i(Ŝ_i ‖ q ‖ o_1..o_{i-1}; θ) with Ŝ_i = RAG(o_1 ‖ ... ‖ o_{i-1} ‖ q, S). In code the retrieval key at step i is the previous thought (<code>reasonings/SequentialReason.py:24,29</code>), not the concatenation.</li>
+</ul>
+<h3 id="33-dataset-construction-sec-33-fig-2a">3.3 Dataset construction (Sec. 3.3, Fig. 2a)</h3>
+<ol>
+<li><strong>Meta graph</strong> G=(V,E): 108 entity/attribute types and 34 relation types. Edges are entity-entity (social, work), entity-attribute (e.g. area, date) or <strong>value-oriented</strong> (arithmetic/date comparisons such as "+270 days" or "-1").</li>
+<li><strong>Instantiate</strong> one specific graph per user. An LLM samples attribute values. That gives 12 users with about 5.9k nodes each.</li>
+<li><strong>Statements:</strong> an LLM rewrites each non-value edge into a sentence, about 13.1k per user.</li>
+<li><strong>Path sampling:</strong> a random walk of k edges (k=2..10) with a disambiguation step for attribute edges shared by several entities.</li>
+<li><strong>Q/A:</strong> an LLM rewrites the path into one natural-language question. The answer is the path endpoint. Each item is (T path, M gold statements, q, a).</li>
+</ol>
+<p>Note: value-oriented hops have no statement, so a "10-hop" question in the released data needs 6.5 gold statements on average (measured, section 5.3), and <strong>every</strong> question ends in arithmetic/date math.</p>
+<h3 id="34-memory-mechanisms-sec-4-6">3.4 Memory mechanisms (Sec. 4-6)</h3>
+<ul>
+<li>Explicit: <strong>SparseRAG</strong> (bm25s), <strong>DenseRAG</strong> (e5-base-v2 cosine), <strong>TreeRAG</strong> (MemTree: LLM-summarised hierarchy), <strong>GraphRAG</strong> (LLM-extracted entities/relations, embedding match). Baselines: <strong>Ignoramus</strong> (no memory) and <strong>Oracle</strong> (gold statements given).</li>
+<li>Implicit: <strong>MaskSFT</strong> (mask an entity in a statement and train the model to fill it), <strong>AskSFT</strong> (LLM writes QA pairs from each statement and the model is fine-tuned on them). LoRA r=8, α=32, lr=1e-5, 10 epochs (<code>baselines/SelfAskSFT.py:56-85</code>). Plus MSO/ASO = SFT model + Oracle facts.</li>
+<li>Hybrid: SFT model + RAG ("MS+X", "AS+X"). <strong>HybridMem</strong> (code name <code>BlockSFT</code>): embed all AskSFT pairs with e5, split them with <strong>k-means into 50 clusters</strong>, train one LoRA per cluster. At inference, retrieve top-k statements, assign each to a cluster, <strong>majority-vote</strong> the adapter, then answer with that adapter plus the retrieved text (<code>baselines/BlockSFT.py:139-217</code>).</li>
+</ul>
+<h3 id="35-reasoning-structures-sec-343-app-b">3.5 Reasoning structures (Sec. 3.4.3, App. B)</h3>
+<p>NR = one call. SR = CoT chain of 5 calls (start, 3 middle, final), each re-retrieving with the last thought. MR = ToT-like: 2 branches per step and an LLM selects the path. DR = decompose into ≤5 sub-questions, answer each with retrieval, then merge.</p>
+<h3 id="36-metric">3.6 Metric</h3>
+<p>Accuracy = Exact Match after normalisation (SQuAD style), averaged over users. Experiments use 2,700 questions per user (300 per hop) on Qwen2.5-7B, 8×A800.</p>
+<h2 id="4-experiments-in-the-paper">4. Experiments in the paper</h2>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Detail</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Data</td>
+<td>MPR: 12 users × ~13.1k statements; the paper claims 108,000 QAs (the text also says 10,800). The <strong>release has 2,700 per user = 32,400</strong> (300 per hop, 2-10).</td>
+</tr>
+<tr>
+<td>Backbone</td>
+<td>Qwen2.5-7B (3B for the size ablation), served locally</td>
+</tr>
+<tr>
+<td>Baselines</td>
+<td>Ignoramus, Oracle, Sparse/Dense/Tree/GraphRAG; MaskSFT, AskSFT, MSO, ASO; MS+X, AS+X; HybridMem</td>
+</tr>
+<tr>
+<td>Metric</td>
+<td>EM accuracy; wall-clock time per task</td>
+</tr>
+<tr>
+<td>Sweeps</td>
+<td>top-k ∈ {10,30,50}; reasoning steps; backbone size; SFT epochs; cluster count (30 vs 50 blocks discussed)</td>
+</tr>
+</tbody>
+</table></div>
+<p>Headline results (from figures/Table 3):</p>
+<ul>
+<li>Reasoning structure matters: SR/MR beat NR/DR by 10-20 points. DenseRAG with SR/MR drops from &gt;60% (2-hop) to ~20% (10-hop).</li>
+<li>DenseRAG is best on short hops and SparseRAG best on long hops. TreeRAG is comparable. <strong>GraphRAG is worst</strong> (noisy entity merging).</li>
+<li>Larger k helps short hops. Long hops peak at an intermediate k (noise).</li>
+<li>Implicit memory alone is poor at any epoch count. SFT even <strong>hurts</strong> Oracle under SR/MR (reasoning degradation).</li>
+<li>HybridMem (Table 3, SR): SparseRAG long-hop 0.200 → 0.232 and Oracle 0.566 → 0.563. Under NR, DenseRAG short-hop goes 0.206 → 0.197 (worse). The gains are mostly ±0.01-0.03 with no variance reported, so the claim "consistently improves" is overstated.</li>
+</ul>
+<h2 id="5-code-state-what-i-ran-evidence">5. Code: state, what I ran, evidence</h2>
+<h3 id="51-repo-facts">5.1 Repo facts</h3>
+<ul>
+<li>URL https://github.com/nuster1128/MPR. 3 commits (2025-07-12 "Initiate", 2025-08-24 "Update"). 2 stars, 0 forks, 0 issues. <strong>No LICENSE file</strong> (<code>gh api repos/nuster1128/MPR</code> → <code>"license": null</code>). That means no reuse rights beyond viewing; fine for a class demo, but don't redistribute modified code.</li>
+<li>About 1.6k lines of Python: <code>run_qa.py</code>, <code>config.py</code>, <code>utils.py</code>, <code>baselines/*</code> (11 methods), <code>reasonings/*</code> (4 structures), <code>prompts.py</code>.</li>
+<li>Pinned deps: torch 2.6.0+cu118, transformers 4.49, peft 0.15.1, sentence-transformers 3.4.1, bm25s 0.2.9, openai 1.77. <code>scikit-learn</code> is used (<code>baselines/BlockSFT.py:9</code>) but <strong>missing from requirements.txt</strong>.</li>
+<li>Dataset: Google Drive zip (9.3 MB), 12 JSON files <code>{message: {id: text}, qa: {hop: {rc_id: {question, answer, message[gold ids], fold_tag}}}}</code>.</li>
+</ul>
+<h3 id="52-gaps-and-bugs-found-code-reading-confirmed-by-runs-where-noted">5.2 Gaps and bugs found (code reading, confirmed by runs where noted)</h3>
+<ol>
+<li><strong>The local LLM server is not shipped.</strong> Qwen is reached by <code>requests.post(&lt;api_base&gt;/inference/)</code> on <code>127.0.0.1:3933</code> (<code>utils.py:99</code>, <code>config.py:23</code>), and no server code is in the repo. I wrote a 40-line stand-in (<code>scratch/tools/local_llm_server.py</code>) that reuses the repo's <code>utils.llm_inference</code>.</li>
+<li><strong>No scorer, no dataset-generation code, no plotting.</strong> <code>run_qa.py</code> only writes a JSONL of responses. I wrote <code>scratch/tools/score.py</code> (SQuAD-normalised EM).</li>
+<li>The API path hard-codes <code>temperature=0.9</code> (<code>utils.py:95</code>), which gpt-5/6-series deployments reject, so the farm patch drops it.</li>
+<li><strong>SFT tokenisation pads every prompt to 4096 tokens and appends a 512-token padded response</strong> (<code>utils.py:159-160</code>). Each training sample is 4,608 tokens even though the real QA prompt is under 50 tokens. That is about 90× wasted compute. Because Qwen2's position ids ignore the attention mask, the answer is also trained at positions 4096+ but generated at position ~50 at test time. I suspected this explained part of the "implicit memory fails" result. The v3 ablation in section 5.4B (contiguous prompt+answer) raised recall only from 0.07 to 0.11, so it is a minor factor. For the 0.5B demo I set the pad lengths to 64/32 via env knobs.</li>
+<li><strong>HybridMem cannot train and evaluate in one run</strong> (confirmed: <code>ValueError: Adapter 1 not found.</code>). During training every block's LoRA is called <code>default</code> (<code>BlockSFT.py:105</code>), but inference calls <code>set_adapter(str(cluster_id))</code> (<code>BlockSFT.py:209</code>), which only exists after re-loading from disk with <code>model_load_path</code> set. <code>lora_load_index: 0</code> (<code>config.py:300</code> etc.) loads the <strong>epoch-1</strong> checkpoint by default, while the paper reports epoch 7 as best. <code>BlockSFT_default</code> lacks <code>distributional_training</code> (<code>config.py:293-304</code> vs <code>BlockSFT.py:161</code>) → KeyError if used standalone.</li>
+<li>AskSFT asks the same prompt twice per statement (<code>SelfAskSFT.py:22</code>), so many pairs are duplicates: 600 pairs → 430 unique in my slice.</li>
+<li>e5-base-v2 is used without its recommended <code>query:</code> / <code>passage:</code> prefixes (<code>DenseRAG.py:23</code>). This may handicap DenseRAG.</li>
+<li>The dataset has one null question (<code>question_answer_8.json</code>, hop 4).</li>
+<li>Train/test prompt mismatch for implicit memory: SFT trains on the raw question as the user turn (<code>utils.py:145-146</code>), but <code>EditMethod.inference</code> wraps the question in the <code>Naive_Ignoramus</code> template (<code>BaseMethod.py:76-79</code>). In the 0.5B probe, recall of trained facts drops from 0.07-0.11 (raw format) to 0.00-0.02 (repo format).</li>
+</ol>
+<h3 id="53-environment-and-no-llm-probes">5.3 Environment and no-LLM probes</h3>
+<p>Commands (all inside <code>scratch/</code> of the worktree):</p>
+<pre><code>uv venv -p 3.10 .venv-mpr
+VIRTUAL_ENV=$PWD/.venv-mpr uv pip install -r MPR/requirements.txt --index-strategy unsafe-best-match \
+    --extra-index-url https://download.pytorch.org/whl/cu118 scikit-learn      # 2m58s, 5.7 GB, torch sees the A3000
+uvx gdown 1a0Ya9buk1I0hsGoaRX8bW0QJjsKuN4FR -O mpr_dataset.zip                 # needs REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt behind the proxy
+</code></pre>
+<p><strong>Retrieval-only recall (no LLM; user 0, all 2,700 questions, first retrieval = the question itself, top-20):</strong> fraction of gold statements retrieved (<code>scratch/tools/retrieval_recall.py</code>):</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>hop</th>
+<th>gold stmts</th>
+<th>BM25 recall@20</th>
+<th>e5 recall@20</th>
+<th>BM25 all-gold@20</th>
+<th>e5 all-gold@20</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2</td>
+<td>1.00</td>
+<td>0.847</td>
+<td><strong>1.000</strong></td>
+<td>0.847</td>
+<td>1.000</td>
+</tr>
+<tr>
+<td>3</td>
+<td>2.00</td>
+<td>0.433</td>
+<td><strong>0.643</strong></td>
+<td>0.137</td>
+<td>0.390</td>
+</tr>
+<tr>
+<td>4</td>
+<td>2.00</td>
+<td>0.563</td>
+<td>0.570</td>
+<td>0.307</td>
+<td>0.303</td>
+</tr>
+<tr>
+<td>5</td>
+<td>3.56</td>
+<td><strong>0.536</strong></td>
+<td>0.481</td>
+<td>0.177</td>
+<td>0.100</td>
+</tr>
+<tr>
+<td>6</td>
+<td>3.90</td>
+<td><strong>0.496</strong></td>
+<td>0.432</td>
+<td>0.140</td>
+<td>0.063</td>
+</tr>
+<tr>
+<td>7</td>
+<td>4.63</td>
+<td><strong>0.406</strong></td>
+<td>0.367</td>
+<td>0.057</td>
+<td>0.027</td>
+</tr>
+<tr>
+<td>8</td>
+<td>5.04</td>
+<td><strong>0.385</strong></td>
+<td>0.341</td>
+<td>0.043</td>
+<td>0.037</td>
+</tr>
+<tr>
+<td>9</td>
+<td>5.99</td>
+<td><strong>0.370</strong></td>
+<td>0.310</td>
+<td>0.027</td>
+<td>0.010</td>
+</tr>
+<tr>
+<td>10</td>
+<td>6.54</td>
+<td><strong>0.351</strong></td>
+<td>0.257</td>
+<td>0.003</td>
+<td>0.000</td>
+</tr>
+</tbody>
+</table></div>
+<figure><svg viewBox="0 0 720 284" class="chart" role="img" aria-label="Retrieval recall@20 of gold facts vs hop (user 0, 2,700 Q, no LLM)">
+<text x="360.0" y="16" text-anchor="middle" class="ct">Retrieval recall@20 of gold facts vs hop (user 0, 2,700 Q, no LLM)</text>
+<line x1="40" x2="710" y1="220.0" y2="220.0" class="grid"/><text x="36" y="224.0" text-anchor="end" class="ax">0.0</text>
+<line x1="40" x2="710" y1="182.0" y2="182.0" class="grid"/><text x="36" y="186.0" text-anchor="end" class="ax">0.2</text>
+<line x1="40" x2="710" y1="144.0" y2="144.0" class="grid"/><text x="36" y="148.0" text-anchor="end" class="ax">0.4</text>
+<line x1="40" x2="710" y1="106.0" y2="106.0" class="grid"/><text x="36" y="110.0" text-anchor="end" class="ax">0.6</text>
+<line x1="40" x2="710" y1="68.0" y2="68.0" class="grid"/><text x="36" y="72.0" text-anchor="end" class="ax">0.8</text>
+<line x1="40" x2="710" y1="30.0" y2="30.0" class="grid"/><text x="36" y="34.0" text-anchor="end" class="ax">1.0</text>
+<rect x="47.4" y="59.1" width="28.8" height="160.9" fill="#2e86de"><title>BM25 (SparseRAG) @ 2: 0.85</title></rect>
+<rect x="77.2" y="30.0" width="28.8" height="190.0" fill="#e67e22"><title>e5 (DenseRAG) @ 2: 1.00</title></rect>
+<text x="77.2" y="236" text-anchor="middle" class="ax">2</text>
+<rect x="121.9" y="137.7" width="28.8" height="82.3" fill="#2e86de"><title>BM25 (SparseRAG) @ 3: 0.43</title></rect>
+<rect x="151.7" y="97.8" width="28.8" height="122.2" fill="#e67e22"><title>e5 (DenseRAG) @ 3: 0.64</title></rect>
+<text x="151.7" y="236" text-anchor="middle" class="ax">3</text>
+<rect x="196.3" y="113.0" width="28.8" height="107.0" fill="#2e86de"><title>BM25 (SparseRAG) @ 4: 0.56</title></rect>
+<rect x="226.1" y="111.7" width="28.8" height="108.3" fill="#e67e22"><title>e5 (DenseRAG) @ 4: 0.57</title></rect>
+<text x="226.1" y="236" text-anchor="middle" class="ax">4</text>
+<rect x="270.8" y="118.2" width="28.8" height="101.8" fill="#2e86de"><title>BM25 (SparseRAG) @ 5: 0.54</title></rect>
+<rect x="300.6" y="128.6" width="28.8" height="91.4" fill="#e67e22"><title>e5 (DenseRAG) @ 5: 0.48</title></rect>
+<text x="300.6" y="236" text-anchor="middle" class="ax">5</text>
+<rect x="345.2" y="125.8" width="28.8" height="94.2" fill="#2e86de"><title>BM25 (SparseRAG) @ 6: 0.50</title></rect>
+<rect x="375.0" y="137.9" width="28.8" height="82.1" fill="#e67e22"><title>e5 (DenseRAG) @ 6: 0.43</title></rect>
+<text x="375.0" y="236" text-anchor="middle" class="ax">6</text>
+<rect x="419.7" y="142.9" width="28.8" height="77.1" fill="#2e86de"><title>BM25 (SparseRAG) @ 7: 0.41</title></rect>
+<rect x="449.4" y="150.3" width="28.8" height="69.7" fill="#e67e22"><title>e5 (DenseRAG) @ 7: 0.37</title></rect>
+<text x="449.4" y="236" text-anchor="middle" class="ax">7</text>
+<rect x="494.1" y="146.8" width="28.8" height="73.2" fill="#2e86de"><title>BM25 (SparseRAG) @ 8: 0.39</title></rect>
+<rect x="523.9" y="155.2" width="28.8" height="64.8" fill="#e67e22"><title>e5 (DenseRAG) @ 8: 0.34</title></rect>
+<text x="523.9" y="236" text-anchor="middle" class="ax">8</text>
+<rect x="568.6" y="149.7" width="28.8" height="70.3" fill="#2e86de"><title>BM25 (SparseRAG) @ 9: 0.37</title></rect>
+<rect x="598.3" y="161.1" width="28.8" height="58.9" fill="#e67e22"><title>e5 (DenseRAG) @ 9: 0.31</title></rect>
+<text x="598.3" y="236" text-anchor="middle" class="ax">9</text>
+<rect x="643.0" y="153.3" width="28.8" height="66.7" fill="#2e86de"><title>BM25 (SparseRAG) @ 10: 0.35</title></rect>
+<rect x="672.8" y="171.2" width="28.8" height="48.8" fill="#e67e22"><title>e5 (DenseRAG) @ 10: 0.26</title></rect>
+<text x="672.8" y="236" text-anchor="middle" class="ax">10</text>
+<rect x="40" y="268" width="12" height="12" fill="#2e86de"/><text x="56" y="278" class="ax">BM25 (SparseRAG)</text>
+<rect x="182.0" y="268" width="12" height="12" fill="#e67e22"/><text x="198.0" y="278" class="ax">e5 (DenseRAG)</text>
+</svg></figure>
+
+<p>This reproduces the paper's "dense best on short, sparse best on long" pattern <strong>from retrieval alone</strong>. Index plus 2,700 queries: BM25 2 s; e5 62 s on GPU. BM25 recall@10/@50 for the 10-hop questions is 0.22/0.48. With one question-only retrieval, almost no long-hop question gets all its facts. That is why iterative (SR/MR) retrieval matters.</p>
+<p><strong>Leakage probe (<code>scratch/tools/leak_check.py</code>, all 32,400 questions):</strong> share of questions whose text restates a number from one of their own gold statements:</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>hop</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+<th>5</th>
+<th>6</th>
+<th>7</th>
+<th>8</th>
+<th>9</th>
+<th>10</th>
+<th>all</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>any number</td>
+<td>0.08</td>
+<td>0.03</td>
+<td>0.19</td>
+<td>0.59</td>
+<td>0.63</td>
+<td>0.70</td>
+<td>0.73</td>
+<td>0.79</td>
+<td>0.82</td>
+<td>0.51</td>
+</tr>
+<tr>
+<td>only numbers with ≥3 digits</td>
+<td>0.05</td>
+<td>0.01</td>
+<td>0.12</td>
+<td>0.41</td>
+<td>0.42</td>
+<td>0.49</td>
+<td>0.51</td>
+<td>0.58</td>
+<td>0.61</td>
+<td>0.36</td>
+</tr>
+</tbody>
+</table></div>
+<figure><svg viewBox="0 0 720 284" class="chart" role="img" aria-label="Share of questions restating a gold-fact number (all 32,400 Q)">
+<text x="360.0" y="16" text-anchor="middle" class="ct">Share of questions restating a gold-fact number (all 32,400 Q)</text>
+<line x1="40" x2="710" y1="220.0" y2="220.0" class="grid"/><text x="36" y="224.0" text-anchor="end" class="ax">0.0</text>
+<line x1="40" x2="710" y1="182.0" y2="182.0" class="grid"/><text x="36" y="186.0" text-anchor="end" class="ax">0.2</text>
+<line x1="40" x2="710" y1="144.0" y2="144.0" class="grid"/><text x="36" y="148.0" text-anchor="end" class="ax">0.4</text>
+<line x1="40" x2="710" y1="106.0" y2="106.0" class="grid"/><text x="36" y="110.0" text-anchor="end" class="ax">0.6</text>
+<line x1="40" x2="710" y1="68.0" y2="68.0" class="grid"/><text x="36" y="72.0" text-anchor="end" class="ax">0.8</text>
+<line x1="40" x2="710" y1="30.0" y2="30.0" class="grid"/><text x="36" y="34.0" text-anchor="end" class="ax">1.0</text>
+<rect x="47.4" y="204.8" width="28.8" height="15.2" fill="#c0392b"><title>any number @ 2: 0.08</title></rect>
+<rect x="77.2" y="210.5" width="28.8" height="9.5" fill="#f1948a"><title>numbers with ≥3 digits @ 2: 0.05</title></rect>
+<text x="77.2" y="236" text-anchor="middle" class="ax">2</text>
+<rect x="121.9" y="214.3" width="28.8" height="5.7" fill="#c0392b"><title>any number @ 3: 0.03</title></rect>
+<rect x="151.7" y="218.1" width="28.8" height="1.9" fill="#f1948a"><title>numbers with ≥3 digits @ 3: 0.01</title></rect>
+<text x="151.7" y="236" text-anchor="middle" class="ax">3</text>
+<rect x="196.3" y="183.9" width="28.8" height="36.1" fill="#c0392b"><title>any number @ 4: 0.19</title></rect>
+<rect x="226.1" y="197.2" width="28.8" height="22.8" fill="#f1948a"><title>numbers with ≥3 digits @ 4: 0.12</title></rect>
+<text x="226.1" y="236" text-anchor="middle" class="ax">4</text>
+<rect x="270.8" y="107.9" width="28.8" height="112.1" fill="#c0392b"><title>any number @ 5: 0.59</title></rect>
+<rect x="300.6" y="142.1" width="28.8" height="77.9" fill="#f1948a"><title>numbers with ≥3 digits @ 5: 0.41</title></rect>
+<text x="300.6" y="236" text-anchor="middle" class="ax">5</text>
+<rect x="345.2" y="100.3" width="28.8" height="119.7" fill="#c0392b"><title>any number @ 6: 0.63</title></rect>
+<rect x="375.0" y="140.2" width="28.8" height="79.8" fill="#f1948a"><title>numbers with ≥3 digits @ 6: 0.42</title></rect>
+<text x="375.0" y="236" text-anchor="middle" class="ax">6</text>
+<rect x="419.7" y="87.0" width="28.8" height="133.0" fill="#c0392b"><title>any number @ 7: 0.70</title></rect>
+<rect x="449.4" y="126.9" width="28.8" height="93.1" fill="#f1948a"><title>numbers with ≥3 digits @ 7: 0.49</title></rect>
+<text x="449.4" y="236" text-anchor="middle" class="ax">7</text>
+<rect x="494.1" y="81.3" width="28.8" height="138.7" fill="#c0392b"><title>any number @ 8: 0.73</title></rect>
+<rect x="523.9" y="123.1" width="28.8" height="96.9" fill="#f1948a"><title>numbers with ≥3 digits @ 8: 0.51</title></rect>
+<text x="523.9" y="236" text-anchor="middle" class="ax">8</text>
+<rect x="568.6" y="69.9" width="28.8" height="150.1" fill="#c0392b"><title>any number @ 9: 0.79</title></rect>
+<rect x="598.3" y="109.8" width="28.8" height="110.2" fill="#f1948a"><title>numbers with ≥3 digits @ 9: 0.58</title></rect>
+<text x="598.3" y="236" text-anchor="middle" class="ax">9</text>
+<rect x="643.0" y="64.2" width="28.8" height="155.8" fill="#c0392b"><title>any number @ 10: 0.82</title></rect>
+<rect x="672.8" y="104.1" width="28.8" height="115.9" fill="#f1948a"><title>numbers with ≥3 digits @ 10: 0.61</title></rect>
+<text x="672.8" y="236" text-anchor="middle" class="ax">10</text>
+<rect x="40" y="268" width="12" height="12" fill="#c0392b"/><text x="56" y="278" class="ax">any number</text>
+<rect x="137.0" y="268" width="12" height="12" fill="#f1948a"/><text x="153.0" y="278" class="ax">numbers with ≥3 digits</text>
+</svg></figure>
+
+<p>Example (hop 7, <code>RC000222#07</code>): "...This item has a popularity index of 87... What is the popularity index value obtained after adding 5 to the resulting value of 87 minus 12?" The answer (80) needs no memory at all. The LLM question-rewriting step leaks intermediate values, so long-hop accuracy partly measures arithmetic on the question text. I checked whether this explains BM25's long-hop edge (exact number tokens): it does <strong>not</strong>. On hops 7-10, BM25/e5 recall is 0.388/0.332 without a leak and 0.370/0.309 with one (<code>scratch/tools/leak_vs_retrieval.py</code>).</p>
+<h3 id="54-re-runs-with-llms">5.4 Re-runs with LLMs</h3>
+<p><strong>Patch for the LLM Farm</strong> (scratch commits on top of upstream <code>a24953c</code>): in <code>utils.LLM</code>, a config flag <code>farm</code> → <code>openai.AzureOpenAI(api_key='dummy', azure_endpoint=$LLM_FARM_ENDPOINT, api_version='2025-04-01-preview', default_headers={'genaiplatform-farm-subscription-key': $LLM_FARM_KEY})</code>, <code>reasoning_effort='low'</code>, temperature dropped, token usage logged. <code>config.py</code> reads paths and data from env and points Oracle/Ignoramus/SparseRAG/DenseRAG at <code>farm_config</code> (model = <code>$SMALL_MODEL_NAME</code> = <code>gpt-6-luna-2026-09-22</code>). Credentials are loaded into the process env at run time only.</p>
+<p><strong>A. Explicit memory with farm gpt-6-luna</strong> (user 0, 45 questions = 5 random per hop with seed 0, the full 13,100-statement memory, k=20, 5 SR steps). Command per cell: <code>python -u run_qa.py {Naive|Sequential} {Ignoramus|Oracle|SparseRAG|DenseRAG}</code>. All 8 ran in parallel and finished in 15.6 min with exit 0.</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Reasoning</th>
+<th>Memory</th>
+<th>EM all (n=45)</th>
+<th>EM hop 2-4</th>
+<th>EM hop 5-7</th>
+<th>EM hop 8-10</th>
+<th>calls</th>
+<th>in / out tokens</th>
+<th>wall</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>NR</td>
+<td>Ignoramus</td>
+<td>0.200</td>
+<td>0.07</td>
+<td>0.27</td>
+<td>0.27</td>
+<td>45</td>
+<td>10k / 36k</td>
+<td>382 s</td>
+</tr>
+<tr>
+<td>NR</td>
+<td>Oracle</td>
+<td><strong>0.756</strong></td>
+<td>0.67</td>
+<td>0.67</td>
+<td>0.93</td>
+<td>45</td>
+<td>13k / 4k</td>
+<td>131 s</td>
+</tr>
+<tr>
+<td>NR</td>
+<td>SparseRAG</td>
+<td>0.444</td>
+<td>0.40</td>
+<td>0.53</td>
+<td>0.40</td>
+<td>45</td>
+<td>23k / 11k</td>
+<td>243 s</td>
+</tr>
+<tr>
+<td>NR</td>
+<td>DenseRAG</td>
+<td>0.311</td>
+<td>0.47</td>
+<td>0.33</td>
+<td>0.13</td>
+<td>45</td>
+<td>23k / 9k</td>
+<td>202 s</td>
+</tr>
+<tr>
+<td>SR</td>
+<td>Ignoramus</td>
+<td>0.133</td>
+<td>0.00</td>
+<td>0.20</td>
+<td>0.20</td>
+<td>225</td>
+<td>63k / 35k</td>
+<td>867 s</td>
+</tr>
+<tr>
+<td>SR</td>
+<td>Oracle</td>
+<td><strong>0.800</strong></td>
+<td>0.80</td>
+<td>0.73</td>
+<td>0.87</td>
+<td>225</td>
+<td>75k / 26k</td>
+<td>727 s</td>
+</tr>
+<tr>
+<td>SR</td>
+<td>SparseRAG</td>
+<td>0.422</td>
+<td>0.33</td>
+<td>0.53</td>
+<td>0.40</td>
+<td>225</td>
+<td>128k / 31k</td>
+<td>815 s</td>
+</tr>
+<tr>
+<td>SR</td>
+<td>DenseRAG</td>
+<td>0.333</td>
+<td>0.47</td>
+<td>0.40</td>
+<td>0.13</td>
+<td>225</td>
+<td>131k / 32k</td>
+<td>938 s</td>
+</tr>
+</tbody>
+</table></div>
+<figure><svg viewBox="0 0 720 284" class="chart" role="img" aria-label="Farm gpt-6-luna re-run: EM by hop bucket (45 Q, 15 per bucket)">
+<text x="360.0" y="16" text-anchor="middle" class="ct">Farm gpt-6-luna re-run: EM by hop bucket (45 Q, 15 per bucket)</text>
+<line x1="40" x2="710" y1="220.0" y2="220.0" class="grid"/><text x="36" y="224.0" text-anchor="end" class="ax">0.0</text>
+<line x1="40" x2="710" y1="182.0" y2="182.0" class="grid"/><text x="36" y="186.0" text-anchor="end" class="ax">0.2</text>
+<line x1="40" x2="710" y1="144.0" y2="144.0" class="grid"/><text x="36" y="148.0" text-anchor="end" class="ax">0.4</text>
+<line x1="40" x2="710" y1="106.0" y2="106.0" class="grid"/><text x="36" y="110.0" text-anchor="end" class="ax">0.6</text>
+<line x1="40" x2="710" y1="68.0" y2="68.0" class="grid"/><text x="36" y="72.0" text-anchor="end" class="ax">0.8</text>
+<line x1="40" x2="710" y1="30.0" y2="30.0" class="grid"/><text x="36" y="34.0" text-anchor="end" class="ax">1.0</text>
+<rect x="51.2" y="206.7" width="21.3" height="13.3" fill="#95a5a6"><title>Ignoramus @ NR 2-4: 0.07</title></rect>
+<rect x="73.5" y="92.7" width="21.3" height="127.3" fill="#27ae60"><title>Oracle @ NR 2-4: 0.67</title></rect>
+<rect x="95.8" y="144.0" width="21.3" height="76.0" fill="#2e86de"><title>SparseRAG @ NR 2-4: 0.40</title></rect>
+<rect x="118.2" y="130.7" width="21.3" height="89.3" fill="#e67e22"><title>DenseRAG @ NR 2-4: 0.47</title></rect>
+<text x="95.8" y="236" text-anchor="middle" class="ax">NR 2-4</text>
+<rect x="162.8" y="168.7" width="21.3" height="51.3" fill="#95a5a6"><title>Ignoramus @ NR 5-7: 0.27</title></rect>
+<rect x="185.2" y="92.7" width="21.3" height="127.3" fill="#27ae60"><title>Oracle @ NR 5-7: 0.67</title></rect>
+<rect x="207.5" y="119.3" width="21.3" height="100.7" fill="#2e86de"><title>SparseRAG @ NR 5-7: 0.53</title></rect>
+<rect x="229.8" y="157.3" width="21.3" height="62.7" fill="#e67e22"><title>DenseRAG @ NR 5-7: 0.33</title></rect>
+<text x="207.5" y="236" text-anchor="middle" class="ax">NR 5-7</text>
+<rect x="274.5" y="168.7" width="21.3" height="51.3" fill="#95a5a6"><title>Ignoramus @ NR 8-10: 0.27</title></rect>
+<rect x="296.8" y="43.3" width="21.3" height="176.7" fill="#27ae60"><title>Oracle @ NR 8-10: 0.93</title></rect>
+<rect x="319.2" y="144.0" width="21.3" height="76.0" fill="#2e86de"><title>SparseRAG @ NR 8-10: 0.40</title></rect>
+<rect x="341.5" y="195.3" width="21.3" height="24.7" fill="#e67e22"><title>DenseRAG @ NR 8-10: 0.13</title></rect>
+<text x="319.2" y="236" text-anchor="middle" class="ax">NR 8-10</text>
+<rect x="386.2" y="220.0" width="21.3" height="0.0" fill="#95a5a6"><title>Ignoramus @ SR 2-4: 0.00</title></rect>
+<rect x="408.5" y="68.0" width="21.3" height="152.0" fill="#27ae60"><title>Oracle @ SR 2-4: 0.80</title></rect>
+<rect x="430.8" y="157.3" width="21.3" height="62.7" fill="#2e86de"><title>SparseRAG @ SR 2-4: 0.33</title></rect>
+<rect x="453.2" y="130.7" width="21.3" height="89.3" fill="#e67e22"><title>DenseRAG @ SR 2-4: 0.47</title></rect>
+<text x="430.8" y="236" text-anchor="middle" class="ax">SR 2-4</text>
+<rect x="497.8" y="182.0" width="21.3" height="38.0" fill="#95a5a6"><title>Ignoramus @ SR 5-7: 0.20</title></rect>
+<rect x="520.2" y="81.3" width="21.3" height="138.7" fill="#27ae60"><title>Oracle @ SR 5-7: 0.73</title></rect>
+<rect x="542.5" y="119.3" width="21.3" height="100.7" fill="#2e86de"><title>SparseRAG @ SR 5-7: 0.53</title></rect>
+<rect x="564.8" y="144.0" width="21.3" height="76.0" fill="#e67e22"><title>DenseRAG @ SR 5-7: 0.40</title></rect>
+<text x="542.5" y="236" text-anchor="middle" class="ax">SR 5-7</text>
+<rect x="609.5" y="182.0" width="21.3" height="38.0" fill="#95a5a6"><title>Ignoramus @ SR 8-10: 0.20</title></rect>
+<rect x="631.8" y="54.7" width="21.3" height="165.3" fill="#27ae60"><title>Oracle @ SR 8-10: 0.87</title></rect>
+<rect x="654.2" y="144.0" width="21.3" height="76.0" fill="#2e86de"><title>SparseRAG @ SR 8-10: 0.40</title></rect>
+<rect x="676.5" y="195.3" width="21.3" height="24.7" fill="#e67e22"><title>DenseRAG @ SR 8-10: 0.13</title></rect>
+<text x="654.2" y="236" text-anchor="middle" class="ax">SR 8-10</text>
+<rect x="40" y="268" width="12" height="12" fill="#95a5a6"/><text x="56" y="278" class="ax">Ignoramus</text>
+<rect x="129.5" y="268" width="12" height="12" fill="#27ae60"/><text x="145.5" y="278" class="ax">Oracle</text>
+<rect x="196.5" y="268" width="12" height="12" fill="#2e86de"/><text x="212.5" y="278" class="ax">SparseRAG</text>
+<rect x="286.0" y="268" width="12" height="12" fill="#e67e22"/><text x="302.0" y="278" class="ax">DenseRAG</text>
+</svg></figure>
+
+<p>Total: 1,080 farm calls, ~466k input + ~183k output tokens (output includes reasoning tokens). Each bucket has only 15 questions (±~0.25 at 95%), so read only the large gaps.</p>
+<p>What reproduces: Oracle &gt;&gt; RAG &gt;&gt; no memory; dense ≥ sparse on short hops; <strong>sparse &gt; dense on medium/long hops</strong> (0.40 vs 0.13 at 8-10); accuracy is limited by retrieval, not reasoning (Oracle is 0.76-0.80).</p>
+<p>What differs from the paper (Qwen-7B): with a strong model, Oracle is <em>higher</em> on long hops (the arithmetic is easy, and leaks help), and SR adds little over NR (+0.04 Oracle, ≈0 for RAG), whereas the paper reports +10-20 points for SR. The likely reason is that test-time reasoning is already inside a reasoning model. Ignoramus at 0.20-0.27 on hops 5-10 is the leakage effect from section 5.3.</p>
+<p><strong>B. Implicit memory demo with local Qwen2.5-0.5B-Instruct</strong> (captain-approved substitute, 954 MB). Slice = 25 questions (hops 2-6 of the subset) + their 58 gold statements + 242 random distractors = 300 statements. AskSFT training pairs were generated with the repo's own prompt by the farm model (600 pairs, 93 s; <code>scratch/tools/gen_ask_trainset.py</code>), standing in for 7B self-generation.</p>
+<p>Training runs used the repo's own <code>run_qa.py</code> path (<code>SelfAskSFT</code>, <code>BlockDenseRAG</code>). The 0.5B model was served for the base-model baselines by the stand-in server. Pad lengths were 64/32 instead of 4096/512 (env knobs), with LoRA r=8, α=32, batch 1 × grad-acc 16.</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Variant</th>
+<th>What</th>
+<th>lr / epochs</th>
+<th>train loss</th>
+<th>train time (A3000)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>v1</td>
+<td>AskSFT, <strong>paper hyperparameters</strong></td>
+<td>1e-5 / 10</td>
+<td>3.45</td>
+<td>1,240 s (shared GPU)</td>
+</tr>
+<tr>
+<td>v2</td>
+<td>AskSFT, higher lr</td>
+<td>2e-4 / 5</td>
+<td>0.83*</td>
+<td>687 s (shared GPU)</td>
+</tr>
+<tr>
+<td>v3</td>
+<td>as v2 but prompt and answer contiguous (no pad gap; ablation of issue 5.2-4)</td>
+<td>2e-4 / 5</td>
+<td>1.79*</td>
+<td>350 s (GPU alone)</td>
+</tr>
+<tr>
+<td>HybridMem</td>
+<td><code>BlockDenseRAG</code>: e5 + k-means (<strong>5</strong> clusters for 300 statements; the paper uses 50 for 13k) → 5 LoRAs, last-epoch checkpoints</td>
+<td>2e-4 / 5</td>
+<td>2.2-5.5 per block</td>
+<td>5 × 57-178 s</td>
+</tr>
+</tbody>
+</table></div>
+<p>*The v2 loss also covers the easy padded label tokens, so it is not comparable with v3.</p>
+<p><strong>HybridMem bug confirmed:</strong> the training run crashed at the first question with <code>ValueError: Adapter 1 not found.</code> (<code>BlockSFT.py:209</code>). A second run with <code>model_load_path</code> set and <code>MPR_LORA_INDEX=-1</code> loaded the 5 adapters and finished 25 questions in 29 s. The adapter votes spread across all 5 clusters (4/3/9/6/3).</p>
+<p><strong>(i) MPR questions (25 Q, hops 2-6, NR):</strong> all base-model baselines score <strong>0.00 EM</strong>, including Oracle (0.00 EM, 0.12 lenient). It cannot do the date/number arithmetic that ends every question, nor the output format. For example, Oracle answers "600 + 200 = 800 millimeters" vs gold "800 (millimeters)", and "October 28, 2023" vs gold "2024-01-15". AskSFT v1/v2/v3 and HybridMem score 0.04/0.00/0.08/0.00, which is noise. <strong>Lesson: the MPR benchmark needs a ≥7B model, so the paper's implicit-memory study cannot be re-created on this laptop.</strong> A fact-recall probe is the meaningful small-scale demo instead.</p>
+<p><strong>(ii) Single-hop memorisation probe</strong> (<code>scratch/tools/probe_eval.py</code>): 81 "seen" questions (the exact AskSFT training questions for the 58 gold statements) and 58 "paraphrase" questions (one farm-reworded question per gold statement). The prompt formats are the repo's <code>Naive_Ignoramus</code> (closed-book) and <code>Naive_RAG</code> (with references); "raw" = the exact training format.</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Condition (Qwen2.5-0.5B)</th>
+<th>seen: contains / EM</th>
+<th>paraphrase: contains / EM</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>base, closed-book (Ignoramus)</td>
+<td>0.01 / 0.00</td>
+<td>0.00 / 0.00</td>
+</tr>
+<tr>
+<td>base + gold statement (Oracle)</td>
+<td>0.78 / 0.65</td>
+<td>0.69 / 0.60</td>
+</tr>
+<tr>
+<td>base + e5 top-5 over 300 stmts (DenseRAG)</td>
+<td>0.74 / 0.67</td>
+<td>0.69 / <strong>0.67</strong></td>
+</tr>
+<tr>
+<td>AskSFT v1 (paper lr), closed-book</td>
+<td>0.01 / 0.00</td>
+<td>0.00 / 0.00</td>
+</tr>
+<tr>
+<td>AskSFT v2, closed-book</td>
+<td>0.02 / 0.01</td>
+<td>0.00 / 0.00</td>
+</tr>
+<tr>
+<td>AskSFT v3 (no pad gap), closed-book</td>
+<td>0.00 / 0.00</td>
+<td>0.05 / 0.02</td>
+</tr>
+<tr>
+<td>AskSFT v1 / v2 / v3, <strong>raw training format</strong></td>
+<td>0.02 / 0.07 / <strong>0.11</strong> (EM 0.00 / 0.04 / 0.10)</td>
+<td>0.03 / 0.03 / 0.07</td>
+</tr>
+<tr>
+<td>AskSFT v1 + DenseRAG (hybrid "AS+X")</td>
+<td>0.73 / 0.69</td>
+<td>0.60 / 0.59</td>
+</tr>
+<tr>
+<td>AskSFT v2 + DenseRAG</td>
+<td>0.73 / <strong>0.72</strong></td>
+<td>0.60 / 0.60</td>
+</tr>
+<tr>
+<td>AskSFT v3 + DenseRAG</td>
+<td>0.73 / <strong>0.72</strong></td>
+<td>0.57 / 0.57</td>
+</tr>
+<tr>
+<td>HybridMem (5 blocks) + DenseRAG</td>
+<td>0.70 / 0.67</td>
+<td>0.60 / 0.59</td>
+</tr>
+</tbody>
+</table></div>
+<figure><svg viewBox="0 0 720 284" class="chart" role="img" aria-label="0.5B single-hop fact recall (EM): explicit vs implicit vs hybrid">
+<text x="360.0" y="16" text-anchor="middle" class="ct">0.5B single-hop fact recall (EM): explicit vs implicit vs hybrid</text>
+<line x1="40" x2="710" y1="220.0" y2="220.0" class="grid"/><text x="36" y="224.0" text-anchor="end" class="ax">0.0</text>
+<line x1="40" x2="710" y1="182.0" y2="182.0" class="grid"/><text x="36" y="186.0" text-anchor="end" class="ax">0.2</text>
+<line x1="40" x2="710" y1="144.0" y2="144.0" class="grid"/><text x="36" y="148.0" text-anchor="end" class="ax">0.4</text>
+<line x1="40" x2="710" y1="106.0" y2="106.0" class="grid"/><text x="36" y="110.0" text-anchor="end" class="ax">0.6</text>
+<line x1="40" x2="710" y1="68.0" y2="68.0" class="grid"/><text x="36" y="72.0" text-anchor="end" class="ax">0.8</text>
+<line x1="40" x2="710" y1="30.0" y2="30.0" class="grid"/><text x="36" y="34.0" text-anchor="end" class="ax">1.0</text>
+<rect x="49.6" y="220.0" width="37.3" height="0.0" fill="#8e44ad"><title>seen (trained) questions @ base closed: 0.00</title></rect>
+<rect x="87.9" y="220.0" width="37.3" height="0.0" fill="#16a085"><title>paraphrased questions @ base closed: 0.00</title></rect>
+<text x="87.9" y="236" text-anchor="middle" class="ax">base closed</text>
+<rect x="145.3" y="96.5" width="37.3" height="123.5" fill="#8e44ad"><title>seen (trained) questions @ base+Oracle: 0.65</title></rect>
+<rect x="183.6" y="106.0" width="37.3" height="114.0" fill="#16a085"><title>paraphrased questions @ base+Oracle: 0.60</title></rect>
+<text x="183.6" y="236" text-anchor="middle" class="ax">base+Oracle</text>
+<rect x="241.0" y="92.7" width="37.3" height="127.3" fill="#8e44ad"><title>seen (trained) questions @ base+Dense: 0.67</title></rect>
+<rect x="279.3" y="92.7" width="37.3" height="127.3" fill="#16a085"><title>paraphrased questions @ base+Dense: 0.67</title></rect>
+<text x="279.3" y="236" text-anchor="middle" class="ax">base+Dense</text>
+<rect x="336.7" y="218.1" width="37.3" height="1.9" fill="#8e44ad"><title>seen (trained) questions @ SFT v2 closed: 0.01</title></rect>
+<rect x="375.0" y="220.0" width="37.3" height="0.0" fill="#16a085"><title>paraphrased questions @ SFT v2 closed: 0.00</title></rect>
+<text x="375.0" y="236" text-anchor="middle" class="ax">SFT v2 closed</text>
+<rect x="432.4" y="201.0" width="37.3" height="19.0" fill="#8e44ad"><title>seen (trained) questions @ SFT v3 raw fmt: 0.10</title></rect>
+<rect x="470.7" y="210.5" width="37.3" height="9.5" fill="#16a085"><title>paraphrased questions @ SFT v3 raw fmt: 0.05</title></rect>
+<text x="470.7" y="236" text-anchor="middle" class="ax">SFT v3 raw fmt</text>
+<rect x="528.1" y="83.2" width="37.3" height="136.8" fill="#8e44ad"><title>seen (trained) questions @ SFT v2+Dense: 0.72</title></rect>
+<rect x="566.4" y="106.0" width="37.3" height="114.0" fill="#16a085"><title>paraphrased questions @ SFT v2+Dense: 0.60</title></rect>
+<text x="566.4" y="236" text-anchor="middle" class="ax">SFT v2+Dense</text>
+<rect x="623.9" y="92.7" width="37.3" height="127.3" fill="#8e44ad"><title>seen (trained) questions @ HybridMem+Dense: 0.67</title></rect>
+<rect x="662.1" y="107.9" width="37.3" height="112.1" fill="#16a085"><title>paraphrased questions @ HybridMem+Dense: 0.59</title></rect>
+<text x="662.1" y="236" text-anchor="middle" class="ax">HybridMem+Dense</text>
+<rect x="40" y="268" width="12" height="12" fill="#8e44ad"/><text x="56" y="278" class="ax">seen (trained) questions</text>
+<rect x="242.0" y="268" width="12" height="12" fill="#16a085"/><text x="258.0" y="278" class="ax">paraphrased questions</text>
+</svg></figure>
+
+<p>What this shows, in miniature, matches the paper's story:</p>
+<ul>
+<li><strong>Implicit memory alone fails.</strong> Even on the <em>exact strings it was trained on</em>, LoRA recalls at most 11% of facts. With the repo's inference template (which differs from the training format, another code issue), recall is ~0%.</li>
+<li><strong>Explicit memory works</strong>: retrieval lifts the same 0.5B model from 0% to 67%.</li>
+<li><strong>Hybrid ≈ explicit:</strong> SFT + RAG is +0.02 to +0.05 EM on seen questions but <strong>−0.07 to −0.10 on paraphrases</strong>. That is the paper's "SFT degrades generalisation/reasoning" effect, and HybridMem is no better than plain DenseRAG.</li>
+<li>The contiguous-format ablation (v3) helps memorisation a little (0.07 → 0.11), so the pad-gap issue is real but not the main cause. Low LoRA capacity/steps is.</li>
+</ul>
+<p>Probe wall time: 508 s for the 16 main cells; farm cost for trainset + paraphrases: 658 calls, 68k input / 20k output tokens.</p>
+<h2 id="6-re-implementation-plan-for-the-presentation-demo">6. Re-implementation plan for the presentation demo</h2>
+<p><strong>Minimal version (recommended, ~1.5-2 days):</strong></p>
+<ol>
+<li>Load one user (13k statements) and a 45-90 question subset, stratified by hop.</li>
+<li>Explicit memory: BM25 (bm25s) and e5 retrieval, k=20, ~40 lines.</li>
+<li>Reasoning: NR + SR (5 steps, re-retrieve with the last thought), using the paper's prompts (App. B / <code>prompts.py</code>), ~60 lines.</li>
+<li>Score with EM; plot accuracy vs hop for Ignoramus/Oracle/Sparse/Dense; plot retrieval recall@k vs hop (no LLM, instant).</li>
+<li>"Critique" slide: the leakage table and the Ignoramus score; optionally a leak-free subset (drop questions that restate a gold number) and re-score.</li>
+<li>Optional implicit-memory slide: the 0.5B AskSFT/HybridMem probe from section 5.4B (15-30 min GPU on the laptop).</li>
+</ol>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Estimate</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>API cost</td>
+<td>NR+SR × 4 memories × 45 Q ≈ 1.1k calls ≈ 0.65M tokens (measured). Doubling to 90 Q or adding MR (2 branches + selection) costs ~2-3×</td>
+</tr>
+<tr>
+<td>Local compute</td>
+<td>retrieval &lt; 1.5 min; 0.5B LoRA ~5-15 min per adapter on the A3000</td>
+</tr>
+<tr>
+<td>Time</td>
+<td>reuse the patched repo: 0.5 day; clean re-implementation: 1.5 days; slides: 2 days</td>
+</tr>
+<tr>
+<td>Risks</td>
+<td>no license (cite, don't redistribute); EM is brittle for verbose models ("250 (square feet)" vs "250"; the lenient "contains" score is up to +0.11 (Oracle NR 0.756 → 0.867)); small n gives noisy buckets; the farm model ≠ Qwen-7B, so absolute numbers are not comparable; TreeRAG/GraphRAG need thousands of LLM calls to build (skip, or present from the paper's figures)</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="7-presentation-fit">7. Presentation fit</h2>
+<p><strong>Suggested 35-min outline:</strong></p>
+<ol>
+<li>(3 min) Motivation: personal assistants/agents remember users. Alice-husband-city example (Fig. 1).</li>
+<li>(4 min) Task definition (two conditions) and the explicit vs implicit memory equations (Sec. 3.2).</li>
+<li>(5 min) Dataset generation as a data-mining pipeline: meta-graph → per-user graph → random-walk paths → LLM rewriting; stats; comparison to HotpotQA/LongMemEval (Table 1).</li>
+<li>(5 min) Methods: 4 RAG variants, 2 SFT variants, 4 reasoning structures (Fig. 2c/d).</li>
+<li>(6 min) Paper results: structure matters; sparse vs dense by hop; k sweep; implicit fails; efficiency.</li>
+<li>(3 min) HybridMem: k-means clustering + per-cluster LoRA + vote routing (connects to the presenter's clustering talk); Table 3 and an honest look at the effect sizes.</li>
+<li>(6 min) <strong>Our re-run:</strong> farm patch, retrieval recall vs hop (reproduces the sparse/dense crossover), the 8-cell accuracy table, the 0.5B implicit-memory probe.</li>
+<li>(3 min) Critique: leakage (61-82% of 10-hop questions restate gold numbers; Ignoramus 20%); missing code pieces; the SFT padding issue; HybridMem gains within noise; no variance or statistical tests.</li>
+<li>(1 min) Takeaways for practitioners: keep memory explicit, retrieve iteratively, prefer hybrid lexical+dense retrieval for long chains.</li>
+</ol>
+<p><strong>Hard to explain:</strong> the MemTree/GraphRAG internals (hand-wave them); why SFT "degrades reasoning"; the large heatmap figures (pick 2-3 cells); dataset-generation details (the disambiguation step).</p>
+<p><strong>Connection to the presenter's background:</strong> LangGraph/deep-agent chat memory = explicit memory; MongoDB/Postgres stores + vector search = SparseRAG/DenseRAG; GraphRAG relates to the causal-graph work (entity-relation graphs, path reasoning); HybridMem's k-means clustering ties to the hierarchical-clustering presentation (could even swap k-means for agglomerative clustering as an extension); MLflow traces would make a nice live demo of the SR step-by-step retrievals.</p>
+<h2 id="8-scores">8. Scores</h2>
+<p>See the table in section 1. Overall: <strong>recommend this paper</strong>. Its demo feasibility and explainability are high for the effort needed (this is a judgment on this paper alone; the other three shortlisted papers are scored in their own reports). The re-run is cheap, deterministic enough, and produces a figure that matches the paper, plus original critique findings (leakage, missing pieces) that make the talk more than a summary.</p>
+<h2 id="appendix-artifacts-in-the-worktree-discarded-at-teardown">Appendix: artifacts (in the worktree, discarded at teardown)</h2>
+<ul>
+<li><code>scratch/MPR</code> (upstream a24953c + 4 scratch commits: farm client, env-driven paths, 0.5B backbone, SFT pad/lr/epoch/LoRA-index knobs, contiguous-SFT ablation), <code>scratch/.venv-mpr</code>, <code>scratch/data/unz</code> (dataset), <code>scratch/data/subset/{user0_5perhop,slice300}.json</code>.</li>
+<li>Tools: <code>scratch/tools/{retrieval_recall,leak_check,leak_vs_retrieval,score,gen_ask_trainset,make_probe,probe_eval,local_llm_server}.py</code>, <code>farm_env.sh</code> (sources the farm vars at run time; no key values are stored in any file).</li>
+<li>Results: <code>scratch/MPR/results/{NaiveReason,SequentialReason}/*.jsonl</code> (farm: <code>user0_5perhop-*</code>, 0.5B: <code>slice300-*</code>), logs in <code>scratch/MPR/logs/</code> and <code>scratch/MPR/logs/q05/</code>; LoRA adapters <code>scratch/implicit/{ask_v1,ask_v2,ask_v3,block5}</code>; probe set <code>scratch/implicit/probe.json</code>.</li>
+<li>Total farm usage for the whole scout: ~1.74k calls, ~0.54M input + ~0.20M output tokens (<code>gpt-6-luna-2026-09-22</code>, reasoning_effort=low).</li>
+</ul>
+<h3 id="farm-patch-the-essential-change-utilspy-in-class-llm">Farm patch (the essential change, <code>utils.py</code> in <code>class LLM</code>)</h3>
+<pre><code class="language-python"># __init__
+if llm_config.get('farm'):
+    self.client = AzureOpenAI(api_key='dummy', azure_endpoint=os.environ['LLM_FARM_ENDPOINT'],
+                              api_version='2025-04-01-preview',
+                              default_headers={'genaiplatform-farm-subscription-key': os.environ['LLM_FARM_KEY']})
+# run()
+if self.llm_config.get('farm'):          # gpt-5/6 series reject temperature != 1, so the paper's 0.9 is dropped
+    response = self.client.chat.completions.create(model=self.llm_config['name'], messages=message_list,
+                                                   reasoning_effort=self.llm_config.get('reasoning_effort', 'low'))
+    response = self.parse_response(response)
+</code></pre>
+<p>In <code>config.py</code>: <code>farm_config = {'name': os.environ['SMALL_MODEL_NAME'], 'farm': True, 'reasoning_effort': 'low'}</code>, then set <code>'llm_config': farm_config</code> for Oracle/Ignoramus/SparseRAG/DenseRAG and fill <code>E5_base_v2_model_path</code>, <code>Root_dir</code>, <code>environment_config</code> from env. Run with <code>python -u run_qa.py Sequential SparseRAG</code> (results in <code>results/SequentialReason/&lt;data_title&gt;-SparseRAG.jsonl</code>) and score with SQuAD-normalised EM.</p></main></body></html>
