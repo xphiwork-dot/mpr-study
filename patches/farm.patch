@@ -1,0 +1,123 @@
+diff --git a/config.py b/config.py
+index 67860a1..e33c359 100644
+--- a/config.py
++++ b/config.py
+@@ -1,11 +1,12 @@
++import os
+ import numpy as np
+ 
+ # ---- Global Settings ----
+ 
+ Qwen_2_5_7B_model_path = '[MODEL_PATH]'
+ Qwen_2_5_3B_model_path = '[MODEL_PATH]'
+-E5_base_v2_model_path = '[MODEL_PATH]'
+-Root_dir = '[PROJECT_ROOT_PATH]'
++E5_base_v2_model_path = os.environ.get('E5_MODEL_PATH', 'intfloat/e5-base-v2')
++Root_dir = os.path.dirname(os.path.abspath(__file__))
+ 
+ gpt_4o_config = {
+     'name': 'gpt-4o',
+@@ -23,12 +24,19 @@ qwen_2_5_7B_config = {
+     'api_base': 'http://127.0.0.1:3933'
+ }
+ 
++# Bosch LLM Farm (endpoint and key are read in utils.LLM from LLM_FARM_ENDPOINT / LLM_FARM_KEY)
++farm_config = {
++    'name': os.environ.get('SMALL_MODEL_NAME', ''),
++    'farm': True,
++    'reasoning_effort': 'low'
++}
++
+ retrieval_topk = 20
+ 
+ # ---- Experiment Settings ----
+ environment_config = {
+-    'data_title': '[DATA_TITLE]',
+-    'data_path_dir': '[DATA_DIR_PATH]'
++    'data_title': os.environ.get('MPR_DATA_TITLE', 'user0_1perhop'),
++    'data_path_dir': os.environ.get('MPR_DATA_DIR', os.path.join(Root_dir, '..', '..', 'data', 'subsets'))
+ }
+ 
+ # ---- Reasoning Settings ----
+@@ -55,17 +63,17 @@ Structured_default = {
+ # ---- Baseline Settings ----
+ Oracle_default = {
+     'knowledge_method': 'Oracle',
+-    'llm_config': qwen_2_5_7B_config,
++    'llm_config': farm_config,
+ }
+ 
+ Ignoramus_default = {
+     'knowledge_method': 'Ignoramus',
+-    'llm_config': qwen_2_5_7B_config,
++    'llm_config': farm_config,
+ }
+ 
+ SparseRAG_default = {
+     'knowledge_method': 'SparseRAG',
+-    'llm_config': qwen_2_5_7B_config,
++    'llm_config': farm_config,
+     'retrieval_config': {
+         'topk': retrieval_topk
+     }
+@@ -73,7 +81,7 @@ SparseRAG_default = {
+ 
+ DenseRAG_default = {
+     'knowledge_method': 'DenseRAG',
+-    'llm_config': qwen_2_5_7B_config,
++    'llm_config': farm_config,
+     'retrieval_config': {
+         'topk': retrieval_topk,
+         'encoder_path': E5_base_v2_model_path
+diff --git a/utils.py b/utils.py
+index f08f43e..ca30c8f 100644
+--- a/utils.py
++++ b/utils.py
+@@ -1,5 +1,5 @@
+ import json
+-from openai import OpenAI
++from openai import OpenAI, AzureOpenAI
+ import os, requests
+ import torch
+ 
+@@ -72,7 +72,17 @@ class LLM():
+     def __init__(self, llm_config):
+         self.llm_config = llm_config
+ 
+-        if llm_config['name'] not in LocalModelList:
++        self.usage = {'calls': 0, 'prompt_tokens': 0, 'completion_tokens': 0}
++
++        if llm_config.get('farm'):
++            # Bosch LLM Farm: Azure-style endpoint, subscription key in a header.
++            # Values come from the process environment only.
++            self.client = AzureOpenAI(
++                api_key='dummy',
++                azure_endpoint=os.environ['LLM_FARM_ENDPOINT'],
++                api_version='2025-04-01-preview',
++                default_headers={'genaiplatform-farm-subscription-key': os.environ['LLM_FARM_KEY']})
++        elif llm_config['name'] not in LocalModelList:
+             self.client = OpenAI(api_key=self.llm_config['api_key'], base_url=self.llm_config['api_base'])
+ 
+     def parse_response(self, response):
+@@ -88,7 +98,20 @@ class LLM():
+             return False
+ 
+     def run(self, message_list):
+-        if self.llm_config['name'] not in LocalModelList:
++        if self.llm_config.get('farm'):
++            # gpt-5/6 series reject temperature != 1, so the paper's 0.9 is dropped.
++            response = self.client.chat.completions.create(
++                model=self.llm_config['name'],
++                messages=message_list,
++                reasoning_effort=self.llm_config.get('reasoning_effort', 'low'))
++            usage = getattr(response, 'usage', None)
++            if usage is not None:
++                self.usage['calls'] += 1
++                self.usage['prompt_tokens'] += usage.prompt_tokens
++                self.usage['completion_tokens'] += usage.completion_tokens
++                print(f"[Usage]:: in={usage.prompt_tokens} out={usage.completion_tokens}", flush=True)
++            response = self.parse_response(response)
++        elif self.llm_config['name'] not in LocalModelList:
+             response = self.client.chat.completions.create(
+                 model=self.llm_config['name'],
+                 messages=message_list,

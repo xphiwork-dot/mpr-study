@@ -1,0 +1,12 @@
+# Pinned to the upstream MPR requirements where it names a version.
+# torch is installed separately by setup.sh (see TORCH_INDEX there).
+bm25s==0.2.9
+numpy==2.2.5
+openai==1.77.0
+peft==0.15.1
+datasets==3.5.0
+sentence-transformers==3.4.1
+transformers==4.49.0
+# upstream imports these but does not list them
+scikit-learn
+accelerate
