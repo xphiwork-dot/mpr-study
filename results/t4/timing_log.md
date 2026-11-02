@@ -165,7 +165,7 @@ Driver lines appended by experiments/_shared/t4.sh (session `mpr-t4-s3`; set wit
 - 2026-11-01T18:43:56Z colab new failed (attempt 3)
 - 2026-11-01T18:48:12Z colab new failed (attempt 4)
 
-### Session 3b notes (written by hand; the driver lines above are untouched)
+### Session 3b notes, first try on 2026-11-01 (written by hand; the driver lines above are untouched)
 
 - 3b (reasoning-step sweep, `session3b.sh`, session name `mpr-t4-s3b`) was NOT run. Every `colab new -s mpr-t4-s3b --gpu T4` call was answered with
   `ColabRequestError ... Service Unavailable` (HTTP 503 from the Colab runtime-assign endpoint): 16 attempts in 4 rounds of the driver's 4-attempt retry loop,
@@ -173,3 +173,62 @@ Driver lines appended by experiments/_shared/t4.sh (session `mpr-t4-s3`; set wit
   on the first try at 16:10Z for 3a, which was stopped at 17:31Z. No session was created, so none needed stopping; `colab sessions` lists none. Not a
   login problem (the same `colab` call authenticated and reached the endpoint). No quota message was returned, so whether this is the free-tier T4 pool being empty or a usage limit after
   80 minutes of 3a VM time is unknown. Total generation for 3b: none; no result file under `results/t4/s3_steps`.
+- 2026-11-02T03:53:23Z session mpr-t4-s3b created (T4)
+- 2026-11-02T04:24:11Z session mpr-t4-s3b already exists, reusing
+- 2026-11-02T05:19:00Z session mpr-t4-s3b created (T4)
+- 2026-11-02T05:21:13Z job retrieve start: retrieve.py 
+- 2026-11-02T05:24:33Z job retrieve finished rc=0 wall=200 s
+- 2026-11-02T05:24:42Z pulled results from mpr-t4-s3b
+- 2026-11-02T05:30:42Z vLLM healthy after 355 s of waiting
+- 2026-11-02T05:30:42Z job grid3_s2 start: grid.py --slice results/slices/s306.json --reason seq --max-step 2 --memories sparse,dense --topk 20 --tag s3_steps --workers 48
+- 2026-11-02T06:06:50Z poll failed (session lost?) - rerun: t4.sh up; t4.sh job grid3_s2 grid.py --slice results/slices/s306.json --reason seq --max-step 2 --memories sparse,dense --topk 20 --tag s3_steps --workers 48
+- 2026-11-02T06:11:59Z session mpr-t4-s3b created (T4)
+- 2026-11-02T06:14:00Z job retrieve start: retrieve.py 
+- 2026-11-02T06:17:22Z job retrieve finished rc=0 wall=202 s
+- 2026-11-02T06:17:48Z pulled results from mpr-t4-s3b
+- 2026-11-02T06:27:28Z vLLM healthy after 574 s of waiting
+- 2026-11-02T06:27:28Z job grid3_s2 start: grid.py --slice results/slices/s306.json --reason seq --max-step 2 --memories sparse,dense --topk 20 --tag s3_steps --workers 48
+- 2026-11-02T06:42:26Z job grid3_s2 finished rc=0 wall=898 s
+- 2026-11-02T06:42:35Z pulled results from mpr-t4-s3b
+- 2026-11-02T06:42:35Z job grid3_s3 start: grid.py --slice results/slices/s306.json --reason seq --max-step 3 --memories sparse,dense --topk 20 --tag s3_steps --workers 48
+- 2026-11-02T06:53:45Z pulled results from mpr-t4-s3b
+- 2026-11-02T07:03:52Z job grid3_s3 finished rc=0 wall=1277 s
+- 2026-11-02T07:04:00Z pulled results from mpr-t4-s3b
+- 2026-11-02T07:04:00Z job grid3_s8 start: grid.py --slice results/slices/s306.json --reason seq --max-step 8 --memories sparse,dense --topk 20 --tag s3_steps --workers 48
+- 2026-11-02T07:15:07Z pulled results from mpr-t4-s3b
+- 2026-11-02T07:26:12Z pulled results from mpr-t4-s3b
+- 2026-11-02T07:37:21Z pulled results from mpr-t4-s3b
+- 2026-11-02T07:48:18Z pulled results from mpr-t4-s3b
+- 2026-11-02T07:59:16Z pulled results from mpr-t4-s3b
+- 2026-11-02T08:10:17Z pulled results from mpr-t4-s3b
+- 2026-11-02T08:19:08Z job grid3_s8 finished rc=0 wall=4508 s
+- 2026-11-02T08:19:17Z pulled results from mpr-t4-s3b
+- 2026-11-02T08:19:35Z pulled results from mpr-t4-s3b
+- 2026-11-02T08:19:39Z session mpr-t4-s3b stopped
+
+### Session 3b run notes (2026-11-02; written by hand after the run; the driver lines above are untouched)
+
+Second try for 3b, on a different Google account than the 503 attempts of 2026-11-01 (the `colab` CLI had been logged in to another account). Session name `mpr-t4-s3b`, driven by
+`experiments/s3b_t4_step_sweep/session3b.sh` through a small retry wrapper (rerun the script until it exits 0). A T4 was granted on the first `colab new` of every attempt; there was no 503.
+
+- Three VMs were used, because two were lost before any generation result was kept (the driver lines above show all of them under the same session name):
+  1. Created 03:53:23Z. The setup call of `t4.sh up` (one long `colab exec`: unpack, clone, install) never returned for 30 minutes, with no `TimeoutError`. Looking at the VM from a second call showed it idle:
+     nothing unpacked, no clone, no vLLM. A rerun with "already exists, reusing" hung in the same place; running the setup by hand in one long cell ended with "Connection was lost". The VM was
+     reported lost (404/401) when touched again at about 05:18Z. No generation had run on it.
+  2. Created 05:19:00Z. Setup worked (changed driver, below), retrieval 200 s, vLLM healthy after 355 s, the 2-step BM25 job started at 05:30:42Z and had reached 50 of 306 questions after 84 s when the log was last
+     seen. At 06:06:50Z the next poll found the session gone ("lost (404/401)"). Nothing had been pulled from this VM yet (results were only pulled when a job ended), so its partial output is lost. The cause is
+     unknown (no quota message was returned).
+  3. Created 06:11:59Z, the VM that produced all committed 3b results (rows `06:11:59Z` to `08:19:39Z` above). Wall clock from creation to stop: 127.7 minutes.
+- Driver changes made for this run (`experiments/_shared/t4.sh`): the setup step of `up` is written to `/content/setup.sh` on the VM, started detached, and polled with short calls (the long single cell hung on VM 1,
+  and earlier sessions also saw a `TimeoutError` in that cell); every `colab exec` call is wrapped in `timeout 180`; `job` tolerates up to 4 failed polls in a row before reporting the session lost, and pulls the partial results every
+  10 polls (about every 10 minutes) so a cut session loses at most that much. The jobs, arguments and model are unchanged.
+- Setup: this VM did not have vLLM, so `uv pip install vllm bm25s==0.2.9 sentence-transformers` ran (as in session 1; the VMs of sessions 2 and 3a already had vLLM importable). Versions on the VM that produced the
+  results: Python 3.13.16, vllm 0.32.0, torch 2.13.0, transformers 5.19.0, sentence-transformers 5.7.0, numpy 2.1.3, bm25s 0.2.9 (torchao 0.10.0 uninstalled as before). vLLM and torch match what session 1 recorded
+  (vLLM 0.32.0, torch 2.13); the other versions of the earlier sessions were not recorded. The model is the pinned `Qwen/Qwen2.5-7B-Instruct-AWQ` revision; flags unchanged. The 5-step run reused here is session 2's
+  (another VM and day), so a small difference in the unrecorded packages between it and the 2/3/8-step runs cannot be excluded.
+- Retrieval re-ran (202 s) because the resume tarball is not committed; the pulled `retrieval/recall.csv.gz` is identical in content to the committed one (checked after decompression) and the committed file was kept.
+- vLLM became healthy after 574 s of waiting on VM 3 (weights download; 355 s on VM 2).
+- Generation per run file (`s3_steps/timing.jsonl`, 306 questions each, no failed or empty responses, calls per question equal to the step count): 2 steps BM25 380 s, e5 407 s; 3 steps BM25 614 s, e5 654 s;
+  8 steps BM25 2,181 s, e5 2,262 s. Sum 6,498 s = 108.3 minutes for 7,956 calls (6,159,259 prompt and 428,435 completion tokens). Job walls (include start-up and pulls): 898 s, 1,277 s, 4,508 s.
+  The planning estimate was 83.8 minutes (`estimates.md`), so the real run was 29% slower; the 8-step runs alone took 74 minutes.
+- The session was stopped with `t4.sh down` at 08:19:39Z; `colab sessions` then listed none. Sessions 1 and 2 timings above are unchanged.
