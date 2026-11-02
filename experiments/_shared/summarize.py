@@ -324,6 +324,7 @@ def steps_sweep():
     labs = list(settings)
     pairs = [(a, b) for a, b in zip(labs[2:], labs[1:-1])] + [(a, "one call (NR)") for a in labs[1:]]
     pairs += [(labs[-1], labs[1])] if len(labs) > 3 else []
+    pairs += [(labs[-1], "3 steps")] if "3 steps" in labs and labs[-1] != "3 steps" else []
     intro = (f"SequentialReason with 2, 3, 5 and 8 steps and the one-call NaiveReason baseline, k = 20, BM25 and e5, Qwen2.5-7B-Instruct-AWQ on a Colab T4, greedy, "
              f"slice `s306.json` ({sl['meta']['n']} questions, {sl['meta']['per_hop']} per hop, all 12 users; a subset of the 900-question slice). "
              "One call = tag `s1` (k = 20) restricted to these questions; 5 steps = committed session-2 run (tag `s2`); 2, 3 and 8 steps = tag `s3_steps`. "

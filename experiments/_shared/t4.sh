@@ -22,7 +22,7 @@ LOG=results/t4/timing_log.md
 
 stamp() { date -u +%Y-%m-%dT%H:%M:%SZ; }
 note() { echo "- $(stamp) $*" | tee -a "$LOG"; }
-vm() { colab exec -s "$S" 2>&1; }          # python on stdin
+vm() { timeout 180 colab exec -s "$S" 2>&1; }   # python on stdin; time-limited because a hung exec call blocked the driver for 30 min once
 
 cmd_up() {
   mkdir -p results/t4 data
@@ -51,26 +51,38 @@ PY
   colab upload -s "$S" /tmp/t4_code.tgz /content/t4_code.tgz
   [ -f data/mpr_dataset.zip ] && colab upload -s "$S" data/mpr_dataset.zip /content/t4_dataset.zip
   if [ -f results/t4/vm_results.tgz ]; then colab upload -s "$S" results/t4/vm_results.tgz /content/t4_prev.tgz; fi
-  vm <<PY | tail -20
+  # The setup runs as a detached script on the VM and is polled with short calls: one long `colab exec` cell
+  # (the vLLM install takes minutes) hung or lost its connection in earlier sessions.
+  vm <<PY | tail -1
+open('/content/setup.sh', 'w').write("""set -x
+cd /content
+mkdir -p t4 && tar xzf t4_code.tgz -C t4
+[ -f /content/t4_prev.tgz ] && tar xzf t4_prev.tgz -C t4
+[ -d /content/t4/data/mpr_dataset/question_answer ] || { mkdir -p t4/data && python -I -c "import zipfile; zipfile.ZipFile('/content/t4_dataset.zip').extractall('/content/t4/data')"; }
+[ -d /content/t4/upstream/MPR/.git ] || { mkdir -p t4/upstream && git clone -q https://github.com/nuster1128/MPR t4/upstream/MPR; }
+git -C t4/upstream/MPR checkout -q $UPSTREAM_COMMIT
+python -c "import importlib.util as u; assert u.find_spec('vllm')" || uv pip install vllm bm25s==0.2.9 sentence-transformers 2>&1 | tail -3
+uv pip uninstall torchao 2>&1 | tail -1
+uv pip list 2>/dev/null | grep -iE '^(vllm|torch|transformers|bm25s|sentence-transformers|numpy) '
+python --version
+echo SETUPDONE
+""")
 import subprocess, os
-def sh(c):
-    r = subprocess.run(c, shell=True, capture_output=True, text=True); print(r.stdout[-600:], r.stderr[-600:]); return r.returncode
-os.chdir('/content')
-sh('mkdir -p t4 && tar xzf t4_code.tgz -C t4')
-if os.path.exists('/content/t4_prev.tgz'): sh('tar xzf t4_prev.tgz -C t4')
-if not os.path.exists('/content/t4/data/mpr_dataset/question_answer'):
-    sh('mkdir -p t4/data && python -I -c "import zipfile; zipfile.ZipFile(\'/content/t4_dataset.zip\').extractall(\'/content/t4/data\')"')
-if not os.path.exists('/content/t4/upstream/MPR/.git'):
-    sh('mkdir -p t4/upstream && git clone -q https://github.com/nuster1128/MPR t4/upstream/MPR')
-sh('git -C t4/upstream/MPR checkout -q $UPSTREAM_COMMIT')
-try:
-    import importlib.util; assert importlib.util.find_spec('vllm'); print('vllm installed')
-except Exception:
-    print('installing vllm (system python, uv)')
-    sh('uv pip install vllm bm25s==0.2.9 sentence-transformers 2>&1 | tail -3')
-sh('uv pip uninstall torchao 2>&1 | tail -1')   # Colab ships torchao 0.10, peft 0.21 refuses it; not needed here
-print(os.listdir('/content/t4'), os.listdir('/content/t4/data'))
+if os.path.exists('/content/setup.log'): os.remove('/content/setup.log')
+subprocess.Popen('bash /content/setup.sh > /content/setup.log 2>&1', shell=True, start_new_session=True)
+print('setup launched')
 PY
+  local i out
+  for i in $(seq 1 90); do
+    sleep 20
+    out=$(vm <<'PY' | tail -14
+import os
+print(open('/content/setup.log').read()[-900:] if os.path.exists('/content/setup.log') else 'nolog')
+PY
+)
+    echo "$out" | grep -q SETUPDONE && { echo "$out"; return 0; }
+  done
+  note "VM setup did not finish in 30 min"; return 1
 }
 
 cmd_serve() {
@@ -129,9 +141,10 @@ cmd = "cd /content/t4 && JAX_PLATFORMS=cpu XLA_PYTHON_CLIENT_PREALLOCATE=false T
 subprocess.Popen(cmd, shell=True, start_new_session=True)
 print('launched $name')
 PY
-  local out
+  local out fails=0 polls=0
   while true; do
     sleep 60
+    polls=$((polls+1))
     out=$(vm <<PY | tail -4
 import os
 e = '/content/t4/logs/$name.exit'
@@ -140,7 +153,14 @@ print(''.join(open('/content/t4/logs/$name.log').readlines()[-2:])[-400:])
 PY
 )
     echo "$out" | tail -3
-    echo "$out" | grep -q 'EXIT=running' || break
+    if echo "$out" | grep -q 'EXIT='; then
+      fails=0
+      echo "$out" | grep -q 'EXIT=running' || break
+      # pull partial results every 10 polls so a cut session loses little (the grid resumes from the jsonl files)
+      [ $((polls % 10)) -eq 0 ] && cmd_pull
+    else
+      fails=$((fails+1)); [ $fails -ge 5 ] && break    # 5 failed polls in a row: session lost
+    fi
   done
   echo "$out" | grep -q 'EXIT=' || { note "poll failed (session lost?) - rerun: t4.sh up; t4.sh job $name $script $args"; return 2; }
   local rc; rc=$(echo "$out" | grep -o 'EXIT=[0-9]*' | cut -d= -f2)
