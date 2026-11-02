@@ -60,11 +60,11 @@ SESSIONS = {
         "tags": ["s3_topk"], "main_summary": "summary_s3_topk_sweep.md",
     },
     "s3b": {
-        "dir": "s3b_t4_step_sweep_not_run", "file": "s3b_t4_step_sweep.ipynb",
-        "title": "Session 3b: reasoning-step sweep (2 / 3 / 8 steps), NOT RUN so far",
-        "readme": "experiments/s3b_t4_step_sweep_not_run/README.md",
-        "status": "This session has never been run: no free T4 could be obtained on 2026-11-01 (16 `colab new --gpu T4` attempts returned 503). "
-                  "The notebook is a ready-to-run version of `session3b.sh`, committed unexecuted.",
+        "dir": "s3b_t4_step_sweep", "file": "s3b_t4_step_sweep.ipynb",
+        "title": "Session 3b: reasoning-step sweep (2 / 3 / 8 steps)",
+        "readme": "experiments/s3b_t4_step_sweep/README.md",
+        "status": "The sweep was run on 2026-11-02 with the `colab` CLI driver (`session3b.sh`), not with this notebook; results are in `results/t4/s3_steps/`. "
+                  "The notebook is the same jobs for a Colab VM, committed unexecuted.",
         "jobs": [
             (f"grid3_s{s}", "grid.py", f"--slice results/slices/s306.json --reason seq --max-step {s} --memories sparse,dense --topk 20 --tag s3_steps --workers 48")
             for s in (2, 3, 8)],

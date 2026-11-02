@@ -2,7 +2,7 @@
 
 This folder holds the pieces every T4 session uses: `t4.sh` (the `colab` CLI driver), `lib.py`, `grid.py`, `summarize.py`,
 `score.py`, `common.py`, `estimate.py`. Each session has its own folder with a README, its driver script and a Colab notebook:
-`experiments/s1_t4_one_call_grid/`, `s2_t4_chain_of_thought/`, `s3a_t4_topk_sweep/`, `s3b_t4_step_sweep_not_run/`.
+`experiments/s1_t4_one_call_grid/`, `s2_t4_chain_of_thought/`, `s3a_t4_topk_sweep/`, `s3b_t4_step_sweep/`.
 
 Experiments for a free-tier Colab T4 (16 GB, fp16 only, 12 GB RAM, 2 vCPU, sessions can be cut at any time).
 Everything is driven from your machine with the `colab` CLI (google-colab-cli, already authorised; the scripts never
@@ -25,7 +25,7 @@ Each session script is re-runnable; finished work is skipped, so run it again af
 | `experiments/s1_t4_one_call_grid/session1.sh` | VM + vLLM setup, throughput test, retrieval-only error bars (12 users), one-call grid on 900 questions (no memory, Oracle, BM25, e5) |
 | `experiments/s2_t4_chain_of_thought/session2.sh` | chain-of-thought (SequentialReason, 5 steps) grid on the 306-question slice, four memory types |
 | `experiments/s3a_t4_topk_sweep/session3a.sh` | top-k sweep (10/30/50), NaiveReason, BM25 and e5, 900 questions; run |
-| `experiments/s3b_t4_step_sweep_not_run/session3b.sh` | reasoning-step sweep (2/3/8); NOT run (no T4 available); the estimate (`results/t4/estimates.md`) exceeds one session together with 3a, hence two scripts |
+| `experiments/s3b_t4_step_sweep/session3b.sh` | reasoning-step sweep (2/3/8); run on 2026-11-02 (the 16 attempts of 2026-11-01 got 503); the estimate (`results/t4/estimates.md`) exceeds one session together with 3a, hence two scripts |
 | `experiments/s4_laptop_lora_hybridmem/session4.sh` | small-model LoRA and HybridMem (5 clusters) on a T4, no vLLM during training; only the smoke test ran on a T4, the real run was done on the laptop |
 
 Measured durations and which sessions have been run: `results/t4/timing_log.md` and `docs/reproduction-status.md`.
@@ -78,7 +78,7 @@ connection does not kill them; `t4.sh job` polls once a minute.
 - `retrieve.py` skips users that have a `.done` marker and an embedding cache.
 - `sft.py` appends self-ask pairs as they are generated and saves the adapter after every epoch (AdamW moments are
   not saved, so a resumed epoch restarts them).
-- The driver pulls `results/` and `logs/` after every job and `down` pulls once more; `up` pushes the last pull back
+- The driver pulls `results/` and `logs/` after every job and about every 10 minutes while a job runs (added after a VM was lost in session 3b with nothing pulled), and `down` pulls once more; `up` pushes the last pull back
   to a fresh VM. If the T4 is unavailable, `up` retries four times and exits non-zero.
 
 ## Pitfalls hit while building this (all fixed in the scripts)
@@ -88,6 +88,8 @@ connection does not kill them; `t4.sh job` polls once a minute.
 - `bm25s` can pull in `jax`, which preallocates most of the GPU; jobs run with `JAX_PLATFORMS=cpu`.
 - A throughput test that repeats the same prompts is answered from vLLM's prefix cache (98% hit rate observed) and
   overstates throughput by an order of magnitude; the test adds a unique request line to every prompt.
+- One long `colab exec` cell (the vLLM install in `up`) hung for 30 minutes without an error on one VM in session 3b, and ended with "Connection was lost" when run by hand; earlier sessions saw a `TimeoutError` in the same cell. `up` now writes the
+  setup to `/content/setup.sh`, starts it detached and polls it with short calls; every `colab exec` is wrapped in `timeout 180`; `job` gives up only after 5 failed polls in a row.
 
 ## (d) Provenance of the shared files
 
@@ -112,5 +114,4 @@ and `common.py` also by the probes and S4).
 | `t4.sh` | ORIGINAL TO THIS REPO | no upstream reference. It pins upstream `a24953c` and the model revision and wraps the `colab` CLI. |
 | `make_notebooks.py` | ORIGINAL TO THIS REPO | no upstream reference; mirrors `t4.sh` and the session drivers. |
 
-Not verified in the restructuring task: the end-to-end `t4.sh` flow and the notebooks (one `colab new --gpu T4` attempt on 2026-11-01 returned HTTP 503 again, no session was created and `colab sessions` showed none; the staging step that copies the scripts flat was exercised only by building the same layout in a temp directory and importing every script from it).
-
+The end-to-end `t4.sh` flow (`up`, `serve`, `job`, `pull`, `down`) was exercised for real in session 3b on 2026-11-02 (with the changed `up` setup step described under Pitfalls); sessions 1 to 3a ran with the earlier version of `up`. The staging step that copies the scripts flat was also used by that run. The notebooks were not executed (see each session README).

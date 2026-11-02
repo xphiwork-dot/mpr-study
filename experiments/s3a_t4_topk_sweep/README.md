@@ -32,7 +32,7 @@ We test these two claims for NR with SparseRAG and DenseRAG only, at 7B in 4-bit
 
 | File | What it does |
 |---|---|
-| `session3a.sh` | the driver (the reasoning-step half of the old session 3 is in [`../s3b_t4_step_sweep_not_run/`](../s3b_t4_step_sweep_not_run/)) |
+| `session3a.sh` | the driver (the reasoning-step half of the old session 3 is in [`../s3b_t4_step_sweep/`](../s3b_t4_step_sweep/)) |
 | `s3a_t4_topk_sweep.ipynb` | the same jobs run on the Colab VM itself |
 | `../_shared/grid.py` (naive branch, `--topk`) | the runner; `../_shared/summarize.py: topk_sweep, sweep_report` the analysis |
 
@@ -55,7 +55,7 @@ python3 experiments/_shared/summarize.py topk     # needs results/t4/s1 and resu
 ```
 
 Notebook: [`s3a_t4_topk_sweep.ipynb`](s3a_t4_topk_sweep.ipynb). **Not executed as a notebook**: the session was run with the CLI driver; no free T4 was available to smoke-test the notebook (see
-[S3b](../s3b_t4_step_sweep_not_run/)). Expected runtime: about 66 minutes of generation plus about 5 minutes of setup; the real session needed 80 minutes of VM time (`timing_log.md`).
+[S3b](../s3b_t4_step_sweep/)). Expected runtime: about 66 minutes of generation plus about 5 minutes of setup; the real session needed 80 minutes of VM time (`timing_log.md`).
 
 ## (f) Results
 

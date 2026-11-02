@@ -25,7 +25,7 @@ No upstream code is copied here (the repo has no licence); every script in this 
 | [`experiments/s1_t4_one_call_grid/`](experiments/s1_t4_one_call_grid/) | T4 session 1: throughput, 12-user retrieval error bars, one-call grid (900 q), leak-free rescoring | Section 4.2, Figure 3 (NR) | run |
 | [`experiments/s2_t4_chain_of_thought/`](experiments/s2_t4_chain_of_thought/) | T4 session 2: 5-step chain-of-thought grid (306 q), SR vs NR | Section 4.2, Figure 3 (SR) | run |
 | [`experiments/s3a_t4_topk_sweep/`](experiments/s3a_t4_topk_sweep/) | T4 session 3a: top-k sweep 10 / 20 / 30 / 50 (900 q) | Section 4.3, Figure 4 | run |
-| [`experiments/s3b_t4_step_sweep_not_run/`](experiments/s3b_t4_step_sweep_not_run/) | T4 session 3b: reasoning-step sweep | Section 4.4, Figure 5 | NOT RUN (no T4 available); scripts and notebook ready |
+| [`experiments/s3b_t4_step_sweep/`](experiments/s3b_t4_step_sweep/) | T4 session 3b: reasoning-step sweep | Section 4.4, Figure 5 | run (3 steps best by a small margin; no detectable gain from 3 to 8 steps) |
 | [`experiments/s4_laptop_lora_hybridmem/`](experiments/s4_laptop_lora_hybridmem/) | laptop session 4: small LoRA (AskSFT) and HybridMem | Sections 5 and 6, Table 3 | run, small |
 | [`experiments/_shared/`](experiments/_shared/) | helpers, `colab` driver `t4.sh`, T4 runbook | n/a | n/a |
 
@@ -54,7 +54,7 @@ cp env.example .env
 for m in Ignoramus Oracle SparseRAG DenseRAG; do experiments/01_farm_small_run/farm_run.sh Naive $m; done
 .venv/bin/python experiments/_shared/score.py results/farm/*/*.jsonl
 # Colab T4 via the colab CLI (details: experiments/_shared/README.md); always finish with t4.sh down
-experiments/s1_t4_one_call_grid/session1.sh                  # also session2.sh (s2), session3a.sh (s3a), session3b.sh (s3b, not run)
+experiments/s1_t4_one_call_grid/session1.sh                  # also session2.sh (s2), session3a.sh (s3a), session3b.sh (s3b)
 experiments/_shared/t4.sh down
 python3 experiments/_shared/summarize.py grid --tag s1 --slice results/t4/slices/s900.json      # regenerate a summary from raw results
 # laptop LoRA / HybridMem (CUDA GPU, farm credentials): see experiments/s4_laptop_lora_hybridmem/README.md
@@ -71,7 +71,8 @@ Full tables (status, evidence file, reason for every gap): [`docs/reproduction-s
   on 900 questions and the 5-step chain-of-thought grid on 306 questions, both with Qwen2.5-7B-Instruct AWQ and leak-free rescoring (`results/t4/summary_s1.md`, `summary_s2_vs_s1.md`).
 - Partially reproduced on the laptop: small-model LoRA and HybridMem (`results/laptop/sft/summary.md`).
 - Run, no support for the paper's top-k claims: top-k sweep k = 10 / 20 / 30 / 50 at 7B (`results/t4/summary_s3_topk_sweep.md`; answer EM is flat in k although retrieval recall rises).
-- Not run: reasoning-step sweep (3b, no T4 available). Not reproduced: MaskSFT, TreeRAG, GraphRAG, MR and DR reasoning, and any paper number (different model setup).
+- Run, partial support for the paper's step-count claim: reasoning-step sweep 2 / 3 / 5 / 8 steps (`results/t4/summary_s3_steps_sweep.md`; every chain beats one call, 3 steps is nominally best, no detectable gain beyond 3 steps).
+- Not reproduced: MaskSFT, TreeRAG, GraphRAG, MR and DR reasoning, and any paper number (different model setup).
 
 The farm run is tiny (n = 9, one question is 0.11): only the large gaps mean anything.
 

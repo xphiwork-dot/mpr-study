@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Session 3b (about 1.5 h): reasoning-step sweep. NOT RUN: no free T4 could be obtained (16 attempts returned 503 on
-# 2026-11-01, see results/t4/timing_log.md). The script exists and the step-summary mode was smoke-tested on committed
-# runs only.
+# Session 3b (2.1 h of VM time in the run that worked): reasoning-step sweep. Run on 2026-11-02 after 16 attempts
+# on 2026-11-01 had returned 503 (see results/t4/timing_log.md); results in results/t4/s3_steps/.
 #   SequentialReason with 2 / 3 / 8 steps, BM25 and e5, k = 20, on the 306-question slice
 #   (5 steps is session 2, tag s2; 2 steps = start + final only). Shorten with LIMIT=150 (first N questions).
 # Compare against tags s1 / s2 with: python3 experiments/_shared/summarize.py steps
-# Use T4_SESSION=mpr-t4-s3b to keep this session separate from earlier ones (the name used for the failed attempts).
+# Use T4_SESSION=mpr-t4-s3b to keep this session separate from earlier ones. Rerun after a lost VM: finished questions are skipped.
+# The script does not stop the VM: run `T4_SESSION=mpr-t4-s3b experiments/_shared/t4.sh down` afterwards.
 set -uo pipefail
 cd "$(dirname "$0")/../.."
 T=experiments/_shared/t4.sh

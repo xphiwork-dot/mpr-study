@@ -14,7 +14,7 @@ Original code: https://github.com/nuster1128/MPR, pinned at commit `a24953c` ("u
 | [`s1_t4_one_call_grid/`](s1_t4_one_call_grid/) | T4 session 1: throughput, 12-user retrieval error bars, one-call grid (900 questions), leak-free rescoring | Section 4.2, Figure 3 (NR column); Section 4.6 is related | run |
 | [`s2_t4_chain_of_thought/`](s2_t4_chain_of_thought/) | T4 session 2: 5-step chain-of-thought grid (306 questions) and SR vs NR | Section 4.2, Figure 3 (SR vs NR) | run |
 | [`s3a_t4_topk_sweep/`](s3a_t4_topk_sweep/) | T4 session 3a: top-k sweep k = 10 / 20 / 30 / 50 (900 questions) | Section 4.3, Figure 4 | run |
-| [`s3b_t4_step_sweep_not_run/`](s3b_t4_step_sweep_not_run/) | T4 session 3b: reasoning-step sweep | Section 4.4, Figure 5 | NOT RUN (no T4 available); scripts and notebook ready |
+| [`s3b_t4_step_sweep/`](s3b_t4_step_sweep/) | T4 session 3b: reasoning-step sweep | Section 4.4, Figure 5 | run (3 steps best by a small margin; no detectable gain from 3 to 8 steps) |
 | [`s4_laptop_lora_hybridmem/`](s4_laptop_lora_hybridmem/) | session 4 on the laptop: small LoRA (AskSFT) and HybridMem | Sections 5 and 6, Table 3, Figures 9 and 10 | run, small |
 | [`_shared/`](_shared/) | helpers used by several experiments, the `colab` driver `t4.sh`, T4 runbook | n/a | n/a |
 

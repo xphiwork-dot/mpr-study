@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Session 3a (about 1 h): top-k sweep. NaiveReason, BM25 and e5, k in 10 / 30 / 50, on the 900-question slice
-# (k = 20 is session 1, tag s1). The reasoning-step half of the old session 3 is session3b.sh (not run).
+# (k = 20 is session 1, tag s1). The reasoning-step half of the old session 3 is session3b.sh.
 # The estimate (results/t4/estimates.md, about 143 min for 3a + 3b) is above one free-tier session, hence two scripts.
 # Compare against tag s1 with: python3 experiments/_shared/summarize.py topk   (and grid --tag s3_topk).
 set -uo pipefail
