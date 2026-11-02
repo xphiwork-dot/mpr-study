@@ -65,6 +65,42 @@ details summary{cursor:pointer;font-family:-apple-system,"Segoe UI",Roboto,sans-
 .tag{display:inline-block;font-size:.75em;border-radius:999px;padding:1px 9px;border:1px solid var(--bd);color:var(--mut)}
 .ask{font-family:-apple-system,"Segoe UI",Roboto,sans-serif;font-size:.9em;color:var(--mut);border-top:1px solid var(--bd);margin-top:3em;padding-top:1em}
 @media print{.diagram iframe{height:520px}.quiz button{border:1px solid #999}details{break-inside:avoid}}
+/* Verification page (section #verify) */
+:root{--neu:#5b6476;--neus:#eef0f4}
+@media (prefers-color-scheme:dark){:root{--neu:#a3abbb;--neus:#262c39}}
+.vd{display:inline-block;border-radius:999px;padding:1px 10px;font-weight:700;font-size:.82em;border:1px solid;white-space:nowrap;font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+.vd.rep{color:var(--good);background:var(--goods);border-color:var(--good)}
+.vd.par{color:var(--warn);background:var(--warns);border-color:var(--warn)}
+.vd.nor{color:var(--bad);background:var(--bads);border-color:var(--bad)}
+.vd.nt{color:var(--neu);background:var(--neus);border-color:var(--neu)}
+table.vt{width:100%;min-width:900px;font-size:.84em}
+table.vt td.pp{min-width:250px}
+table.vt td.ours{min-width:230px}
+table.vt td.ev{min-width:150px;font-size:.92em}
+table.vt td.ev code{word-break:break-all}
+table.vt td.vv{min-width:215px}
+table.vt tr.grp th{background:rgba(127,127,127,.14);font-size:.95em}
+table.vt .why{display:block;margin-top:5px}
+table.vt .cav{display:block;margin-top:4px;color:var(--mut)}
+table.vt .pg{color:var(--mut);white-space:nowrap}
+.legend{display:grid;grid-template-columns:1fr 1fr;gap:6px 18px;margin-top:10px;font-size:.92em}
+@media (max-width:760px){.legend{grid-template-columns:1fr}}
+.vbar{display:flex;height:30px;border-radius:8px;overflow:hidden;border:1px solid var(--bd);margin:.6em 0;font-family:-apple-system,"Segoe UI",Roboto,sans-serif;font-size:.85em;font-weight:700}
+.vbar span{display:flex;align-items:center;justify-content:center;color:#fff;min-width:0}
+.vbar .rep{background:var(--good)}.vbar .par{background:#b08800}.vbar .nor{background:var(--bad)}.vbar .nt{background:#6b7385}
+.takeaways{counter-reset:tk;list-style:none;padding:0;margin:0}
+.takeaways li{counter-increment:tk;position:relative;padding:8px 12px 8px 44px;margin:8px 0;background:var(--card);border:1px solid var(--bd);border-radius:10px}
+.takeaways li::before{content:counter(tk);position:absolute;left:12px;top:8px;width:24px;height:24px;border-radius:50%;background:var(--acc);color:#fff;text-align:center;line-height:24px;font-family:-apple-system,"Segoe UI",Roboto,sans-serif;font-weight:700;font-size:.85em}
+#verify table td.num{text-align:right;white-space:nowrap}
+@media print{
+#verify{break-before:page}
+#verify .tw{overflow:visible}
+table.vt{min-width:0;font-size:.7em}
+table.vt tr{break-inside:avoid}
+table.vt td.pp,table.vt td.ours,table.vt td.ev,table.vt td.vv{min-width:0}
+.vbar,.vd,.takeaways li::before{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.takeaways li{break-inside:avoid}
+}
 </style>
 </head>
 <body><main>
@@ -92,6 +128,7 @@ details summary{cursor:pointer;font-family:-apple-system,"Segoe UI",Roboto,sans-
 <li><a href="#s7">Critique: your own findings</a></li>
 <li><a href="#s8">Talk plan: which chart on which slide</a></li>
 <li><a href="#s9">Questions the teacher may ask</a></li>
+<li><a href="#verify">Verification against the paper (claims, numbers, verdicts)</a></li>
 <li><a href="#s10">Read next</a></li>
 </ol></nav>
 
@@ -419,6 +456,207 @@ details summary{cursor:pointer;font-family:-apple-system,"Segoe UI",Roboto,sans-
 <details><summary>Your numbers differ from the paper's. Why?</summary>Different model (gpt-6-luna vs Qwen2.5-7B), a 45-question subset rather than 2,700, and no 7B fine-tuning. We compare trends, not absolute numbers.</details>
 <details><summary>Is HybridMem worth using?</summary>Not on this evidence: the gains are about 0.01-0.03, with no variance reported, and some settings get worse. Retrieval alone gets almost all the benefit.</details>
 <details><summary>What would you change in the benchmark?</summary>Remove or flag questions that restate intermediate values, report variance across users, and release the dataset-generation and scoring code.</details>
+
+<section id="verify">
+<h2><span class="step">10</span>Verification against the paper</h2>
+<p>One row per claim or headline number of the paper, set against what this repo measured. Built as material for the slides: a takeaway block, a verdict overview, the claim table, two comparison tables and the threats to validity. Every number below is copied from a committed file under <code>results/</code> or <code>docs/verification/</code>, or from the paper PDF (<code>papers/2508.13250v1.pdf</code>, arXiv v1); the evidence column says which. Where something could not be checked, the row says so.</p>
+
+<div class="card warn"><strong>How to read this.</strong> "p." is the page of <code>papers/2508.13250v1.pdf</code> (1-15). The paper shows its main results (Figures 3-6, 8-10) only as charts, so its numbers here are either quoted from the text, or read from Table 3 (p. 8), which is the only exact results table; we did not digitise any chart. Our intervals are 95% bootstrap intervals over questions (2,000 resamples). Unless a row says otherwise our runs are Qwen2.5-7B-Instruct-AWQ (4-bit) on a Colab T4, greedy decoding, our own scorer (SQuAD-normalised exact match), k = 20, on a slice drawn from all 12 users: 900 questions for one call (NR), 306 questions for the chain of thought (SR). The paper used Qwen2.5-7B on 8 A800 GPUs and 2,700 questions (p. 4).
+<span class="legend"><span><span class="vd rep">reproduced</span> same direction and a comparable size, with intervals that support it</span><span><span class="vd par">partially</span> some part holds, another does not, or the setting differs a lot</span><span><span class="vd nor">not reproduced</span> tested, and the effect is absent or opposite</span><span><span class="vd nt">not tested</span> no run in this repo</span></span></div>
+
+<h3 id="v-summary">Slide-ready summary</h3>
+<ol class="takeaways">
+<li><strong>Explicit memory wins, and the ordering reproduces.</strong> EM for no memory / BM25 / e5 / Oracle: 0.041 / 0.114 / 0.109 / 0.257 with one call (900 questions) and 0.056 / 0.193 / 0.222 / 0.513 with a 5-step chain (306 questions). No memory, RAG and Oracle are separated by non-overlapping 95% intervals.</li>
+<li><strong>Searching again helps, then plateaus.</strong> 5-step chain minus one call, same 306 questions: BM25 +0.078 [+0.033, +0.124], e5 +0.095 [+0.049, +0.137]. No step count above 3 beat 3 steps (2, 3, 5, 8 steps tested).</li>
+<li><strong>"Dense for short hops, BM25 for long hops" holds for retrieval, not for answers.</strong> Recall@20 of gold facts, 32,399 questions: hop 2 e5 0.997 vs BM25 0.877; hop 10 BM25 0.340 vs e5 0.284. In answer EM the two retrievers are not separable (e5 minus BM25 -0.006 [-0.027, +0.016]).</li>
+<li><strong>More retrieved facts did not help here.</strong> From k = 10 to 50 recall of BM25 rises 0.376 to 0.595 but EM stays flat (0.123 to 0.116). The paper's top-k pattern is not reproduced (one-call runs only).</li>
+<li><strong>HybridMem: not reproduced at toy scale, and small in the paper itself.</strong> With a 0.5B model it did not beat plain retrieval in 4 of 4 retrieval conditions. In the paper's own Table 3 the mean change over 40 cells is +0.002 (23 cells up, 15 down, 2 tied), against the claim that it "consistently improves".</li>
+<li><strong>The benchmark leaks.</strong> 53% of all questions restate a number from their own gold facts (82% at 10 hops). No-memory EM is 0.065 [0.042, 0.088] on those, 0.014 [0.005, 0.026] on the leak-free rest.</li>
+<li><strong>What this does not cover.</strong> Of 17 claims: 3 reproduced, 7 partially, 2 not reproduced, 5 not tested (MR and DR reasoning, TreeRAG, GraphRAG, the 3B model, 7B LoRA and the SFT-hurts-reasoning claim). Absolute numbers are lower than the paper's.</li>
+</ol>
+
+<h3 id="v-overview">Verdict overview</h3>
+<div class="vbar" role="img" aria-label="17 claims: 3 reproduced, 7 partially, 2 not reproduced, 5 not tested">
+<span class="rep" style="width:17.6%">3</span><span class="par" style="width:41.2%">7</span><span class="nor" style="width:11.8%">2</span><span class="nt" style="width:29.4%">5</span>
+</div>
+<div class="tw"><table>
+<tr><th>Verdict</th><th>Count (of 17)</th><th>Claims (row numbers in the table below)</th></tr>
+<tr><td><span class="vd rep">reproduced</span></td><td class="num">3</td><td>3 memory-type ordering, 8 SR beats NR, 11 reasoning-step effect</td></tr>
+<tr><td><span class="vd par">partially</span></td><td class="num">7</td><td>1 dataset size, 2 no-shortcut design, 4 absolute accuracy, 5 dense vs sparse, 7 decline with hops, 13 efficiency, 14 implicit memory alone</td></tr>
+<tr><td><span class="vd nor">not reproduced</span></td><td class="num">2</td><td>10 top-k effect, 17 HybridMem gains</td></tr>
+<tr><td><span class="vd nt">not tested</span></td><td class="num">5</td><td>6 TreeRAG and GraphRAG, 9 MR and DR, 12 backbone size, 15 SFT hurts reasoning, 16 HybridMem and SFT hyperparameters</td></tr>
+</table></div>
+
+<h3 id="v-table">Claim by claim</h3>
+<div class="tw"><table class="vt">
+<tr><th>#</th><th>The paper says</th><th>Our result (model, slice, n)</th><th>Evidence in this repo</th><th>Verdict</th></tr>
+
+<tr class="grp"><th colspan="5">Dataset</th></tr>
+
+<tr><td>1</td>
+<td class="pp"><strong>Size and statistics.</strong> 13,097 &plusmn; 6.34 statements per user, 12 users, 108,000 QA tasks in total and 9,000 per user (Table 2); the text says 10,800 QA tasks. A 2,700-question sub-dataset is used for evaluation. <span class="pg">&sect;3.3.3 and Table 2, p. 4; &sect;3.4.1, p. 4</span></td>
+<td class="ours">User 0: 13,100 statements, 2,700 questions (300 per hop, hops 2-10). All 12 users: 32,399 questions (32,400 minus one null question). The release holds 32,400 questions, not 108,000.</td>
+<td class="ev"><a href="../results/probes/retrieval_recall.md"><code>results/probes/retrieval_recall.md</code></a><br><a href="../results/probes/leak_check.md"><code>results/probes/leak_check.md</code></a><br><a href="upstream-notes.md"><code>docs/upstream-notes.md</code></a> (last note)</td>
+<td class="vv"><span class="vd par">partially</span><span class="why">Statements per user and number of users match; the released question count is 30% of the paper's table.</span><span class="cav">Caveat: the paper's text (10,800) and table (108,000) disagree with each other; we checked only the public release at upstream commit a24953c.</span></td></tr>
+
+<tr><td>2</td>
+<td class="pp"><strong>No shortcuts.</strong> Tasks cannot be done from general knowledge, nor from a single statement; user-specific facts avoid "reasoning shortcuts". <span class="pg">Introduction, p. 1; Definition 1, &sect;3.1, p. 3; &sect;2.3, p. 3</span></td>
+<td class="ours">Share of questions that restate a number from their own gold statements, 32,399 questions: 0.53 (any number) and 0.38 (3+ digit numbers) overall; 0.82 and 0.62 at hop 10. In the 900-question slice 479 questions leak (338 by the 3+ digit rule). No-memory EM, one call: 0.065 [0.042, 0.088] on the 479 leaking, 0.014 [0.005, 0.026] on the 421 leak-free, 0.041 [0.029, 0.054] overall.</td>
+<td class="ev"><a href="../results/probes/leak_check.md"><code>results/probes/leak_check.md</code></a><br><a href="../results/t4/summary_s1.md"><code>results/t4/summary_s1.md</code></a> (leak-free sections)<br><a href="../results/t4/slices/s900.json"><code>results/t4/slices/s900.json</code></a> (flags)</td>
+<td class="vv"><span class="vd par">partially</span><span class="why">Most questions do need memory (no-memory EM is 0.041), but over half restate a number from their gold facts, which is a shortcut for the arithmetic and date steps.</span><span class="cav">Caveat: "shares a number" is a regex rule (<code>\d+(\.\d+)?</code>) and does not prove the answer is computable from the question; the original scout used a slightly different rule (see <a href="reproduction-status.md">reproduction-status.md</a>, section 1).</span></td></tr>
+
+<tr class="grp"><th colspan="5">Explicit memory: main results</th></tr>
+
+<tr><td>3</td>
+<td class="pp"><strong>Memory types, explicit.</strong> Oracle is the upper bound, Ignoramus (no memory) the lower baseline, and the RAG methods sit between them. Exact numbers only for the X rows of Table 3 (EM, hops 2-6 / 7-10): NR Oracle 0.428 / 0.202, DenseRAG 0.206 / 0.094, SparseRAG 0.204 / 0.084; SR Oracle 0.703 / 0.566, DenseRAG 0.324 / 0.216, SparseRAG 0.361 / 0.200. Ignoramus only in Figure 3 (curves). <span class="pg">&sect;4.1, p. 5; Figure 3, p. 5; Table 3, p. 8</span></td>
+<td class="ours">EM [95% CI]. One call, 900 questions: no memory 0.041 [0.029, 0.054], BM25 0.114 [0.094, 0.136], e5 0.109 [0.089, 0.129], Oracle 0.257 [0.229, 0.286]. 5-step chain, 306 questions: 0.056 [0.033, 0.082], 0.193 [0.150, 0.239], 0.222 [0.176, 0.271], 0.513 [0.454, 0.569]. One call, paired: Oracle minus BM25 +0.142 [+0.113, +0.170]; BM25 minus no memory +0.073 [+0.053, +0.094].</td>
+<td class="ev"><a href="../results/t4/summary_s1.md"><code>results/t4/summary_s1.md</code></a><br><a href="../results/t4/summary_s2.md"><code>results/t4/summary_s2.md</code></a><br>raw: <a href="../results/t4/s1/"><code>results/t4/s1/</code></a>, <a href="../results/t4/s2/"><code>results/t4/s2/</code></a></td>
+<td class="vv"><span class="vd rep">reproduced</span><span class="why">Same ordering in NR and SR; the intervals of no memory, RAG and Oracle do not overlap.</span><span class="cav">Caveat: this is the order of the memory types, not the size of the numbers (next row). The farm run (9 questions, farm model) shows the same order but is too small to count.</span></td></tr>
+
+<tr><td>4</td>
+<td class="pp"><strong>Absolute accuracy.</strong> The Table 3 X-row numbers quoted in row 3, from Qwen2.5-7B (full precision is not stated), 2,700 questions, k = 20, 5 steps for SR. <span class="pg">Table 3, p. 8; &sect;3.4, p. 4</span></td>
+<td class="ours">Same hop groups, our runs (NR on 900 q, SR on 306 q): NR Oracle 0.336 [0.294, 0.378] / 0.158 [0.122, 0.195], e5 0.146 / 0.062, BM25 0.152 / 0.068; SR Oracle 0.571 [0.494, 0.641] / 0.441 [0.360, 0.522], e5 0.271 / 0.162, BM25 0.224 / 0.154. The paper's value lies inside our interval in 5 of 12 cells; in the other 7 it is higher than ours. Full table below.</td>
+<td class="ev"><a href="verification/regroup_short_long.md"><code>docs/verification/regroup_short_long.md</code></a><br>script: <a href="verification/regroup_short_long.py"><code>docs/verification/regroup_short_long.py</code></a><br>raw: <code>results/t4/s1/</code>, <code>results/t4/s2/</code></td>
+<td class="vv"><span class="vd par">partially</span><span class="why">Same ordering and a similar size for the SR rows of the RAG methods; most other cells, and Oracle in particular, are lower than the paper's.</span><span class="cav">Caveat: 4-bit weights, greedy decoding, our scorer (upstream ships none), a different and smaller slice. The intervals cover sampling noise only, not these setting differences.</span></td></tr>
+
+<tr><td>5</td>
+<td class="pp"><strong>BM25 vs dense, by hop.</strong> "DenseRAG performs best on short-hop questions, while SparseRAG performs best on long-hop questions." <span class="pg">&sect;4.2, p. 6 (Figure 3, p. 5)</span></td>
+<td class="ours">Retrieval only, recall@20 of gold statements, all 12 users, n = 3,600 per hop: hop 2 e5 0.997 [0.995, 0.998] vs BM25 0.877 [0.866, 0.888]; hop 4 e5 0.590 [0.579, 0.602] vs 0.552 [0.540, 0.563]; hop 5 BM25 0.544 [0.534, 0.553] vs e5 0.482 [0.474, 0.490]; hop 10 BM25 0.340 [0.332, 0.347] vs e5 0.284 [0.278, 0.291]. Answer EM, BM25 minus e5, one call: all 900 q +0.006 [-0.016, +0.027]; hops 2-4 +0.023 [-0.023, +0.070]; hops 8-10 +0.010 [-0.023, +0.043]. Chain, e5 minus BM25 (306 q): +0.029 [-0.020, +0.078].</td>
+<td class="ev"><a href="../results/t4/summary_retrieval.md"><code>results/t4/summary_retrieval.md</code></a><br><a href="../results/t4/summary_s3_topk_sweep.md"><code>results/t4/summary_s3_topk_sweep.md</code></a> (BM25 minus e5 table)<br><a href="../results/t4/summary_s2.md"><code>results/t4/summary_s2.md</code></a><br>user-0 probe: <code>results/probes/retrieval_recall.md</code></td>
+<td class="vv"><span class="vd par">partially</span><span class="why">The crossover is reproduced in retrieval (dense ahead on hops 2-4, BM25 ahead from hop 5, intervals do not overlap at any hop), but in answer EM the two retrievers cannot be told apart (every interval contains 0).</span><span class="cav">Caveat: recall is our addition, the paper compares accuracy. In the single-user probe hop 4 is a tie (0.570 vs 0.563). Both retrievers run without the e5 query/passage prefixes, as upstream does.</span></td></tr>
+
+<tr><td>6</td>
+<td class="pp"><strong>TreeRAG and GraphRAG.</strong> TreeRAG performs comparably to DenseRAG and SparseRAG; GraphRAG performs poorly (similar entities add noise). Table 3 X row, NR hops 2-6: GraphRAG 0.112 vs DenseRAG 0.206. <span class="pg">&sect;4.2, p. 6; Table 3, p. 8</span></td>
+<td class="ours">Not run. Building either index needs an LLM over about 13.1k statements per user; the cost was estimated, never measured.</td>
+<td class="ev"><a href="reproduction-status.md"><code>docs/reproduction-status.md</code></a> section 4</td>
+<td class="vv"><span class="vd nt">not tested</span><span class="why">No TreeRAG or GraphRAG run.</span></td></tr>
+
+<tr><td>7</td>
+<td class="pp"><strong>Accuracy falls with hops.</strong> "The accuracy of DenseRAG on SR and MR gradually decreases from over 60% on 2-hop questions to around 20% on 10-hop questions"; SR and MR mitigate the decline on Oracle, the RAG methods still degrade rapidly. <span class="pg">&sect;4.2, p. 6</span></td>
+<td class="ours">Chain (SR, 306 q, 34 per hop), EM at hop 2 then hop 10: e5 0.50 then 0.12, BM25 0.53 then 0.12, Oracle 0.59 then 0.32. One call (900 q, 100 per hop): e5 0.33 then 0.04, Oracle 0.44 then 0.12. Recall@20, all users: e5 0.997 then 0.284, BM25 0.877 then 0.340.</td>
+<td class="ev"><a href="../results/t4/summary_s2.md"><code>results/t4/summary_s2.md</code></a> (EM by hop)<br><a href="../results/t4/summary_s1.md"><code>results/t4/summary_s1.md</code></a><br><code>results/t4/summary_retrieval.md</code></td>
+<td class="vv"><span class="vd par">partially</span><span class="why">The decline reproduces for every memory type, and Oracle ends higher under the chain (0.32 vs 0.12 at hop 10). The chain with e5 starts at 0.50 at hop 2, not above 0.60.</span><span class="cav">Caveat: 34 questions per hop and no per-hop interval, so single hops are coarse; leaked numbers lift hops 8-9 (e5 chain 0.26 at hop 8 vs 0.15 at hop 4), so our curve is not monotone.</span></td></tr>
+
+<tr class="grp"><th colspan="5">Reasoning structures, retrieval count, steps, size, cost</th></tr>
+
+<tr><td>8</td>
+<td class="pp"><strong>SR beats NR.</strong> "The performance of SR and MR is significantly higher than DR and NR, with an overall improvement of 10% to 20%"; NR is weakest, especially on long hops. Table 3 X rows, SR minus NR at hops 2-6 / 7-10: DenseRAG +0.118 / +0.122, SparseRAG +0.157 / +0.116, Oracle +0.275 / +0.364 (computed from Table 3). <span class="pg">&sect;4.2, pp. 5-6; Table 3, p. 8</span></td>
+<td class="ours">Chain (5 steps) minus one call, same 306 questions, paired, EM: BM25 +0.078 [+0.033, +0.124], e5 +0.095 [+0.049, +0.137], Oracle +0.258 [+0.203, +0.310], no memory +0.013 [-0.010, +0.036]. Hops 2-6 / 7-10 (difference of means): e5 +0.118 / +0.066, BM25 +0.077 / +0.080, Oracle +0.247 / +0.272.</td>
+<td class="ev"><a href="../results/t4/summary_s2_vs_s1.md"><code>results/t4/summary_s2_vs_s1.md</code></a><br><code>docs/verification/regroup_short_long.md</code></td>
+<td class="vv"><span class="vd rep">reproduced</span><span class="why">The chain beats one call for both retrievers and Oracle, intervals above 0; the gain is of the same order as Table 3 (about +0.07 to +0.12 for e5 and BM25 against +0.12 to +0.16 for DenseRAG and SparseRAG in Table 3).</span><span class="cav">Caveat: the leak-free BM25 gain is not clearly above 0 (+0.057 [-0.007, +0.121]); the chain makes 5 calls, so extra reasoning and re-retrieval are mixed (Oracle, with nothing to re-retrieve, gains most).</span></td></tr>
+
+<tr><td>9</td>
+<td class="pp"><strong>MR and DR.</strong> MR (tree of thought, 2 branches per step) and SR are higher than DR and NR; DR relies on the first decomposition ("myopia") and is more sensitive to extra steps. <span class="pg">&sect;3.4.3, pp. 4-5; &sect;4.2, pp. 5-6; &sect;4.4, p. 6; Table 3, p. 8</span></td>
+<td class="ours">Not run; only NR and SR were implemented.</td>
+<td class="ev"><code>docs/reproduction-status.md</code> section 4</td>
+<td class="vv"><span class="vd nt">not tested</span><span class="why">No MR or DR run.</span></td></tr>
+
+<tr><td>10</td>
+<td class="pp"><strong>Top-k effect.</strong> "In short-hop questions, the accuracy typically improves as k increases"; in long-hop questions "there exists a peak of accuracy at an intermediate k". Heatmaps for k = 10, 30, 50, all four structures. <span class="pg">&sect;4.3, Figure 4, p. 6</span></td>
+<td class="ours">One call, 900 q, EM [95% CI] at k = 10 / 20 / 30 / 50: BM25 0.123 [0.103, 0.146], 0.114 [0.094, 0.136], 0.110 [0.090, 0.131], 0.116 [0.096, 0.137]; e5 0.109 [0.089, 0.129], 0.109 [0.090, 0.130], 0.108 [0.088, 0.129], 0.117 [0.096, 0.139]. Recall@k of the same questions: BM25 0.376, 0.478, 0.530, 0.595; e5 0.387, 0.507, 0.577, 0.660. Hops 2-4 (n = 300), k = 50 minus k = 10: BM25 +0.010 [-0.027, +0.047], e5 -0.007 [-0.047, +0.033]. Hops 8-10: EM between 0.053 and 0.080 at every k.</td>
+<td class="ev"><a href="../results/t4/summary_s3_topk_sweep.md"><code>results/t4/summary_s3_topk_sweep.md</code></a><br><a href="../results/t4/summary_s3_topk.md"><code>results/t4/summary_s3_topk.md</code></a><br>raw: <a href="../results/t4/s3_topk/"><code>results/t4/s3_topk/</code></a> (k = 20 is <code>results/t4/s1/</code>)</td>
+<td class="vv"><span class="vd nor">not reproduced</span><span class="why">Recall rises clearly with k but EM does not; no paired k difference over all questions excludes 0, and no intermediate peak shows at long hops.</span><span class="cav">Caveat: one-call runs only (the paper's figure also covers SR, MR, DR); EM at long hops is only 0.05-0.10, so effects below about 0.04 are invisible, which makes this "not reproduced", not "refuted". 5 of 60 paired intervals exclude 0, all negative, uncorrected for multiple comparisons.</span></td></tr>
+
+<tr><td>11</td>
+<td class="pp"><strong>Reasoning steps.</strong> "model performances improve as the number of reasoning steps increases, but the gains beyond 3 steps are not significant"; DR is more sensitive, long hops and Oracle are more affected. Steps 1, 3, 5, 7, 9. <span class="pg">&sect;4.4, Figure 5, p. 6</span></td>
+<td class="ours">Chain on 306 q, EM [95% CI], BM25 for one call / 2 / 3 / 5 / 8 steps: 0.114 [0.082, 0.150], 0.199 [0.157, 0.245], 0.229 [0.183, 0.278], 0.193 [0.150, 0.242], 0.203 [0.160, 0.248]; e5: 0.127 [0.092, 0.167], 0.199 [0.154, 0.245], 0.245 [0.196, 0.294], 0.222 [0.173, 0.271], 0.225 [0.176, 0.271]. Paired to one call, every step count is above 0 (+0.072 to +0.118; 8 steps BM25 +0.088 [+0.042, +0.137], e5 +0.098 [+0.052, +0.144]). 3 vs 2 steps: BM25 +0.029 [+0.000, +0.059], e5 +0.046 [+0.013, +0.078]. 8 vs 3 steps: BM25 -0.026 [-0.065, +0.013], e5 -0.020 [-0.059, +0.020].</td>
+<td class="ev"><a href="../results/t4/summary_s3_steps_sweep.md"><code>results/t4/summary_s3_steps_sweep.md</code></a><br><a href="../results/t4/summary_s3_steps.md"><code>results/t4/summary_s3_steps.md</code></a><br>raw: <a href="../results/t4/s3_steps/"><code>results/t4/s3_steps/</code></a> (5 steps = <code>results/t4/s2/</code>)</td>
+<td class="vv"><span class="vd rep">reproduced</span><span class="why">More steps beat one call, 3 steps is nominally best, and nothing beyond 3 steps is better.</span><span class="cav">Caveat: the curve is not monotone (5 vs 3 steps, BM25 -0.036 [-0.069, -0.003]); SR only, steps 2/3/5/8 not 1/3/5/7/9; the 5-step run is from another VM and day; DR sensitivity, hop-group and Oracle sub-claims not tested; effects below about 0.04 are invisible.</span></td></tr>
+
+<tr><td>12</td>
+<td class="pp"><strong>Backbone size.</strong> The 3B model degrades strongly against 7B in all scenarios; NR and DR drop most, SR is most robust. <span class="pg">&sect;4.5, Figure 6, p. 6; &sect;5.5, p. 7; App. A.3, p. 12</span></td>
+<td class="ours">Not run; only the 7B model (T4) and a 0.5B model (laptop LoRA probe) were used.</td>
+<td class="ev">none</td>
+<td class="vv"><span class="vd nt">not tested</span><span class="why">No 3B run.</span></td></tr>
+
+<tr><td>13</td>
+<td class="pp"><strong>Efficiency.</strong> Multi-step structures take much more time than one call; RAG methods take more than Oracle and Ignoramus; time grows with hops. <span class="pg">&sect;4.6, Figure 7(a), p. 7</span></td>
+<td class="ours">Wall time of the T4 generation (vLLM, 48 concurrent workers). One call, 900 q: no memory 166 s, Oracle 208 s, BM25 435 s, e5 480 s. Chain, 306 q (1,530 calls each): 561 s, 614 s, 1,159 s, 1,231 s, i.e. about 0.18-0.53 s per question for one call and 1.83-4.02 s per question for the chain.</td>
+<td class="ev"><a href="../results/t4/s1/timing.jsonl"><code>results/t4/s1/timing.jsonl</code></a><br><a href="../results/t4/s2/timing.jsonl"><code>results/t4/s2/timing.jsonl</code></a></td>
+<td class="vv"><span class="vd par">partially</span><span class="why">The same ordering (no memory fastest, RAG slowest, chain much slower than one call).</span><span class="cav">Caveat: batched wall time, not per-task completion time as in the paper; the RAG cost is mostly longer prompts; the hop dependence and TreeRAG were not examined.</span></td></tr>
+
+<tr class="grp"><th colspan="5">Implicit and hybrid memory</th></tr>
+
+<tr><td>14</td>
+<td class="pp"><strong>Implicit memory alone is poor.</strong> "using implicit memory alone achieves poor performance, indicating that SFT cannot effectively handle large-scale detailed information"; more training epochs do not fix it. <span class="pg">&sect;5.2-5.3, Figure 8, p. 7; App. A.1, Figure 11, p. 12</span></td>
+<td class="ours">Qwen2.5-0.5B, 300 user-0 facts, farm-written training pairs, 60 seen and 60 paraphrased questions, closed book, one LoRA, strong learning rate: contains 6/60 seen and 7/60 paraphrased (EM 5/60, 6/60), base model 0/60 and 1/60. Upstream learning rate: 0/60 and 0/60. Base model with retrieval: 41/60 and 43/60.</td>
+<td class="ev"><a href="../results/laptop/sft/summary.md"><code>results/laptop/sft/summary.md</code></a><br><a href="../experiments/s4_laptop_lora_hybridmem/README.md"><code>experiments/s4_laptop_lora_hybridmem/README.md</code></a></td>
+<td class="vv"><span class="vd par">partially</span><span class="why">Same direction: recall of trained facts is low and far below retrieval.</span><span class="cav">Caveat: 0.5B model, 300 facts, a single-fact probe, not benchmark questions; seen and paraphrased questions share facts, so the counts are not independent; MaskSFT not run; no 7B LoRA.</span></td></tr>
+
+<tr><td>15</td>
+<td class="pp"><strong>SFT hurts reasoning.</strong> Adding implicit memory to Oracle lowers SR and MR accuracy (MSO, ASO below Oracle), "possibly because SFT may decline the reasoning capability". In Table 3, AS+X is below X in all 10 SR cells (mean -0.060) and all 10 MR cells (mean -0.095) (computed from Table 3). <span class="pg">&sect;5.2, p. 7; Table 3, p. 8</span></td>
+<td class="ours">Not run: it needs a multi-step benchmark run on a fine-tuned 7B model.</td>
+<td class="ev">none</td>
+<td class="vv"><span class="vd nt">not tested</span><span class="why">The laptop probe is single-step and 0.5B, so it says nothing about this.</span></td></tr>
+
+<tr><td>16</td>
+<td class="pp"><strong>HybridMem hyperparameters.</strong> 30 and 50 blocks differ little; best training epoch is 7, especially for long hops. <span class="pg">&sect;6.4, Figure 9; &sect;6.5, Figure 10, p. 8</span></td>
+<td class="ours">One setting only: 5 clusters, 10 epochs (last epoch), 0.5B. No sweep.</td>
+<td class="ev"><code>results/laptop/sft/summary.md</code></td>
+<td class="vv"><span class="vd nt">not tested</span><span class="why">No cluster-count or epoch sweep.</span></td></tr>
+
+<tr><td>17</td>
+<td class="pp"><strong>HybridMem gains.</strong> It "achieves the best overall performance on multi-hop reasoning structures, with particularly notable improvements on long-hop questions" and "consistently improves performance across multiple RAG methods and also enhances the Oracle baseline". Example, SR, hops 7-10, SparseRAG: 0.200 to 0.232. <span class="pg">&sect;6.3, Table 3, p. 8</span></td>
+<td class="ours">Qwen2.5-0.5B, 300 facts, 5 clusters with a vote over e5-retrieved facts (strong preset), contains, correct / 60 (seen, paraphrased). With retrieval: HybridMem 38 and 36; one LoRA plus retrieval 45 and 42; base plus retrieval 41 and 43. Closed book: HybridMem 3 and 3; one LoRA 6 and 7. Upstream learning rate, with retrieval: HybridMem 37 and 37, one LoRA 43 and 43, base 41 and 43.</td>
+<td class="ev"><code>results/laptop/sft/summary.md</code> (section "Hybrid comparisons")<br><a href="../experiments/s4_laptop_lora_hybridmem/laptop_sft.py"><code>experiments/s4_laptop_lora_hybridmem/laptop_sft.py</code></a></td>
+<td class="vv"><span class="vd nor">not reproduced</span><span class="why">HybridMem did not beat plain retrieval, nor one LoRA with retrieval, in any of the 4 retrieval conditions.</span><span class="cav">Caveat: toy scale, far from the paper (7B, 30-50 clusters, benchmark questions, Table 3); our run does show the pipeline works once the upstream adapter-name crash is fixed. The paper's own gains are tiny, see the second table below.</span></td></tr>
+</table></div>
+
+<h3 id="v-abs">Paper Table 3 vs our runs: absolute EM (the X rows)</h3>
+<p>Paper values are the exact Table 3 numbers (p. 8). Our values are EM [95% CI] from the same raw run files regrouped into the paper's hop groups (Short = hops 2-6, Long = 7-10). "Inside" says whether the paper's value lies inside our interval; the interval covers sampling noise only.</p>
+<div class="tw"><table>
+<tr><th>Reasoning</th><th>Memory</th><th>Hops</th><th>Paper (Table 3)</th><th>Ours [95% CI]</th><th>Our n</th><th>Paper inside our CI?</th></tr>
+<tr><td>NR</td><td>Oracle</td><td>2-6</td><td class="num">0.428</td><td class="num">0.336 [0.294, 0.378]</td><td class="num">500</td><td>no</td></tr>
+<tr><td>NR</td><td>Oracle</td><td>7-10</td><td class="num">0.202</td><td class="num">0.158 [0.122, 0.195]</td><td class="num">400</td><td>no</td></tr>
+<tr><td>NR</td><td>DenseRAG (e5)</td><td>2-6</td><td class="num">0.206</td><td class="num">0.146 [0.116, 0.178]</td><td class="num">500</td><td>no</td></tr>
+<tr><td>NR</td><td>DenseRAG (e5)</td><td>7-10</td><td class="num">0.094</td><td class="num">0.062 [0.040, 0.087]</td><td class="num">400</td><td>no</td></tr>
+<tr><td>NR</td><td>SparseRAG (BM25)</td><td>2-6</td><td class="num">0.204</td><td class="num">0.152 [0.120, 0.184]</td><td class="num">500</td><td>no</td></tr>
+<tr><td>NR</td><td>SparseRAG (BM25)</td><td>7-10</td><td class="num">0.084</td><td class="num">0.068 [0.045, 0.095]</td><td class="num">400</td><td>yes</td></tr>
+<tr><td>SR</td><td>Oracle</td><td>2-6</td><td class="num">0.703</td><td class="num">0.571 [0.494, 0.641]</td><td class="num">170</td><td>no</td></tr>
+<tr><td>SR</td><td>Oracle</td><td>7-10</td><td class="num">0.566</td><td class="num">0.441 [0.360, 0.522]</td><td class="num">136</td><td>no</td></tr>
+<tr><td>SR</td><td>DenseRAG (e5)</td><td>2-6</td><td class="num">0.324</td><td class="num">0.271 [0.206, 0.341]</td><td class="num">170</td><td>yes</td></tr>
+<tr><td>SR</td><td>DenseRAG (e5)</td><td>7-10</td><td class="num">0.216</td><td class="num">0.162 [0.103, 0.228]</td><td class="num">136</td><td>yes</td></tr>
+<tr><td>SR</td><td>SparseRAG (BM25)</td><td>2-6</td><td class="num">0.361</td><td class="num">0.224 [0.165, 0.288]</td><td class="num">170</td><td>no</td></tr>
+<tr><td>SR</td><td>SparseRAG (BM25)</td><td>7-10</td><td class="num">0.200</td><td class="num">0.154 [0.096, 0.221]</td><td class="num">136</td><td>yes</td></tr>
+</table></div>
+<p>Source of our columns: <a href="verification/regroup_short_long.md"><code>docs/verification/regroup_short_long.md</code></a>, which also has the no-memory rows (one call: 0.032 at hops 2-6, 0.052 at hops 7-10; the paper gives Ignoramus only as a curve in Figure 3). Its bootstrap seed differs from the one in the summaries, so an interval can differ in the third decimal from the same cell elsewhere on this page.</p>
+
+<h3 id="v-hybrid">The paper's own Table 3: how "consistent" is the HybridMem gain?</h3>
+<p>HybridMem minus the plain method X, from the exact numbers of Table 3 (p. 8), for the five memories (Oracle, DenseRAG, SparseRAG, TreeRAG, GraphRAG) in each block. This is the paper checked against itself; it uses no run of ours and is computed here from the table.</p>
+<div class="tw"><table>
+<tr><th>Reasoning</th><th>Hops</th><th>Memories up</th><th>Memories down</th><th>Tied</th><th>Mean change</th></tr>
+<tr><td>NR</td><td>2-6</td><td class="num">2</td><td class="num">3</td><td class="num">0</td><td class="num">-0.001</td></tr>
+<tr><td>NR</td><td>7-10</td><td class="num">3</td><td class="num">1</td><td class="num">1</td><td class="num">+0.003</td></tr>
+<tr><td>SR</td><td>2-6</td><td class="num">4</td><td class="num">1</td><td class="num">0</td><td class="num">+0.002</td></tr>
+<tr><td>SR</td><td>7-10</td><td class="num">3</td><td class="num">2</td><td class="num">0</td><td class="num">+0.007</td></tr>
+<tr><td>MR</td><td>2-6</td><td class="num">2</td><td class="num">3</td><td class="num">0</td><td class="num">0.000</td></tr>
+<tr><td>MR</td><td>7-10</td><td class="num">3</td><td class="num">1</td><td class="num">1</td><td class="num">+0.004</td></tr>
+<tr><td>DR</td><td>2-6</td><td class="num">2</td><td class="num">3</td><td class="num">0</td><td class="num">+0.001</td></tr>
+<tr><td>DR</td><td>7-10</td><td class="num">4</td><td class="num">1</td><td class="num">0</td><td class="num">+0.002</td></tr>
+<tr><th colspan="2">All 40 cells</th><th class="num">23</th><th class="num">15</th><th class="num">2</th><th class="num">+0.002</th></tr>
+</table></div>
+<p>Range of single changes: -0.009 (NR, hops 2-6, DenseRAG) to +0.032 (SR, hops 7-10, SparseRAG, the example the paper highlights). Hops 7-10 only: 13 cells up, 5 down, 2 tied, mean +0.004. The table reports no variance or significance test, and the gains are mostly in the third decimal, so "consistently improves" is generous for HybridMem; the long-hop pattern is real in sign but tiny. The same table shows the other direction for plain SFT: MS+X is below X in 32 of 40 cells and AS+X in 28 of 40 (mean -0.020 and -0.041), concentrated in SR and MR.</p>
+
+<h3 id="v-threats">Threats to validity</h3>
+<ul>
+<li><strong>Different model and precision.</strong> 4-bit AWQ Qwen2.5-7B-Instruct with greedy decoding on a T4, against the paper's Qwen2.5-7B on A800s. The paper's text does not state precision or decoding; upstream's API path hard-codes temperature 0.9 (<a href="upstream-notes.md">upstream-notes.md</a>, item 3). Absolute numbers are not comparable; orderings and signs are what we test.</li>
+<li><strong>Our own scorer.</strong> Upstream ships no scorer (<code>docs/upstream-notes.md</code>, item 2); ours is SQuAD-normalised EM. The paper's normalisation may differ.</li>
+<li><strong>Our own runner.</strong> The T4 grids use a thin runner (<code>experiments/_shared/grid.py</code>) with the upstream NR and SR call flow and prompt templates, not upstream's <code>run_qa.py</code>; only the 9-question farm run used the original script.</li>
+<li><strong>Small slices, one seed.</strong> 900 questions (100 per hop) and 306 (34 per hop) against the paper's 2,700, one draw (seed 0) over all users. Per-hop values are coarse, and differences below about 0.04 are not visible, so several "no detectable effect" results (top-k, steps) are absence of evidence, not evidence of absence.</li>
+<li><strong>Intervals are narrow in one respect only.</strong> They are bootstrap intervals over questions: no variation over seeds, users, models or sampling. Many paired comparisons are uncorrected for multiple testing.</li>
+<li><strong>Leaked numbers.</strong> Over half of all questions restate a number from their gold statements, which inflates no-memory scores and distorts the hop curves (row 2, row 7). We report leak-free scores next to the full ones where the summaries have them; the paper does not.</li>
+<li><strong>Runs not made together.</strong> The 5-step chain (306 q) is from a different VM and day than the 2/3/8-step runs; the farm run (9 questions, a different model) and the scout's 45-question run are context only and carry no verdict here.</li>
+<li><strong>Implicit and hybrid at toy scale.</strong> 0.5B model, 300 facts, 5 clusters, 60 + 60 non-independent probe questions, farm-written training pairs and a single-fact probe: it tests the idea, not the paper's 7B results, and no 7B LoRA, MaskSFT, TreeRAG or GraphRAG was run.</li>
+<li><strong>Paper side.</strong> Only arXiv v1 was checked; the KDD camera-ready may differ. Figures 3-6 and 8-10 have no numeric table, so any claim resting on a chart is compared by its text statement only, not by values. The paper is internally inconsistent in places (10,800 vs 108,000 QA tasks, p. 4; TF-IDF in &sect;4.1 vs BM25s in &sect;3.4.2).</li>
+</ul>
+
+<h3 id="v-sources">Sources and diagrams</h3>
+<ul>
+<li>Status of every experiment and its evidence: <a href="reproduction-status.md">reproduction-status.md</a>; per-experiment notes: <a href="../experiments/README.md">experiments/README.md</a>; upstream gaps: <a href="upstream-notes.md">upstream-notes.md</a>.</li>
+<li>Regrouping into the paper's hop groups: <a href="verification/regroup_short_long.py">regroup_short_long.py</a> and its output <a href="verification/regroup_short_long.md">regroup_short_long.md</a> (stdlib only; run from the repo root).</li>
+<li>Flow charts (also embedded in steps 2, 3, 4 and 6 above): <a href="diagrams/dataflow-dataset-20261029-201302/mpr-dataset.html" target="_blank">dataset construction</a>, <a href="diagrams/workflow-memory-20261029-201302/mpr-memory.html" target="_blank">memory types</a>, <a href="diagrams/workflow-reasoning-20261029-201302/mpr-reasoning.html" target="_blank">reasoning structures</a>, <a href="diagrams/dataflow-rerun-20261029-201302/mpr-rerun.html" target="_blank">what we re-ran</a>.</li>
+</ul>
+</section>
 
 <h2 id="s10">Read next</h2>
 <div class="card big"><strong>Primary source:</strong> the paper itself, <a href="https://doi.org/10.1145/3770854.3780184">KDD '26 camera-ready</a>. Read in this order: Fig. 1 (motivation), Sec. 3 (task, paradigms, dataset), Fig. 2 (pipeline), Table 3 (HybridMem). Skip the TreeRAG/GraphRAG internals at first.</div>

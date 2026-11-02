@@ -9,7 +9,7 @@ and a toy LoRA / HybridMem run on a laptop. The goal is to understand the paper'
 ## Start here
 
 1. Read the paper (arXiv v1): `papers/2508.13250v1.pdf`.
-2. Open `docs/index.html` (the study guide: paper in 60 seconds, glossary, 4 flow charts, quizzes, talk plan).
+2. Open `docs/index.html` (the study guide: paper in 60 seconds, glossary, 4 flow charts, quizzes, talk plan, and section 10 "Verification against the paper": claim-by-claim verdicts).
 3. Pick an experiment below and read its folder README: the paper experiment it relates to, what we ran, a code walkthrough, a provenance table, how to run, the outcome.
 4. Read `docs/reproduction-status.md` (what is reproduced, with evidence) and skim `docs/upstream-notes.md` (upstream gaps and bugs).
 
