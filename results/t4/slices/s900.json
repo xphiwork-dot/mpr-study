@@ -1,0 +1,7226 @@
+{
+"meta": {
+"seed": 0,
+"per_hop": 100,
+"n": 900,
+"rule": "per hop: sort by (uid, rc_id), shuffle with random.Random(f'{seed}-{hop}'), keep first per_hop",
+"per_user": {
+"0": 88,
+"1": 77,
+"2": 62,
+"3": 60,
+"4": 87,
+"5": 80,
+"6": 65,
+"7": 71,
+"8": 85,
+"9": 75,
+"10": 80,
+"11": 70
+},
+"leak_any": 479,
+"leak_big": 338
+},
+"items": [
+{
+"uid": 0,
+"hop": 2,
+"rc_id": "RC000018#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 2,
+"hop": 2,
+"rc_id": "RC000159#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 5,
+"hop": 2,
+"rc_id": "RC000024#02",
+"n_gold": 1,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 2,
+"hop": 2,
+"rc_id": "RC000244#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 3,
+"hop": 2,
+"rc_id": "RC000254#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 11,
+"hop": 2,
+"rc_id": "RC000159#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 7,
+"hop": 2,
+"rc_id": "RC000093#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 4,
+"hop": 2,
+"rc_id": "RC000279#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 11,
+"hop": 2,
+"rc_id": "RC000254#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 8,
+"hop": 2,
+"rc_id": "RC000289#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 4,
+"hop": 2,
+"rc_id": "RC000274#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 6,
+"hop": 2,
+"rc_id": "RC000233#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 11,
+"hop": 2,
+"rc_id": "RC000146#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 0,
+"hop": 2,
+"rc_id": "RC000051#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 2,
+"hop": 2,
+"rc_id": "RC000123#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 1,
+"hop": 2,
+"rc_id": "RC000238#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 10,
+"hop": 2,
+"rc_id": "RC000230#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 4,
+"hop": 2,
+"rc_id": "RC000012#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 10,
+"hop": 2,
+"rc_id": "RC000107#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 7,
+"hop": 2,
+"rc_id": "RC000182#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 1,
+"hop": 2,
+"rc_id": "RC000025#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 2,
+"hop": 2,
+"rc_id": "RC000118#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 6,
+"hop": 2,
+"rc_id": "RC000232#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 6,
+"hop": 2,
+"rc_id": "RC000245#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 5,
+"hop": 2,
+"rc_id": "RC000246#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 1,
+"hop": 2,
+"rc_id": "RC000000#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 2,
+"hop": 2,
+"rc_id": "RC000160#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 0,
+"hop": 2,
+"rc_id": "RC000285#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 0,
+"hop": 2,
+"rc_id": "RC000062#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 4,
+"hop": 2,
+"rc_id": "RC000067#02",
+"n_gold": 1,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 8,
+"hop": 2,
+"rc_id": "RC000252#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 9,
+"hop": 2,
+"rc_id": "RC000198#02",
+"n_gold": 1,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 10,
+"hop": 2,
+"rc_id": "RC000124#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 11,
+"hop": 2,
+"rc_id": "RC000228#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 5,
+"hop": 2,
+"rc_id": "RC000139#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 7,
+"hop": 2,
+"rc_id": "RC000257#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 4,
+"hop": 2,
+"rc_id": "RC000180#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 1,
+"hop": 2,
+"rc_id": "RC000143#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 4,
+"hop": 2,
+"rc_id": "RC000232#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 3,
+"hop": 2,
+"rc_id": "RC000265#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 1,
+"hop": 2,
+"rc_id": "RC000001#02",
+"n_gold": 1,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 10,
+"hop": 2,
+"rc_id": "RC000245#02",
+"n_gold": 1,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 9,
+"hop": 2,
+"rc_id": "RC000093#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 10,
+"hop": 2,
+"rc_id": "RC000208#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 3,
+"hop": 2,
+"rc_id": "RC000258#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 0,
+"hop": 2,
+"rc_id": "RC000164#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 3,
+"hop": 2,
+"rc_id": "RC000217#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 4,
+"hop": 2,
+"rc_id": "RC000152#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 4,
+"hop": 2,
+"rc_id": "RC000068#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 11,
+"hop": 2,
+"rc_id": "RC000184#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 5,
+"hop": 2,
+"rc_id": "RC000110#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 4,
+"hop": 2,
+"rc_id": "RC000222#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 6,
+"hop": 2,
+"rc_id": "RC000236#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 10,
+"hop": 2,
+"rc_id": "RC000055#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 10,
+"hop": 2,
+"rc_id": "RC000227#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 11,
+"hop": 2,
+"rc_id": "RC000133#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 0,
+"hop": 2,
+"rc_id": "RC000182#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 3,
+"hop": 2,
+"rc_id": "RC000279#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 5,
+"hop": 2,
+"rc_id": "RC000112#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 7,
+"hop": 2,
+"rc_id": "RC000138#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 11,
+"hop": 2,
+"rc_id": "RC000157#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 6,
+"hop": 2,
+"rc_id": "RC000284#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 0,
+"hop": 2,
+"rc_id": "RC000115#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 4,
+"hop": 2,
+"rc_id": "RC000199#02",
+"n_gold": 1,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 4,
+"hop": 2,
+"rc_id": "RC000141#02",
+"n_gold": 1,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 8,
+"hop": 2,
+"rc_id": "RC000168#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 6,
+"hop": 2,
+"rc_id": "RC000228#02",
+"n_gold": 1,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 9,
+"hop": 2,
+"rc_id": "RC000049#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 8,
+"hop": 2,
+"rc_id": "RC000255#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 6,
+"hop": 2,
+"rc_id": "RC000112#02",
+"n_gold": 1,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 10,
+"hop": 2,
+"rc_id": "RC000290#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 3,
+"hop": 2,
+"rc_id": "RC000045#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 4,
+"hop": 2,
+"rc_id": "RC000072#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 9,
+"hop": 2,
+"rc_id": "RC000287#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 9,
+"hop": 2,
+"rc_id": "RC000024#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 9,
+"hop": 2,
+"rc_id": "RC000218#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 9,
+"hop": 2,
+"rc_id": "RC000295#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 8,
+"hop": 2,
+"rc_id": "RC000140#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 0,
+"hop": 2,
+"rc_id": "RC000131#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 8,
+"hop": 2,
+"rc_id": "RC000246#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 6,
+"hop": 2,
+"rc_id": "RC000288#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 9,
+"hop": 2,
+"rc_id": "RC000196#02",
+"n_gold": 1,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 11,
+"hop": 2,
+"rc_id": "RC000011#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 0,
+"hop": 2,
+"rc_id": "RC000144#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 6,
+"hop": 2,
+"rc_id": "RC000167#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 3,
+"hop": 2,
+"rc_id": "RC000111#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 0,
+"hop": 2,
+"rc_id": "RC000219#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 7,
+"hop": 2,
+"rc_id": "RC000156#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 7,
+"hop": 2,
+"rc_id": "RC000285#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 6,
+"hop": 2,
+"rc_id": "RC000294#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 3,
+"hop": 2,
+"rc_id": "RC000228#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 1,
+"hop": 2,
+"rc_id": "RC000115#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 0,
+"hop": 2,
+"rc_id": "RC000213#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 3,
+"hop": 2,
+"rc_id": "RC000097#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 8,
+"hop": 2,
+"rc_id": "RC000098#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 10,
+"hop": 2,
+"rc_id": "RC000226#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 1,
+"hop": 2,
+"rc_id": "RC000109#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 10,
+"hop": 2,
+"rc_id": "RC000142#02",
+"n_gold": 1,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 9,
+"hop": 2,
+"rc_id": "RC000272#02",
+"n_gold": 1,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 5,
+"hop": 2,
+"rc_id": "RC000094#02",
+"n_gold": 1,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 2,
+"hop": 3,
+"rc_id": "RC000236#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 10,
+"hop": 3,
+"rc_id": "RC000041#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 7,
+"hop": 3,
+"rc_id": "RC000139#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 9,
+"hop": 3,
+"rc_id": "RC000073#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 10,
+"hop": 3,
+"rc_id": "RC000040#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 6,
+"hop": 3,
+"rc_id": "RC000017#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 8,
+"hop": 3,
+"rc_id": "RC000137#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 7,
+"hop": 3,
+"rc_id": "RC000063#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 7,
+"hop": 3,
+"rc_id": "RC000297#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 10,
+"hop": 3,
+"rc_id": "RC000261#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 11,
+"hop": 3,
+"rc_id": "RC000179#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 7,
+"hop": 3,
+"rc_id": "RC000137#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 11,
+"hop": 3,
+"rc_id": "RC000124#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 8,
+"hop": 3,
+"rc_id": "RC000258#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 4,
+"hop": 3,
+"rc_id": "RC000140#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 0,
+"hop": 3,
+"rc_id": "RC000263#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 3,
+"hop": 3,
+"rc_id": "RC000066#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 2,
+"hop": 3,
+"rc_id": "RC000139#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 3,
+"hop": 3,
+"rc_id": "RC000119#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 11,
+"hop": 3,
+"rc_id": "RC000245#03",
+"n_gold": 2,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 10,
+"hop": 3,
+"rc_id": "RC000006#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 0,
+"hop": 3,
+"rc_id": "RC000148#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 5,
+"hop": 3,
+"rc_id": "RC000255#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 6,
+"hop": 3,
+"rc_id": "RC000193#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 7,
+"hop": 3,
+"rc_id": "RC000218#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 11,
+"hop": 3,
+"rc_id": "RC000250#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 9,
+"hop": 3,
+"rc_id": "RC000094#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 6,
+"hop": 3,
+"rc_id": "RC000195#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 3,
+"hop": 3,
+"rc_id": "RC000013#03",
+"n_gold": 2,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 5,
+"hop": 3,
+"rc_id": "RC000174#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 3,
+"hop": 3,
+"rc_id": "RC000112#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 9,
+"hop": 3,
+"rc_id": "RC000149#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 6,
+"hop": 3,
+"rc_id": "RC000021#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 7,
+"hop": 3,
+"rc_id": "RC000234#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 0,
+"hop": 3,
+"rc_id": "RC000191#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 5,
+"hop": 3,
+"rc_id": "RC000036#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 8,
+"hop": 3,
+"rc_id": "RC000098#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 3,
+"hop": 3,
+"rc_id": "RC000116#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 2,
+"hop": 3,
+"rc_id": "RC000101#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 0,
+"hop": 3,
+"rc_id": "RC000127#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 3,
+"hop": 3,
+"rc_id": "RC000062#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 11,
+"hop": 3,
+"rc_id": "RC000194#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 6,
+"hop": 3,
+"rc_id": "RC000070#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 3,
+"hop": 3,
+"rc_id": "RC000199#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 7,
+"hop": 3,
+"rc_id": "RC000254#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 0,
+"hop": 3,
+"rc_id": "RC000022#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 9,
+"hop": 3,
+"rc_id": "RC000126#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 9,
+"hop": 3,
+"rc_id": "RC000127#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 5,
+"hop": 3,
+"rc_id": "RC000085#03",
+"n_gold": 2,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 5,
+"hop": 3,
+"rc_id": "RC000098#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 0,
+"hop": 3,
+"rc_id": "RC000092#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 11,
+"hop": 3,
+"rc_id": "RC000065#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 6,
+"hop": 3,
+"rc_id": "RC000295#03",
+"n_gold": 2,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 8,
+"hop": 3,
+"rc_id": "RC000125#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 11,
+"hop": 3,
+"rc_id": "RC000294#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 8,
+"hop": 3,
+"rc_id": "RC000073#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 7,
+"hop": 3,
+"rc_id": "RC000144#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 11,
+"hop": 3,
+"rc_id": "RC000157#03",
+"n_gold": 2,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 6,
+"hop": 3,
+"rc_id": "RC000255#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 9,
+"hop": 3,
+"rc_id": "RC000074#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 11,
+"hop": 3,
+"rc_id": "RC000198#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 1,
+"hop": 3,
+"rc_id": "RC000278#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 4,
+"hop": 3,
+"rc_id": "RC000214#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 5,
+"hop": 3,
+"rc_id": "RC000042#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 6,
+"hop": 3,
+"rc_id": "RC000292#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 9,
+"hop": 3,
+"rc_id": "RC000215#03",
+"n_gold": 2,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 5,
+"hop": 3,
+"rc_id": "RC000044#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 0,
+"hop": 3,
+"rc_id": "RC000219#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 10,
+"hop": 3,
+"rc_id": "RC000075#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 4,
+"hop": 3,
+"rc_id": "RC000124#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 8,
+"hop": 3,
+"rc_id": "RC000219#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 9,
+"hop": 3,
+"rc_id": "RC000052#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 6,
+"hop": 3,
+"rc_id": "RC000214#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 3,
+"hop": 3,
+"rc_id": "RC000055#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 3,
+"hop": 3,
+"rc_id": "RC000270#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 5,
+"hop": 3,
+"rc_id": "RC000196#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 8,
+"hop": 3,
+"rc_id": "RC000185#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 11,
+"hop": 3,
+"rc_id": "RC000017#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 5,
+"hop": 3,
+"rc_id": "RC000082#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 10,
+"hop": 3,
+"rc_id": "RC000211#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 8,
+"hop": 3,
+"rc_id": "RC000023#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 6,
+"hop": 3,
+"rc_id": "RC000066#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 3,
+"hop": 3,
+"rc_id": "RC000280#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 3,
+"hop": 3,
+"rc_id": "RC000096#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 0,
+"hop": 3,
+"rc_id": "RC000036#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 6,
+"hop": 3,
+"rc_id": "RC000088#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 10,
+"hop": 3,
+"rc_id": "RC000296#03",
+"n_gold": 2,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 7,
+"hop": 3,
+"rc_id": "RC000268#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 8,
+"hop": 3,
+"rc_id": "RC000030#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 11,
+"hop": 3,
+"rc_id": "RC000005#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 3,
+"hop": 3,
+"rc_id": "RC000028#03",
+"n_gold": 2,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 4,
+"hop": 3,
+"rc_id": "RC000053#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 1,
+"hop": 3,
+"rc_id": "RC000143#03",
+"n_gold": 2,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 2,
+"hop": 3,
+"rc_id": "RC000002#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 9,
+"hop": 3,
+"rc_id": "RC000045#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 5,
+"hop": 3,
+"rc_id": "RC000072#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 1,
+"hop": 3,
+"rc_id": "RC000288#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 4,
+"hop": 3,
+"rc_id": "RC000129#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 1,
+"hop": 3,
+"rc_id": "RC000197#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 11,
+"hop": 3,
+"rc_id": "RC000054#03",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 11,
+"hop": 4,
+"rc_id": "RC000008#04",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 2,
+"hop": 4,
+"rc_id": "RC000242#04",
+"n_gold": 2,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 8,
+"hop": 4,
+"rc_id": "RC000196#04",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 10,
+"hop": 4,
+"rc_id": "RC000242#04",
+"n_gold": 2,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 8,
+"hop": 4,
+"rc_id": "RC000071#04",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 8,
+"hop": 4,
+"rc_id": "RC000029#04",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 0,
+"hop": 4,
+"rc_id": "RC000123#04",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 2,
+"hop": 4,
+"rc_id": "RC000162#04",
+"n_gold": 2,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 11,
+"hop": 4,
+"rc_id": "RC000112#04",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 11,
+"hop": 4,
+"rc_id": "RC000296#04",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 4,
+"hop": 4,
+"rc_id": "RC000026#04",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 0,
+"hop": 4,
+"rc_id": "RC000241#04",
+"n_gold": 2,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 8,
+"hop": 4,
+"rc_id": "RC000012#04",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 7,
+"hop": 4,
+"rc_id": "RC000094#04",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 9,
+"hop": 4,
+"rc_id": "RC000097#04",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 6,
+"hop": 4,
+"rc_id": "RC000282#04",
+"n_gold": 2,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 0,
+"hop": 4,
+"rc_id": "RC000059#04",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 8,
+"hop": 4,
+"rc_id": "RC000087#04",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 10,
+"hop": 4,
+"rc_id": "RC000020#04",
+"n_gold": 2,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 6,
+"hop": 4,
+"rc_id": "RC000129#04",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 7,
+"hop": 4,
+"rc_id": "RC000295#04",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 7,
+"hop": 4,
+"rc_id": "RC000223#04",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 2,
+"hop": 4,
+"rc_id": "RC000145#04",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 0,
+"hop": 4,
+"rc_id": "RC000093#04",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 5,
+"hop": 4,
+"rc_id": "RC000124#04",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 5,
+"hop": 4,
+"rc_id": "RC000140#04",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 5,
+"hop": 4,
+"rc_id": "RC000131#04",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 1,
+"hop": 4,
+"rc_id": "RC000108#04",
+"n_gold": 2,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 6,
+"hop": 4,
+"rc_id": "RC000061#04",
+"n_gold": 2,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 10,
+"hop": 4,
+"rc_id": "RC000245#04",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 8,
+"hop": 4,
+"rc_id": "RC000129#04",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 7,
+"hop": 4,
+"rc_id": "RC000139#04",
+"n_gold": 2,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 7,
+"hop": 4,
+"rc_id": "RC000183#04",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 7,
+"hop": 4,
+"rc_id": "RC000008#04",
+"n_gold": 2,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 4,
+"hop": 4,
+"rc_id": "RC000181#04",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 6,
+"hop": 4,
+"rc_id": "RC000298#04",
+"n_gold": 2,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 9,
+"hop": 4,
+"rc_id": "RC000265#04",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 10,
+"hop": 4,
+"rc_id": "RC000150#04",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 8,
+"hop": 4,
+"rc_id": "RC000126#04",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 1,
+"hop": 4,
+"rc_id": "RC000173#04",
+"n_gold": 2,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 9,
+"hop": 4,
+"rc_id": "RC000051#04",
+"n_gold": 2,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 9,
+"hop": 4,
+"rc_id": "RC000190#04",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 4,
+"hop": 4,
+"rc_id": "RC000149#04",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 4,
+"hop": 4,
+"rc_id": "RC000032#04",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 7,
+"hop": 4,
+"rc_id": "RC000044#04",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 4,
+"hop": 4,
+"rc_id": "RC000189#04",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 4,
+"hop": 4,
+"rc_id": "RC000244#04",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 8,
+"hop": 4,
+"rc_id": "RC000100#04",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 3,
+"hop": 4,
+"rc_id": "RC000110#04",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 0,
+"hop": 4,
+"rc_id": "RC000104#04",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 11,
+"hop": 4,
+"rc_id": "RC000132#04",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 2,
+"hop": 4,
+"rc_id": "RC000154#04",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 5,
+"hop": 4,
+"rc_id": "RC000207#04",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 11,
+"hop": 4,
+"rc_id": "RC000121#04",
+"n_gold": 2,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 11,
+"hop": 4,
+"rc_id": "RC000166#04",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 5,
+"hop": 4,
+"rc_id": "RC000176#04",
+"n_gold": 2,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 8,
+"hop": 4,
+"rc_id": "RC000043#04",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 7,
+"hop": 4,
+"rc_id": "RC000065#04",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 8,
+"hop": 4,
+"rc_id": "RC000288#04",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 5,
+"hop": 4,
+"rc_id": "RC000108#04",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 0,
+"hop": 4,
+"rc_id": "RC000115#04",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 1,
+"hop": 4,
+"rc_id": "RC000156#04",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 1,
+"hop": 4,
+"rc_id": "RC000068#04",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 2,
+"hop": 4,
+"rc_id": "RC000053#04",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 5,
+"hop": 4,
+"rc_id": "RC000013#04",
+"n_gold": 2,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 5,
+"hop": 4,
+"rc_id": "RC000254#04",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 5,
+"hop": 4,
+"rc_id": "RC000026#04",
+"n_gold": 2,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 2,
+"hop": 4,
+"rc_id": "RC000089#04",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 2,
+"hop": 4,
+"rc_id": "RC000251#04",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 8,
+"hop": 4,
+"rc_id": "RC000247#04",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 9,
+"hop": 4,
+"rc_id": "RC000213#04",
+"n_gold": 2,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 9,
+"hop": 4,
+"rc_id": "RC000229#04",
+"n_gold": 2,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 5,
+"hop": 4,
+"rc_id": "RC000278#04",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 4,
+"hop": 4,
+"rc_id": "RC000190#04",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 5,
+"hop": 4,
+"rc_id": "RC000228#04",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 5,
+"hop": 4,
+"rc_id": "RC000058#04",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 0,
+"hop": 4,
+"rc_id": "RC000175#04",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 3,
+"hop": 4,
+"rc_id": "RC000297#04",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 9,
+"hop": 4,
+"rc_id": "RC000027#04",
+"n_gold": 2,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 0,
+"hop": 4,
+"rc_id": "RC000215#04",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 3,
+"hop": 4,
+"rc_id": "RC000083#04",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 10,
+"hop": 4,
+"rc_id": "RC000059#04",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 4,
+"hop": 4,
+"rc_id": "RC000027#04",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 5,
+"hop": 4,
+"rc_id": "RC000172#04",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 4,
+"hop": 4,
+"rc_id": "RC000216#04",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 6,
+"hop": 4,
+"rc_id": "RC000063#04",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 1,
+"hop": 4,
+"rc_id": "RC000232#04",
+"n_gold": 2,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 2,
+"hop": 4,
+"rc_id": "RC000259#04",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 3,
+"hop": 4,
+"rc_id": "RC000026#04",
+"n_gold": 2,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 7,
+"hop": 4,
+"rc_id": "RC000299#04",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 4,
+"hop": 4,
+"rc_id": "RC000188#04",
+"n_gold": 2,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 1,
+"hop": 4,
+"rc_id": "RC000015#04",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 6,
+"hop": 4,
+"rc_id": "RC000132#04",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 1,
+"hop": 4,
+"rc_id": "RC000092#04",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 7,
+"hop": 4,
+"rc_id": "RC000281#04",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 1,
+"hop": 4,
+"rc_id": "RC000299#04",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 10,
+"hop": 4,
+"rc_id": "RC000052#04",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 0,
+"hop": 4,
+"rc_id": "RC000031#04",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 11,
+"hop": 4,
+"rc_id": "RC000067#04",
+"n_gold": 2,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 0,
+"hop": 4,
+"rc_id": "RC000183#04",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 1,
+"hop": 5,
+"rc_id": "RC000150#05",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 6,
+"hop": 5,
+"rc_id": "RC000141#05",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 9,
+"hop": 5,
+"rc_id": "RC000004#05",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 4,
+"hop": 5,
+"rc_id": "RC000179#05",
+"n_gold": 2,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 11,
+"hop": 5,
+"rc_id": "RC000251#05",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 10,
+"hop": 5,
+"rc_id": "RC000073#05",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 0,
+"hop": 5,
+"rc_id": "RC000024#05",
+"n_gold": 4,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 6,
+"hop": 5,
+"rc_id": "RC000195#05",
+"n_gold": 3,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 7,
+"hop": 5,
+"rc_id": "RC000140#05",
+"n_gold": 3,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 8,
+"hop": 5,
+"rc_id": "RC000194#05",
+"n_gold": 3,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 4,
+"hop": 5,
+"rc_id": "RC000173#05",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 1,
+"hop": 5,
+"rc_id": "RC000221#05",
+"n_gold": 4,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 8,
+"hop": 5,
+"rc_id": "RC000056#05",
+"n_gold": 3,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 0,
+"hop": 5,
+"rc_id": "RC000238#05",
+"n_gold": 2,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 2,
+"hop": 5,
+"rc_id": "RC000130#05",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 11,
+"hop": 5,
+"rc_id": "RC000067#05",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 7,
+"hop": 5,
+"rc_id": "RC000281#05",
+"n_gold": 3,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 4,
+"hop": 5,
+"rc_id": "RC000159#05",
+"n_gold": 3,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 2,
+"hop": 5,
+"rc_id": "RC000091#05",
+"n_gold": 3,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 2,
+"hop": 5,
+"rc_id": "RC000275#05",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 7,
+"hop": 5,
+"rc_id": "RC000177#05",
+"n_gold": 3,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 5,
+"hop": 5,
+"rc_id": "RC000116#05",
+"n_gold": 2,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 8,
+"hop": 5,
+"rc_id": "RC000113#05",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 8,
+"hop": 5,
+"rc_id": "RC000224#05",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 2,
+"hop": 5,
+"rc_id": "RC000220#05",
+"n_gold": 4,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 1,
+"hop": 5,
+"rc_id": "RC000108#05",
+"n_gold": 3,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 8,
+"hop": 5,
+"rc_id": "RC000264#05",
+"n_gold": 3,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 1,
+"hop": 5,
+"rc_id": "RC000066#05",
+"n_gold": 3,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 8,
+"hop": 5,
+"rc_id": "RC000173#05",
+"n_gold": 4,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 0,
+"hop": 5,
+"rc_id": "RC000006#05",
+"n_gold": 3,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 2,
+"hop": 5,
+"rc_id": "RC000212#05",
+"n_gold": 3,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 5,
+"hop": 5,
+"rc_id": "RC000270#05",
+"n_gold": 3,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 4,
+"hop": 5,
+"rc_id": "RC000035#05",
+"n_gold": 3,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 8,
+"hop": 5,
+"rc_id": "RC000036#05",
+"n_gold": 3,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 1,
+"hop": 5,
+"rc_id": "RC000023#05",
+"n_gold": 3,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 8,
+"hop": 5,
+"rc_id": "RC000128#05",
+"n_gold": 4,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 8,
+"hop": 5,
+"rc_id": "RC000023#05",
+"n_gold": 3,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 9,
+"hop": 5,
+"rc_id": "RC000263#05",
+"n_gold": 3,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 10,
+"hop": 5,
+"rc_id": "RC000222#05",
+"n_gold": 4,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 2,
+"hop": 5,
+"rc_id": "RC000172#05",
+"n_gold": 4,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 4,
+"hop": 5,
+"rc_id": "RC000116#05",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 2,
+"hop": 5,
+"rc_id": "RC000073#05",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 5,
+"hop": 5,
+"rc_id": "RC000197#05",
+"n_gold": 4,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 8,
+"hop": 5,
+"rc_id": "RC000095#05",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 5,
+"hop": 5,
+"rc_id": "RC000031#05",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 11,
+"hop": 5,
+"rc_id": "RC000233#05",
+"n_gold": 4,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 10,
+"hop": 5,
+"rc_id": "RC000166#05",
+"n_gold": 4,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 0,
+"hop": 5,
+"rc_id": "RC000067#05",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 0,
+"hop": 5,
+"rc_id": "RC000163#05",
+"n_gold": 3,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 0,
+"hop": 5,
+"rc_id": "RC000262#05",
+"n_gold": 3,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 5,
+"hop": 5,
+"rc_id": "RC000126#05",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 5,
+"hop": 5,
+"rc_id": "RC000293#05",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 9,
+"hop": 5,
+"rc_id": "RC000052#05",
+"n_gold": 3,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 1,
+"hop": 5,
+"rc_id": "RC000081#05",
+"n_gold": 3,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 0,
+"hop": 5,
+"rc_id": "RC000207#05",
+"n_gold": 3,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 4,
+"hop": 5,
+"rc_id": "RC000131#05",
+"n_gold": 4,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 8,
+"hop": 5,
+"rc_id": "RC000269#05",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 8,
+"hop": 5,
+"rc_id": "RC000126#05",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 7,
+"hop": 5,
+"rc_id": "RC000021#05",
+"n_gold": 4,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 8,
+"hop": 5,
+"rc_id": "RC000183#05",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 7,
+"hop": 5,
+"rc_id": "RC000296#05",
+"n_gold": 4,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 2,
+"hop": 5,
+"rc_id": "RC000259#05",
+"n_gold": 3,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 6,
+"hop": 5,
+"rc_id": "RC000043#05",
+"n_gold": 3,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 6,
+"hop": 5,
+"rc_id": "RC000107#05",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 1,
+"hop": 5,
+"rc_id": "RC000033#05",
+"n_gold": 4,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 0,
+"hop": 5,
+"rc_id": "RC000077#05",
+"n_gold": 3,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 11,
+"hop": 5,
+"rc_id": "RC000213#05",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 10,
+"hop": 5,
+"rc_id": "RC000282#05",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 1,
+"hop": 5,
+"rc_id": "RC000254#05",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 1,
+"hop": 5,
+"rc_id": "RC000140#05",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 6,
+"hop": 5,
+"rc_id": "RC000213#05",
+"n_gold": 3,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 10,
+"hop": 5,
+"rc_id": "RC000210#05",
+"n_gold": 4,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 10,
+"hop": 5,
+"rc_id": "RC000204#05",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 3,
+"hop": 5,
+"rc_id": "RC000173#05",
+"n_gold": 4,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 4,
+"hop": 5,
+"rc_id": "RC000287#05",
+"n_gold": 4,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 8,
+"hop": 5,
+"rc_id": "RC000071#05",
+"n_gold": 4,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 1,
+"hop": 5,
+"rc_id": "RC000200#05",
+"n_gold": 4,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 6,
+"hop": 5,
+"rc_id": "RC000278#05",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 11,
+"hop": 5,
+"rc_id": "RC000129#05",
+"n_gold": 3,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 5,
+"hop": 5,
+"rc_id": "RC000204#05",
+"n_gold": 3,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 4,
+"hop": 5,
+"rc_id": "RC000126#05",
+"n_gold": 3,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 1,
+"hop": 5,
+"rc_id": "RC000034#05",
+"n_gold": 4,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 11,
+"hop": 5,
+"rc_id": "RC000042#05",
+"n_gold": 4,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 0,
+"hop": 5,
+"rc_id": "RC000080#05",
+"n_gold": 3,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 7,
+"hop": 5,
+"rc_id": "RC000104#05",
+"n_gold": 3,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 7,
+"hop": 5,
+"rc_id": "RC000229#05",
+"n_gold": 3,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 2,
+"hop": 5,
+"rc_id": "RC000074#05",
+"n_gold": 4,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 10,
+"hop": 5,
+"rc_id": "RC000212#05",
+"n_gold": 4,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 3,
+"hop": 5,
+"rc_id": "RC000091#05",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 10,
+"hop": 5,
+"rc_id": "RC000219#05",
+"n_gold": 3,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 11,
+"hop": 5,
+"rc_id": "RC000198#05",
+"n_gold": 3,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 0,
+"hop": 5,
+"rc_id": "RC000020#05",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 1,
+"hop": 5,
+"rc_id": "RC000116#05",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 6,
+"hop": 5,
+"rc_id": "RC000206#05",
+"n_gold": 3,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 0,
+"hop": 5,
+"rc_id": "RC000174#05",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 8,
+"hop": 5,
+"rc_id": "RC000209#05",
+"n_gold": 3,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 7,
+"hop": 5,
+"rc_id": "RC000275#05",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 9,
+"hop": 5,
+"rc_id": "RC000200#05",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 9,
+"hop": 5,
+"rc_id": "RC000231#05",
+"n_gold": 3,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 3,
+"hop": 5,
+"rc_id": "RC000041#05",
+"n_gold": 3,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 0,
+"hop": 6,
+"rc_id": "RC000154#06",
+"n_gold": 3,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 2,
+"hop": 6,
+"rc_id": "RC000156#06",
+"n_gold": 4,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 10,
+"hop": 6,
+"rc_id": "RC000034#06",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 7,
+"hop": 6,
+"rc_id": "RC000196#06",
+"n_gold": 3,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 8,
+"hop": 6,
+"rc_id": "RC000213#06",
+"n_gold": 4,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 1,
+"hop": 6,
+"rc_id": "RC000012#06",
+"n_gold": 4,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 6,
+"hop": 6,
+"rc_id": "RC000213#06",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 11,
+"hop": 6,
+"rc_id": "RC000036#06",
+"n_gold": 3,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 9,
+"hop": 6,
+"rc_id": "RC000290#06",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 5,
+"hop": 6,
+"rc_id": "RC000107#06",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 10,
+"hop": 6,
+"rc_id": "RC000052#06",
+"n_gold": 3,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 6,
+"hop": 6,
+"rc_id": "RC000063#06",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 4,
+"hop": 6,
+"rc_id": "RC000199#06",
+"n_gold": 4,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 6,
+"hop": 6,
+"rc_id": "RC000281#06",
+"n_gold": 3,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 10,
+"hop": 6,
+"rc_id": "RC000001#06",
+"n_gold": 3,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 5,
+"hop": 6,
+"rc_id": "RC000051#06",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 9,
+"hop": 6,
+"rc_id": "RC000073#06",
+"n_gold": 5,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 8,
+"hop": 6,
+"rc_id": "RC000102#06",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 0,
+"hop": 6,
+"rc_id": "RC000009#06",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 9,
+"hop": 6,
+"rc_id": "RC000197#06",
+"n_gold": 3,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 7,
+"hop": 6,
+"rc_id": "RC000009#06",
+"n_gold": 4,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 9,
+"hop": 6,
+"rc_id": "RC000102#06",
+"n_gold": 4,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 5,
+"hop": 6,
+"rc_id": "RC000183#06",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 6,
+"hop": 6,
+"rc_id": "RC000143#06",
+"n_gold": 4,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 5,
+"hop": 6,
+"rc_id": "RC000186#06",
+"n_gold": 3,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 2,
+"hop": 6,
+"rc_id": "RC000201#06",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 10,
+"hop": 6,
+"rc_id": "RC000153#06",
+"n_gold": 4,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 2,
+"hop": 6,
+"rc_id": "RC000247#06",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 0,
+"hop": 6,
+"rc_id": "RC000227#06",
+"n_gold": 3,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 4,
+"hop": 6,
+"rc_id": "RC000028#06",
+"n_gold": 3,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 8,
+"hop": 6,
+"rc_id": "RC000220#06",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 4,
+"hop": 6,
+"rc_id": "RC000055#06",
+"n_gold": 3,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 4,
+"hop": 6,
+"rc_id": "RC000117#06",
+"n_gold": 3,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 10,
+"hop": 6,
+"rc_id": "RC000099#06",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 1,
+"hop": 6,
+"rc_id": "RC000279#06",
+"n_gold": 5,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 11,
+"hop": 6,
+"rc_id": "RC000140#06",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 0,
+"hop": 6,
+"rc_id": "RC000116#06",
+"n_gold": 4,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 1,
+"hop": 6,
+"rc_id": "RC000058#06",
+"n_gold": 4,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 3,
+"hop": 6,
+"rc_id": "RC000102#06",
+"n_gold": 4,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 6,
+"hop": 6,
+"rc_id": "RC000263#06",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 6,
+"hop": 6,
+"rc_id": "RC000042#06",
+"n_gold": 3,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 3,
+"hop": 6,
+"rc_id": "RC000036#06",
+"n_gold": 3,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 2,
+"hop": 6,
+"rc_id": "RC000039#06",
+"n_gold": 4,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 8,
+"hop": 6,
+"rc_id": "RC000210#06",
+"n_gold": 3,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 2,
+"hop": 6,
+"rc_id": "RC000250#06",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 8,
+"hop": 6,
+"rc_id": "RC000261#06",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 5,
+"hop": 6,
+"rc_id": "RC000030#06",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 8,
+"hop": 6,
+"rc_id": "RC000233#06",
+"n_gold": 4,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 3,
+"hop": 6,
+"rc_id": "RC000070#06",
+"n_gold": 3,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 1,
+"hop": 6,
+"rc_id": "RC000145#06",
+"n_gold": 5,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 4,
+"hop": 6,
+"rc_id": "RC000116#06",
+"n_gold": 3,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 6,
+"hop": 6,
+"rc_id": "RC000078#06",
+"n_gold": 3,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 7,
+"hop": 6,
+"rc_id": "RC000056#06",
+"n_gold": 5,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 10,
+"hop": 6,
+"rc_id": "RC000082#06",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 0,
+"hop": 6,
+"rc_id": "RC000297#06",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 11,
+"hop": 6,
+"rc_id": "RC000276#06",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 10,
+"hop": 6,
+"rc_id": "RC000044#06",
+"n_gold": 3,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 8,
+"hop": 6,
+"rc_id": "RC000207#06",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 0,
+"hop": 6,
+"rc_id": "RC000028#06",
+"n_gold": 3,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 5,
+"hop": 6,
+"rc_id": "RC000042#06",
+"n_gold": 3,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 10,
+"hop": 6,
+"rc_id": "RC000028#06",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 4,
+"hop": 6,
+"rc_id": "RC000211#06",
+"n_gold": 4,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 7,
+"hop": 6,
+"rc_id": "RC000021#06",
+"n_gold": 5,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 9,
+"hop": 6,
+"rc_id": "RC000045#06",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 1,
+"hop": 6,
+"rc_id": "RC000097#06",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 4,
+"hop": 6,
+"rc_id": "RC000121#06",
+"n_gold": 3,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 10,
+"hop": 6,
+"rc_id": "RC000186#06",
+"n_gold": 3,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 8,
+"hop": 6,
+"rc_id": "RC000039#06",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 6,
+"hop": 6,
+"rc_id": "RC000114#06",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 3,
+"hop": 6,
+"rc_id": "RC000196#06",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 3,
+"hop": 6,
+"rc_id": "RC000121#06",
+"n_gold": 3,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 0,
+"hop": 6,
+"rc_id": "RC000079#06",
+"n_gold": 3,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 4,
+"hop": 6,
+"rc_id": "RC000056#06",
+"n_gold": 4,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 5,
+"hop": 6,
+"rc_id": "RC000264#06",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 11,
+"hop": 6,
+"rc_id": "RC000262#06",
+"n_gold": 3,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 8,
+"hop": 6,
+"rc_id": "RC000132#06",
+"n_gold": 5,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 11,
+"hop": 6,
+"rc_id": "RC000022#06",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 9,
+"hop": 6,
+"rc_id": "RC000277#06",
+"n_gold": 3,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 8,
+"hop": 6,
+"rc_id": "RC000151#06",
+"n_gold": 3,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 10,
+"hop": 6,
+"rc_id": "RC000163#06",
+"n_gold": 3,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 0,
+"hop": 6,
+"rc_id": "RC000125#06",
+"n_gold": 3,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 11,
+"hop": 6,
+"rc_id": "RC000174#06",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 1,
+"hop": 6,
+"rc_id": "RC000197#06",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 2,
+"hop": 6,
+"rc_id": "RC000130#06",
+"n_gold": 3,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 4,
+"hop": 6,
+"rc_id": "RC000076#06",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 5,
+"hop": 6,
+"rc_id": "RC000015#06",
+"n_gold": 4,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 1,
+"hop": 6,
+"rc_id": "RC000089#06",
+"n_gold": 3,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 9,
+"hop": 6,
+"rc_id": "RC000203#06",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 5,
+"hop": 6,
+"rc_id": "RC000020#06",
+"n_gold": 4,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 6,
+"hop": 6,
+"rc_id": "RC000297#06",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 1,
+"hop": 6,
+"rc_id": "RC000209#06",
+"n_gold": 5,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 8,
+"hop": 6,
+"rc_id": "RC000134#06",
+"n_gold": 3,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 4,
+"hop": 6,
+"rc_id": "RC000230#06",
+"n_gold": 4,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 0,
+"hop": 6,
+"rc_id": "RC000239#06",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 11,
+"hop": 6,
+"rc_id": "RC000241#06",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 10,
+"hop": 6,
+"rc_id": "RC000018#06",
+"n_gold": 3,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 6,
+"hop": 6,
+"rc_id": "RC000217#06",
+"n_gold": 3,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 9,
+"hop": 6,
+"rc_id": "RC000087#06",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 1,
+"hop": 6,
+"rc_id": "RC000100#06",
+"n_gold": 5,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 5,
+"hop": 6,
+"rc_id": "RC000203#06",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 4,
+"hop": 7,
+"rc_id": "RC000062#07",
+"n_gold": 5,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 3,
+"hop": 7,
+"rc_id": "RC000263#07",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 7,
+"hop": 7,
+"rc_id": "RC000206#07",
+"n_gold": 5,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 6,
+"hop": 7,
+"rc_id": "RC000143#07",
+"n_gold": 4,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 5,
+"hop": 7,
+"rc_id": "RC000089#07",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 4,
+"hop": 7,
+"rc_id": "RC000230#07",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 8,
+"hop": 7,
+"rc_id": "RC000271#07",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 0,
+"hop": 7,
+"rc_id": "RC000038#07",
+"n_gold": 4,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 0,
+"hop": 7,
+"rc_id": "RC000014#07",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 11,
+"hop": 7,
+"rc_id": "RC000266#07",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 6,
+"hop": 7,
+"rc_id": "RC000149#07",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 1,
+"hop": 7,
+"rc_id": "RC000093#07",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 2,
+"hop": 7,
+"rc_id": "RC000190#07",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 9,
+"hop": 7,
+"rc_id": "RC000122#07",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 0,
+"hop": 7,
+"rc_id": "RC000113#07",
+"n_gold": 4,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 1,
+"hop": 7,
+"rc_id": "RC000204#07",
+"n_gold": 4,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 9,
+"hop": 7,
+"rc_id": "RC000278#07",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 5,
+"hop": 7,
+"rc_id": "RC000131#07",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 10,
+"hop": 7,
+"rc_id": "RC000084#07",
+"n_gold": 4,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 8,
+"hop": 7,
+"rc_id": "RC000156#07",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 11,
+"hop": 7,
+"rc_id": "RC000082#07",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 9,
+"hop": 7,
+"rc_id": "RC000143#07",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 1,
+"hop": 7,
+"rc_id": "RC000267#07",
+"n_gold": 4,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 7,
+"hop": 7,
+"rc_id": "RC000147#07",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 10,
+"hop": 7,
+"rc_id": "RC000285#07",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 1,
+"hop": 7,
+"rc_id": "RC000244#07",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 2,
+"hop": 7,
+"rc_id": "RC000079#07",
+"n_gold": 5,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 4,
+"hop": 7,
+"rc_id": "RC000182#07",
+"n_gold": 4,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 10,
+"hop": 7,
+"rc_id": "RC000099#07",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 8,
+"hop": 7,
+"rc_id": "RC000274#07",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 7,
+"hop": 7,
+"rc_id": "RC000144#07",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 8,
+"hop": 7,
+"rc_id": "RC000062#07",
+"n_gold": 3,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 2,
+"hop": 7,
+"rc_id": "RC000045#07",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 1,
+"hop": 7,
+"rc_id": "RC000228#07",
+"n_gold": 3,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 1,
+"hop": 7,
+"rc_id": "RC000203#07",
+"n_gold": 4,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 2,
+"hop": 7,
+"rc_id": "RC000261#07",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 7,
+"hop": 7,
+"rc_id": "RC000128#07",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 1,
+"hop": 7,
+"rc_id": "RC000111#07",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 6,
+"hop": 7,
+"rc_id": "RC000235#07",
+"n_gold": 4,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 7,
+"hop": 7,
+"rc_id": "RC000069#07",
+"n_gold": 4,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 9,
+"hop": 7,
+"rc_id": "RC000215#07",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 9,
+"hop": 7,
+"rc_id": "RC000256#07",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 1,
+"hop": 7,
+"rc_id": "RC000039#07",
+"n_gold": 5,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 9,
+"hop": 7,
+"rc_id": "RC000252#07",
+"n_gold": 4,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 0,
+"hop": 7,
+"rc_id": "RC000159#07",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 9,
+"hop": 7,
+"rc_id": "RC000229#07",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 11,
+"hop": 7,
+"rc_id": "RC000228#07",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 4,
+"hop": 7,
+"rc_id": "RC000226#07",
+"n_gold": 5,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 8,
+"hop": 7,
+"rc_id": "RC000290#07",
+"n_gold": 5,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 8,
+"hop": 7,
+"rc_id": "RC000015#07",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 11,
+"hop": 7,
+"rc_id": "RC000101#07",
+"n_gold": 6,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 1,
+"hop": 7,
+"rc_id": "RC000241#07",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 4,
+"hop": 7,
+"rc_id": "RC000083#07",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 11,
+"hop": 7,
+"rc_id": "RC000196#07",
+"n_gold": 5,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 3,
+"hop": 7,
+"rc_id": "RC000115#07",
+"n_gold": 4,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 9,
+"hop": 7,
+"rc_id": "RC000119#07",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 1,
+"hop": 7,
+"rc_id": "RC000117#07",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 7,
+"hop": 7,
+"rc_id": "RC000055#07",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 4,
+"hop": 7,
+"rc_id": "RC000061#07",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 7,
+"hop": 7,
+"rc_id": "RC000123#07",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 6,
+"hop": 7,
+"rc_id": "RC000194#07",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 5,
+"hop": 7,
+"rc_id": "RC000014#07",
+"n_gold": 5,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 10,
+"hop": 7,
+"rc_id": "RC000271#07",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 6,
+"hop": 7,
+"rc_id": "RC000169#07",
+"n_gold": 4,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 7,
+"hop": 7,
+"rc_id": "RC000035#07",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 1,
+"hop": 7,
+"rc_id": "RC000102#07",
+"n_gold": 3,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 4,
+"hop": 7,
+"rc_id": "RC000070#07",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 10,
+"hop": 7,
+"rc_id": "RC000150#07",
+"n_gold": 6,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 5,
+"hop": 7,
+"rc_id": "RC000203#07",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 4,
+"hop": 7,
+"rc_id": "RC000053#07",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 3,
+"hop": 7,
+"rc_id": "RC000089#07",
+"n_gold": 5,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 5,
+"hop": 7,
+"rc_id": "RC000084#07",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 10,
+"hop": 7,
+"rc_id": "RC000174#07",
+"n_gold": 6,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 7,
+"hop": 7,
+"rc_id": "RC000177#07",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 3,
+"hop": 7,
+"rc_id": "RC000250#07",
+"n_gold": 5,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 8,
+"hop": 7,
+"rc_id": "RC000194#07",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 8,
+"hop": 7,
+"rc_id": "RC000002#07",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 1,
+"hop": 7,
+"rc_id": "RC000182#07",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 0,
+"hop": 7,
+"rc_id": "RC000241#07",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 3,
+"hop": 7,
+"rc_id": "RC000166#07",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 0,
+"hop": 7,
+"rc_id": "RC000251#07",
+"n_gold": 4,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 7,
+"hop": 7,
+"rc_id": "RC000176#07",
+"n_gold": 5,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 1,
+"hop": 7,
+"rc_id": "RC000186#07",
+"n_gold": 6,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 9,
+"hop": 7,
+"rc_id": "RC000056#07",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 2,
+"hop": 7,
+"rc_id": "RC000234#07",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 1,
+"hop": 7,
+"rc_id": "RC000049#07",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 4,
+"hop": 7,
+"rc_id": "RC000038#07",
+"n_gold": 4,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 0,
+"hop": 7,
+"rc_id": "RC000030#07",
+"n_gold": 4,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 1,
+"hop": 7,
+"rc_id": "RC000033#07",
+"n_gold": 4,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 7,
+"hop": 7,
+"rc_id": "RC000121#07",
+"n_gold": 5,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 11,
+"hop": 7,
+"rc_id": "RC000202#07",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 8,
+"hop": 7,
+"rc_id": "RC000216#07",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 8,
+"hop": 7,
+"rc_id": "RC000076#07",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 11,
+"hop": 7,
+"rc_id": "RC000195#07",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 9,
+"hop": 7,
+"rc_id": "RC000137#07",
+"n_gold": 4,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 4,
+"hop": 7,
+"rc_id": "RC000231#07",
+"n_gold": 4,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 6,
+"hop": 7,
+"rc_id": "RC000266#07",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 10,
+"hop": 7,
+"rc_id": "RC000170#07",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 4,
+"hop": 7,
+"rc_id": "RC000081#07",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 2,
+"hop": 7,
+"rc_id": "RC000146#07",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 6,
+"hop": 8,
+"rc_id": "RC000088#08",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 0,
+"hop": 8,
+"rc_id": "RC000104#08",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 10,
+"hop": 8,
+"rc_id": "RC000193#08",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 8,
+"hop": 8,
+"rc_id": "RC000150#08",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 9,
+"hop": 8,
+"rc_id": "RC000041#08",
+"n_gold": 7,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 10,
+"hop": 8,
+"rc_id": "RC000217#08",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 0,
+"hop": 8,
+"rc_id": "RC000053#08",
+"n_gold": 5,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 0,
+"hop": 8,
+"rc_id": "RC000163#08",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 0,
+"hop": 8,
+"rc_id": "RC000214#08",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 0,
+"hop": 8,
+"rc_id": "RC000012#08",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 1,
+"hop": 8,
+"rc_id": "RC000139#08",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 4,
+"hop": 8,
+"rc_id": "RC000073#08",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 4,
+"hop": 8,
+"rc_id": "RC000288#08",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 4,
+"hop": 8,
+"rc_id": "RC000125#08",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 4,
+"hop": 8,
+"rc_id": "RC000239#08",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 3,
+"hop": 8,
+"rc_id": "RC000098#08",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 9,
+"hop": 8,
+"rc_id": "RC000132#08",
+"n_gold": 7,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 5,
+"hop": 8,
+"rc_id": "RC000088#08",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 8,
+"hop": 8,
+"rc_id": "RC000072#08",
+"n_gold": 6,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 6,
+"hop": 8,
+"rc_id": "RC000049#08",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 9,
+"hop": 8,
+"rc_id": "RC000272#08",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 6,
+"hop": 8,
+"rc_id": "RC000194#08",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 0,
+"hop": 8,
+"rc_id": "RC000144#08",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 4,
+"hop": 8,
+"rc_id": "RC000200#08",
+"n_gold": 4,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 0,
+"hop": 8,
+"rc_id": "RC000139#08",
+"n_gold": 4,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 1,
+"hop": 8,
+"rc_id": "RC000075#08",
+"n_gold": 4,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 7,
+"hop": 8,
+"rc_id": "RC000173#08",
+"n_gold": 6,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 11,
+"hop": 8,
+"rc_id": "RC000111#08",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 7,
+"hop": 8,
+"rc_id": "RC000228#08",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 8,
+"hop": 8,
+"rc_id": "RC000062#08",
+"n_gold": 7,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 0,
+"hop": 8,
+"rc_id": "RC000265#08",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 1,
+"hop": 8,
+"rc_id": "RC000097#08",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 6,
+"hop": 8,
+"rc_id": "RC000249#08",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 8,
+"hop": 8,
+"rc_id": "RC000172#08",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 5,
+"hop": 8,
+"rc_id": "RC000128#08",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 0,
+"hop": 8,
+"rc_id": "RC000113#08",
+"n_gold": 4,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 8,
+"hop": 8,
+"rc_id": "RC000045#08",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 10,
+"hop": 8,
+"rc_id": "RC000122#08",
+"n_gold": 7,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 1,
+"hop": 8,
+"rc_id": "RC000057#08",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 9,
+"hop": 8,
+"rc_id": "RC000032#08",
+"n_gold": 5,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 11,
+"hop": 8,
+"rc_id": "RC000179#08",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 1,
+"hop": 8,
+"rc_id": "RC000193#08",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 5,
+"hop": 8,
+"rc_id": "RC000294#08",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 0,
+"hop": 8,
+"rc_id": "RC000109#08",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 2,
+"hop": 8,
+"rc_id": "RC000273#08",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 6,
+"hop": 8,
+"rc_id": "RC000029#08",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 5,
+"hop": 8,
+"rc_id": "RC000166#08",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 4,
+"hop": 8,
+"rc_id": "RC000128#08",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 11,
+"hop": 8,
+"rc_id": "RC000244#08",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 0,
+"hop": 8,
+"rc_id": "RC000127#08",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 10,
+"hop": 8,
+"rc_id": "RC000097#08",
+"n_gold": 7,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 1,
+"hop": 8,
+"rc_id": "RC000254#08",
+"n_gold": 4,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 4,
+"hop": 8,
+"rc_id": "RC000205#08",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 3,
+"hop": 8,
+"rc_id": "RC000175#08",
+"n_gold": 4,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 11,
+"hop": 8,
+"rc_id": "RC000126#08",
+"n_gold": 3,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 3,
+"hop": 8,
+"rc_id": "RC000130#08",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 5,
+"hop": 8,
+"rc_id": "RC000165#08",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 4,
+"hop": 8,
+"rc_id": "RC000056#08",
+"n_gold": 4,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 9,
+"hop": 8,
+"rc_id": "RC000163#08",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 3,
+"hop": 8,
+"rc_id": "RC000117#08",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 4,
+"hop": 8,
+"rc_id": "RC000037#08",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 9,
+"hop": 8,
+"rc_id": "RC000167#08",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 3,
+"hop": 8,
+"rc_id": "RC000214#08",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 1,
+"hop": 8,
+"rc_id": "RC000177#08",
+"n_gold": 4,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 0,
+"hop": 8,
+"rc_id": "RC000133#08",
+"n_gold": 7,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 10,
+"hop": 8,
+"rc_id": "RC000269#08",
+"n_gold": 7,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 5,
+"hop": 8,
+"rc_id": "RC000105#08",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 4,
+"hop": 8,
+"rc_id": "RC000035#08",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 5,
+"hop": 8,
+"rc_id": "RC000253#08",
+"n_gold": 4,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 7,
+"hop": 8,
+"rc_id": "RC000192#08",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 4,
+"hop": 8,
+"rc_id": "RC000011#08",
+"n_gold": 3,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 5,
+"hop": 8,
+"rc_id": "RC000059#08",
+"n_gold": 7,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 1,
+"hop": 8,
+"rc_id": "RC000093#08",
+"n_gold": 5,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 9,
+"hop": 8,
+"rc_id": "RC000111#08",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 5,
+"hop": 8,
+"rc_id": "RC000187#08",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 2,
+"hop": 8,
+"rc_id": "RC000068#08",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 2,
+"hop": 8,
+"rc_id": "RC000253#08",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 5,
+"hop": 8,
+"rc_id": "RC000261#08",
+"n_gold": 7,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 5,
+"hop": 8,
+"rc_id": "RC000126#08",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 10,
+"hop": 8,
+"rc_id": "RC000188#08",
+"n_gold": 5,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 5,
+"hop": 8,
+"rc_id": "RC000219#08",
+"n_gold": 7,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 10,
+"hop": 8,
+"rc_id": "RC000045#08",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 2,
+"hop": 8,
+"rc_id": "RC000127#08",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 4,
+"hop": 8,
+"rc_id": "RC000008#08",
+"n_gold": 4,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 10,
+"hop": 8,
+"rc_id": "RC000222#08",
+"n_gold": 4,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 8,
+"hop": 8,
+"rc_id": "RC000083#08",
+"n_gold": 5,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 10,
+"hop": 8,
+"rc_id": "RC000293#08",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 8,
+"hop": 8,
+"rc_id": "RC000127#08",
+"n_gold": 7,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 4,
+"hop": 8,
+"rc_id": "RC000079#08",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 0,
+"hop": 8,
+"rc_id": "RC000188#08",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 2,
+"hop": 8,
+"rc_id": "RC000120#08",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 1,
+"hop": 8,
+"rc_id": "RC000256#08",
+"n_gold": 6,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 3,
+"hop": 8,
+"rc_id": "RC000046#08",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 6,
+"hop": 8,
+"rc_id": "RC000283#08",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 10,
+"hop": 8,
+"rc_id": "RC000154#08",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 2,
+"hop": 8,
+"rc_id": "RC000059#08",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 8,
+"hop": 8,
+"rc_id": "RC000195#08",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 8,
+"hop": 8,
+"rc_id": "RC000222#08",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 10,
+"hop": 8,
+"rc_id": "RC000144#08",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 8,
+"hop": 8,
+"rc_id": "RC000119#08",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 7,
+"hop": 9,
+"rc_id": "RC000191#09",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 5,
+"hop": 9,
+"rc_id": "RC000291#09",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 6,
+"hop": 9,
+"rc_id": "RC000080#09",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 10,
+"hop": 9,
+"rc_id": "RC000126#09",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 5,
+"hop": 9,
+"rc_id": "RC000216#09",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 7,
+"hop": 9,
+"rc_id": "RC000037#09",
+"n_gold": 7,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 1,
+"hop": 9,
+"rc_id": "RC000237#09",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 4,
+"hop": 9,
+"rc_id": "RC000242#09",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 7,
+"hop": 9,
+"rc_id": "RC000293#09",
+"n_gold": 7,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 5,
+"hop": 9,
+"rc_id": "RC000115#09",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 11,
+"hop": 9,
+"rc_id": "RC000223#09",
+"n_gold": 7,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 8,
+"hop": 9,
+"rc_id": "RC000176#09",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 9,
+"hop": 9,
+"rc_id": "RC000182#09",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 0,
+"hop": 9,
+"rc_id": "RC000085#09",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 7,
+"hop": 9,
+"rc_id": "RC000267#09",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 0,
+"hop": 9,
+"rc_id": "RC000139#09",
+"n_gold": 7,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 7,
+"hop": 9,
+"rc_id": "RC000124#09",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 7,
+"hop": 9,
+"rc_id": "RC000049#09",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 8,
+"hop": 9,
+"rc_id": "RC000113#09",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 4,
+"hop": 9,
+"rc_id": "RC000107#09",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 11,
+"hop": 9,
+"rc_id": "RC000147#09",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 4,
+"hop": 9,
+"rc_id": "RC000261#09",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 10,
+"hop": 9,
+"rc_id": "RC000025#09",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 8,
+"hop": 9,
+"rc_id": "RC000195#09",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 3,
+"hop": 9,
+"rc_id": "RC000081#09",
+"n_gold": 7,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 1,
+"hop": 9,
+"rc_id": "RC000120#09",
+"n_gold": 7,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 7,
+"hop": 9,
+"rc_id": "RC000237#09",
+"n_gold": 7,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 9,
+"hop": 9,
+"rc_id": "RC000006#09",
+"n_gold": 5,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 11,
+"hop": 9,
+"rc_id": "RC000135#09",
+"n_gold": 7,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 11,
+"hop": 9,
+"rc_id": "RC000186#09",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 6,
+"hop": 9,
+"rc_id": "RC000111#09",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 2,
+"hop": 9,
+"rc_id": "RC000115#09",
+"n_gold": 5,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 7,
+"hop": 9,
+"rc_id": "RC000113#09",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 1,
+"hop": 9,
+"rc_id": "RC000207#09",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 3,
+"hop": 9,
+"rc_id": "RC000188#09",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 3,
+"hop": 9,
+"rc_id": "RC000246#09",
+"n_gold": 7,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 5,
+"hop": 9,
+"rc_id": "RC000000#09",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 7,
+"hop": 9,
+"rc_id": "RC000001#09",
+"n_gold": 8,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 6,
+"hop": 9,
+"rc_id": "RC000237#09",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 11,
+"hop": 9,
+"rc_id": "RC000185#09",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 9,
+"hop": 9,
+"rc_id": "RC000114#09",
+"n_gold": 8,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 1,
+"hop": 9,
+"rc_id": "RC000074#09",
+"n_gold": 8,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 4,
+"hop": 9,
+"rc_id": "RC000078#09",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 11,
+"hop": 9,
+"rc_id": "RC000067#09",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 6,
+"hop": 9,
+"rc_id": "RC000271#09",
+"n_gold": 8,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 10,
+"hop": 9,
+"rc_id": "RC000155#09",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 10,
+"hop": 9,
+"rc_id": "RC000199#09",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 7,
+"hop": 9,
+"rc_id": "RC000286#09",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 0,
+"hop": 9,
+"rc_id": "RC000276#09",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 10,
+"hop": 9,
+"rc_id": "RC000272#09",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 2,
+"hop": 9,
+"rc_id": "RC000014#09",
+"n_gold": 7,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 2,
+"hop": 9,
+"rc_id": "RC000077#09",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 5,
+"hop": 9,
+"rc_id": "RC000247#09",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 7,
+"hop": 9,
+"rc_id": "RC000159#09",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 5,
+"hop": 9,
+"rc_id": "RC000221#09",
+"n_gold": 8,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 11,
+"hop": 9,
+"rc_id": "RC000181#09",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 3,
+"hop": 9,
+"rc_id": "RC000212#09",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 3,
+"hop": 9,
+"rc_id": "RC000291#09",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 10,
+"hop": 9,
+"rc_id": "RC000108#09",
+"n_gold": 8,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 4,
+"hop": 9,
+"rc_id": "RC000015#09",
+"n_gold": 8,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 0,
+"hop": 9,
+"rc_id": "RC000113#09",
+"n_gold": 7,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 9,
+"hop": 9,
+"rc_id": "RC000289#09",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 10,
+"hop": 9,
+"rc_id": "RC000176#09",
+"n_gold": 8,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 5,
+"hop": 9,
+"rc_id": "RC000134#09",
+"n_gold": 5,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 10,
+"hop": 9,
+"rc_id": "RC000102#09",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 8,
+"hop": 9,
+"rc_id": "RC000003#09",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 6,
+"hop": 9,
+"rc_id": "RC000276#09",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 11,
+"hop": 9,
+"rc_id": "RC000263#09",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 4,
+"hop": 9,
+"rc_id": "RC000266#09",
+"n_gold": 6,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 5,
+"hop": 9,
+"rc_id": "RC000179#09",
+"n_gold": 5,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 7,
+"hop": 9,
+"rc_id": "RC000045#09",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 1,
+"hop": 9,
+"rc_id": "RC000109#09",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 2,
+"hop": 9,
+"rc_id": "RC000166#09",
+"n_gold": 7,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 2,
+"hop": 9,
+"rc_id": "RC000232#09",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 2,
+"hop": 9,
+"rc_id": "RC000025#09",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 1,
+"hop": 9,
+"rc_id": "RC000053#09",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 0,
+"hop": 9,
+"rc_id": "RC000038#09",
+"n_gold": 5,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 0,
+"hop": 9,
+"rc_id": "RC000062#09",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 11,
+"hop": 9,
+"rc_id": "RC000060#09",
+"n_gold": 7,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 8,
+"hop": 9,
+"rc_id": "RC000103#09",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 0,
+"hop": 9,
+"rc_id": "RC000262#09",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 9,
+"hop": 9,
+"rc_id": "RC000112#09",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 7,
+"hop": 9,
+"rc_id": "RC000040#09",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 7,
+"hop": 9,
+"rc_id": "RC000215#09",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 4,
+"hop": 9,
+"rc_id": "RC000232#09",
+"n_gold": 7,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 2,
+"hop": 9,
+"rc_id": "RC000190#09",
+"n_gold": 6,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 10,
+"hop": 9,
+"rc_id": "RC000258#09",
+"n_gold": 7,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 2,
+"hop": 9,
+"rc_id": "RC000118#09",
+"n_gold": 6,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 1,
+"hop": 9,
+"rc_id": "RC000264#09",
+"n_gold": 7,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 10,
+"hop": 9,
+"rc_id": "RC000183#09",
+"n_gold": 5,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 7,
+"hop": 9,
+"rc_id": "RC000143#09",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 9,
+"hop": 9,
+"rc_id": "RC000078#09",
+"n_gold": 7,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 2,
+"hop": 9,
+"rc_id": "RC000137#09",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 4,
+"hop": 9,
+"rc_id": "RC000219#09",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 4,
+"hop": 9,
+"rc_id": "RC000209#09",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 11,
+"hop": 9,
+"rc_id": "RC000222#09",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 1,
+"hop": 9,
+"rc_id": "RC000073#09",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 7,
+"hop": 9,
+"rc_id": "RC000089#09",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 10,
+"hop": 9,
+"rc_id": "RC000039#09",
+"n_gold": 7,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 11,
+"hop": 9,
+"rc_id": "RC000211#09",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 1,
+"hop": 10,
+"rc_id": "RC000250#10",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 11,
+"hop": 10,
+"rc_id": "RC000081#10",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 11,
+"hop": 10,
+"rc_id": "RC000244#10",
+"n_gold": 7,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 8,
+"hop": 10,
+"rc_id": "RC000249#10",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 0,
+"hop": 10,
+"rc_id": "RC000175#10",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 5,
+"hop": 10,
+"rc_id": "RC000186#10",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 1,
+"hop": 10,
+"rc_id": "RC000007#10",
+"n_gold": 8,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 0,
+"hop": 10,
+"rc_id": "RC000070#10",
+"n_gold": 7,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 4,
+"hop": 10,
+"rc_id": "RC000130#10",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 10,
+"hop": 10,
+"rc_id": "RC000180#10",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 5,
+"hop": 10,
+"rc_id": "RC000054#10",
+"n_gold": 7,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 7,
+"hop": 10,
+"rc_id": "RC000038#10",
+"n_gold": 8,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 9,
+"hop": 10,
+"rc_id": "RC000142#10",
+"n_gold": 8,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 3,
+"hop": 10,
+"rc_id": "RC000293#10",
+"n_gold": 8,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 8,
+"hop": 10,
+"rc_id": "RC000263#10",
+"n_gold": 8,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 9,
+"hop": 10,
+"rc_id": "RC000050#10",
+"n_gold": 5,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 0,
+"hop": 10,
+"rc_id": "RC000136#10",
+"n_gold": 7,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 0,
+"hop": 10,
+"rc_id": "RC000026#10",
+"n_gold": 9,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 5,
+"hop": 10,
+"rc_id": "RC000288#10",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 0,
+"hop": 10,
+"rc_id": "RC000260#10",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 10,
+"hop": 10,
+"rc_id": "RC000081#10",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 0,
+"hop": 10,
+"rc_id": "RC000115#10",
+"n_gold": 8,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 0,
+"hop": 10,
+"rc_id": "RC000248#10",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 7,
+"hop": 10,
+"rc_id": "RC000207#10",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 10,
+"hop": 10,
+"rc_id": "RC000098#10",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 0,
+"hop": 10,
+"rc_id": "RC000114#10",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 2,
+"hop": 10,
+"rc_id": "RC000080#10",
+"n_gold": 5,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 9,
+"hop": 10,
+"rc_id": "RC000237#10",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 3,
+"hop": 10,
+"rc_id": "RC000218#10",
+"n_gold": 8,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 3,
+"hop": 10,
+"rc_id": "RC000097#10",
+"n_gold": 8,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 0,
+"hop": 10,
+"rc_id": "RC000000#10",
+"n_gold": 5,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 9,
+"hop": 10,
+"rc_id": "RC000249#10",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 0,
+"hop": 10,
+"rc_id": "RC000148#10",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 2,
+"hop": 10,
+"rc_id": "RC000234#10",
+"n_gold": 8,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 6,
+"hop": 10,
+"rc_id": "RC000288#10",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 9,
+"hop": 10,
+"rc_id": "RC000299#10",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 5,
+"hop": 10,
+"rc_id": "RC000012#10",
+"n_gold": 8,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 9,
+"hop": 10,
+"rc_id": "RC000287#10",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 11,
+"hop": 10,
+"rc_id": "RC000009#10",
+"n_gold": 8,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 10,
+"hop": 10,
+"rc_id": "RC000022#10",
+"n_gold": 5,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 9,
+"hop": 10,
+"rc_id": "RC000063#10",
+"n_gold": 6,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 10,
+"hop": 10,
+"rc_id": "RC000121#10",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 6,
+"hop": 10,
+"rc_id": "RC000030#10",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 9,
+"hop": 10,
+"rc_id": "RC000061#10",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 10,
+"hop": 10,
+"rc_id": "RC000028#10",
+"n_gold": 9,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 11,
+"hop": 10,
+"rc_id": "RC000057#10",
+"n_gold": 8,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 2,
+"hop": 10,
+"rc_id": "RC000259#10",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 8,
+"hop": 10,
+"rc_id": "RC000026#10",
+"n_gold": 7,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 10,
+"hop": 10,
+"rc_id": "RC000192#10",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 4,
+"hop": 10,
+"rc_id": "RC000053#10",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 9,
+"hop": 10,
+"rc_id": "RC000178#10",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 5,
+"hop": 10,
+"rc_id": "RC000122#10",
+"n_gold": 6,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 3,
+"hop": 10,
+"rc_id": "RC000138#10",
+"n_gold": 7,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 2,
+"hop": 10,
+"rc_id": "RC000232#10",
+"n_gold": 7,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 9,
+"hop": 10,
+"rc_id": "RC000031#10",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 8,
+"hop": 10,
+"rc_id": "RC000043#10",
+"n_gold": 8,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 11,
+"hop": 10,
+"rc_id": "RC000298#10",
+"n_gold": 5,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 11,
+"hop": 10,
+"rc_id": "RC000155#10",
+"n_gold": 5,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 4,
+"hop": 10,
+"rc_id": "RC000298#10",
+"n_gold": 7,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 10,
+"hop": 10,
+"rc_id": "RC000085#10",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 2,
+"hop": 10,
+"rc_id": "RC000122#10",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 9,
+"hop": 10,
+"rc_id": "RC000108#10",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 1,
+"hop": 10,
+"rc_id": "RC000016#10",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 4,
+"hop": 10,
+"rc_id": "RC000022#10",
+"n_gold": 7,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 9,
+"hop": 10,
+"rc_id": "RC000263#10",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 9,
+"hop": 10,
+"rc_id": "RC000090#10",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 10,
+"hop": 10,
+"rc_id": "RC000062#10",
+"n_gold": 9,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 5,
+"hop": 10,
+"rc_id": "RC000236#10",
+"n_gold": 5,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 6,
+"hop": 10,
+"rc_id": "RC000164#10",
+"n_gold": 7,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 4,
+"hop": 10,
+"rc_id": "RC000261#10",
+"n_gold": 7,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 4,
+"hop": 10,
+"rc_id": "RC000106#10",
+"n_gold": 7,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 5,
+"hop": 10,
+"rc_id": "RC000073#10",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 9,
+"hop": 10,
+"rc_id": "RC000020#10",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 5,
+"hop": 10,
+"rc_id": "RC000043#10",
+"n_gold": 7,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 2,
+"hop": 10,
+"rc_id": "RC000110#10",
+"n_gold": 7,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 2,
+"hop": 10,
+"rc_id": "RC000255#10",
+"n_gold": 7,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 7,
+"hop": 10,
+"rc_id": "RC000074#10",
+"n_gold": 7,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 5,
+"hop": 10,
+"rc_id": "RC000282#10",
+"n_gold": 7,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 2,
+"hop": 10,
+"rc_id": "RC000218#10",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 6,
+"hop": 10,
+"rc_id": "RC000138#10",
+"n_gold": 7,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 8,
+"hop": 10,
+"rc_id": "RC000296#10",
+"n_gold": 6,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 2,
+"hop": 10,
+"rc_id": "RC000290#10",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 1,
+"hop": 10,
+"rc_id": "RC000266#10",
+"n_gold": 9,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 4,
+"hop": 10,
+"rc_id": "RC000102#10",
+"n_gold": 7,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 11,
+"hop": 10,
+"rc_id": "RC000255#10",
+"n_gold": 5,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 3,
+"hop": 10,
+"rc_id": "RC000136#10",
+"n_gold": 8,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 3,
+"hop": 10,
+"rc_id": "RC000157#10",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 0,
+"hop": 10,
+"rc_id": "RC000197#10",
+"n_gold": 8,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 3,
+"hop": 10,
+"rc_id": "RC000286#10",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 3,
+"hop": 10,
+"rc_id": "RC000250#10",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 4,
+"hop": 10,
+"rc_id": "RC000144#10",
+"n_gold": 5,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 3,
+"hop": 10,
+"rc_id": "RC000001#10",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 3,
+"hop": 10,
+"rc_id": "RC000200#10",
+"n_gold": 5,
+"leak_any": false,
+"leak_big": false
+},
+{
+"uid": 1,
+"hop": 10,
+"rc_id": "RC000102#10",
+"n_gold": 8,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 8,
+"hop": 10,
+"rc_id": "RC000248#10",
+"n_gold": 7,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 7,
+"hop": 10,
+"rc_id": "RC000270#10",
+"n_gold": 7,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 4,
+"hop": 10,
+"rc_id": "RC000058#10",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 3,
+"hop": 10,
+"rc_id": "RC000205#10",
+"n_gold": 4,
+"leak_any": true,
+"leak_big": false
+},
+{
+"uid": 0,
+"hop": 10,
+"rc_id": "RC000165#10",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": true
+},
+{
+"uid": 8,
+"hop": 10,
+"rc_id": "RC000160#10",
+"n_gold": 6,
+"leak_any": true,
+"leak_big": true
+}
+]
+}

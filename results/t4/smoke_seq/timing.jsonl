@@ -1,0 +1,4 @@
+{"file": "SequentialReason_Ignoramus_k20_s5", "questions": 6, "calls": 30, "prompt_tokens": 9178, "completion_tokens": 1186, "wall_s": 16.3, "workers": 48}
+{"file": "SequentialReason_Oracle_k20_s5", "questions": 6, "calls": 30, "prompt_tokens": 9492, "completion_tokens": 985, "wall_s": 13.4, "workers": 48}
+{"file": "SequentialReason_SparseRAG_k20_s5", "questions": 6, "calls": 30, "prompt_tokens": 19926, "completion_tokens": 1010, "wall_s": 21.5, "workers": 48}
+{"file": "SequentialReason_DenseRAG_k20_s5", "questions": 6, "calls": 30, "prompt_tokens": 19606, "completion_tokens": 1058, "wall_s": 34.5, "workers": 48}

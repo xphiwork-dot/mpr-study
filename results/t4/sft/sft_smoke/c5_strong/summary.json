@@ -1,0 +1,59 @@
+{
+ "args": {
+  "model": "Qwen/Qwen2.5-0.5B-Instruct",
+  "facts": 40,
+  "questions": 8,
+  "max_hop": 4,
+  "user": 0,
+  "ask": 2,
+  "clusters": 5,
+  "epochs": 2,
+  "bs": 16,
+  "lr_preset": "strong",
+  "seed": 0,
+  "ask_via": "vllm",
+  "stage": "train",
+  "tag": "sft_smoke",
+  "smoke": true
+ },
+ "train_seconds": 18.7,
+ "n_train_pairs": 80,
+ "n_facts": 40,
+ "conditions": {
+  "q_base_ignoramus": {
+   "n": 8,
+   "em": 0.0,
+   "contains": 0.0
+  },
+  "q_base_rag": {
+   "n": 8,
+   "em": 0.0,
+   "contains": 0.0
+  },
+  "q_lora_ignoramus": {
+   "n": 8,
+   "em": 0.0,
+   "contains": 0.0
+  },
+  "q_lora_rag": {
+   "n": 8,
+   "em": 0.0,
+   "contains": 0.0
+  },
+  "recall_base_raw": {
+   "n": 80,
+   "em": 0.0,
+   "contains": 0.025
+  },
+  "recall_lora_raw": {
+   "n": 80,
+   "em": 0.0,
+   "contains": 0.025
+  },
+  "recall_lora_wrapped": {
+   "n": 80,
+   "em": 0.0,
+   "contains": 0.025
+  }
+ }
+}

@@ -35,11 +35,11 @@ if [ ! -d upstream/MPR/.git ]; then
 fi
 git -C upstream/MPR checkout -q "$UPSTREAM_COMMIT"
 
-echo "== 3/5 apply patches/farm.patch"
-if git -C upstream/MPR apply --check ../../patches/farm.patch 2>/dev/null; then
-  git -C upstream/MPR apply ../../patches/farm.patch
+echo "== 3/5 apply experiments/01_farm_small_run/farm.patch"
+if git -C upstream/MPR apply --check ../../experiments/01_farm_small_run/farm.patch 2>/dev/null; then
+  git -C upstream/MPR apply ../../experiments/01_farm_small_run/farm.patch
   echo "applied"
-elif git -C upstream/MPR apply --reverse --check ../../patches/farm.patch 2>/dev/null; then
+elif git -C upstream/MPR apply --reverse --check ../../experiments/01_farm_small_run/farm.patch 2>/dev/null; then
   echo "already applied"
 else
   echo "patch does not apply cleanly; reset with: git -C upstream/MPR checkout -- ." >&2
@@ -61,8 +61,8 @@ fi
 
 echo "== 5/5 question subset for the optional farm run"
 if [ "${SKIP_DATASET:-0}" != 1 ]; then
-  "$VIRTUAL_ENV/bin/python" scripts/make_subset.py
+  "$VIRTUAL_ENV/bin/python" experiments/01_farm_small_run/make_subset.py
 fi
 
 echo
-echo "done. next: .venv/bin/python scripts/retrieval_recall.py ; .venv/bin/python scripts/leak_check.py"
+echo "done. next: .venv/bin/python experiments/00_probes_retrieval_leak/retrieval_recall.py ; .venv/bin/python experiments/00_probes_retrieval_leak/leak_check.py"

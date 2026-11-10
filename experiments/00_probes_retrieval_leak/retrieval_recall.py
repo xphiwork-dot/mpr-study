@@ -8,13 +8,16 @@ which of the question's gold statements were found. Reports, per hop count:
 for BM25 (bm25s, English stopwords) and dense e5-base-v2 (cosine, no prefixes,
 as the upstream code does).
 
-Usage: python scripts/retrieval_recall.py [--user 0] [--k 20] [--no-e5]
+Usage: python experiments/00_probes_retrieval_leak/retrieval_recall.py [--user 0] [--k 20] [--no-e5]
 """
 import argparse
+import os
+import sys
 import time
 
 import numpy as np
 
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "_shared"))  # common.py, lib.py, score.py
 from common import DEFAULT_DATA_DIR, hops, load_user
 
 

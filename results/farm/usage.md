@@ -1,6 +1,6 @@
 # Farm token usage (user 0, 9 questions)
 
-Summed from the `[Usage]` lines of the run logs, with the same awk used by `scripts/farm_run.sh`. The raw .log files are not committed (gitignored).
+Summed from the `[Usage]` lines of the run logs, with the same awk used by `experiments/01_farm_small_run/farm_run.sh`. The raw .log files are not committed (gitignored).
 
 | Run | calls | input tokens | output tokens |
 |---|---|---|---|

@@ -1,0 +1,6 @@
+{"file": "SequentialReason_SparseRAG_k20_s2", "questions": 306, "calls": 612, "prompt_tokens": 384340, "completion_tokens": 27982, "wall_s": 380.0, "workers": 48}
+{"file": "SequentialReason_DenseRAG_k20_s2", "questions": 306, "calls": 612, "prompt_tokens": 397308, "completion_tokens": 27931, "wall_s": 406.8, "workers": 48}
+{"file": "SequentialReason_SparseRAG_k20_s3", "questions": 306, "calls": 918, "prompt_tokens": 611424, "completion_tokens": 49393, "wall_s": 614.1, "workers": 48}
+{"file": "SequentialReason_DenseRAG_k20_s3", "questions": 306, "calls": 918, "prompt_tokens": 631640, "completion_tokens": 49182, "wall_s": 653.8, "workers": 48}
+{"file": "SequentialReason_SparseRAG_k20_s8", "questions": 306, "calls": 2448, "prompt_tokens": 2045012, "completion_tokens": 138391, "wall_s": 2181.1, "workers": 48}
+{"file": "SequentialReason_DenseRAG_k20_s8", "questions": 306, "calls": 2448, "prompt_tokens": 2089535, "completion_tokens": 135556, "wall_s": 2262.4, "workers": 48}

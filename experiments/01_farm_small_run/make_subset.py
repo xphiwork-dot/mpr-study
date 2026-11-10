@@ -5,13 +5,15 @@ so retrieval stays as hard as in the full benchmark while an LLM run stays cheap
 Output: data/subsets/user<U>_<N>perhop.json (the title upstream run_qa.py reads
 through MPR_DATA_TITLE / MPR_DATA_DIR; defaults point at user0_1perhop).
 
-Usage: python scripts/make_subset.py [--user 0] [--per-hop 1] [--seed 0]
+Usage: python experiments/01_farm_small_run/make_subset.py [--user 0] [--per-hop 1] [--seed 0]
 """
 import argparse
 import json
 import os
 import random
+import sys
 
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "_shared"))  # common.py, lib.py, score.py
 from common import DEFAULT_DATA_DIR, hops, load_user
 
 
