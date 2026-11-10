@@ -10,6 +10,9 @@ not to match its tables.
 ## Start here
 
 1. Open `docs/index.html` (the study guide: paper in 60 seconds, glossary, 4 flow charts, quizzes, talk plan).
+   Start with [`docs/experiment-overview.html`](docs/experiment-overview.html): paper-wide coverage, Colab feasibility, experiment dependencies, and presentation choices.
+   Use [`docs/reproduction-audit.html`](docs/reproduction-audit.html) for completed results, charts, and the E1–E5 extension / N1–N6 new-experiment plans with paper links and controls.
+   Editable report sources are `.archify/mpr-overview/candidate.archify.md` and `.archify/mpr-reproduction/candidate.archify.md`. See [report rebuilding](#rebuild-the-visual-reports) below.
 2. Run `scripts/retrieval_recall.py`: why one question-only retrieval cannot find the facts of a long chain.
 3. Run `scripts/leak_check.py`: why long-hop accuracy partly measures arithmetic on the question text.
 4. Read `docs/reproduction-status.md` (what is reproduced) and skim `docs/upstream-notes.md`, then (optional) run the farm baselines with `scripts/farm_run.sh`.
@@ -89,3 +92,25 @@ here: `setup.sh` clones it at commit `a24953c` into the gitignored `upstream/` a
 Zhang, Zhang, Tan, Li, Chen. "Explicit v.s. Implicit Memory: Exploring Multi-hop Complex Reasoning Over
 Personalized Information". KDD '26, pp. 1964-1974. DOI 10.1145/3770854.3780184. arXiv 2508.13250.
 The analysis here used arXiv v1 (2508.13250v1); check the KDD camera-ready for changes before presenting.
+
+## Rebuild the visual reports
+
+The HTML files are standalone; opening them does not require Archify. Source citations freeze the repository evidence used during rendering.
+
+Install Archify project-locally (the installed package itself is not vendored):
+
+```bash
+npx -y skills@latest add https://archify.si --skill archify --agent codex --copy --yes
+```
+
+Apply `.archify/archify-report.patch` once to the installed Archify 3.2 layout: it wraps the mobile toolbar and allows narrowly scoped sibling-report / paper-PDF links. An updated package may need the patch rebased; do not force it if the context differs.
+
+```bash
+git apply --check .archify/archify-report.patch
+git apply .archify/archify-report.patch
+node .agents/skills/archify/bin/archify.mjs finalize explainer .archify/mpr-reproduction/candidate.archify.md docs/reproduction-audit.html --repo-root . --json
+node .agents/skills/archify/bin/archify.mjs finalize explainer .archify/mpr-overview/candidate.archify.md docs/experiment-overview.html --repo-root . --json
+```
+
+Run the two render commands sequentially. Already applied? `git apply --reverse --check .archify/archify-report.patch` confirms the local patch without changing it.
+Delivery receipts are local verification artifacts, not committed documentation. Verify the two HTML pages and cross-links in a browser after rebuilding.

@@ -8,3 +8,7 @@ results/*
 !results/probes/
 results/**/*.log
 __pycache__/
+.agents/skills/
+docs/*.delivery.json
+docs/*.finalize.json
+docs/*.finalize-summary.json

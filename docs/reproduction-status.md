@@ -3,6 +3,8 @@
 What of the MPR paper (Explicit v.s. Implicit Memory, KDD '26) is reproduced in this repo, what is not, and
 where the evidence is. This file is the single source of truth; the README only links here.
 
+Start with [`experiment-overview.html`](experiment-overview.html) for the paper-wide coverage map, realistic Colab targets, dependencies, and presentation choices. Then use [`reproduction-audit.html`](reproduction-audit.html) for completed results and the E1–E5 / N1–N6 experiment specifications, linked to paper figures and parent evidence. Proposed notebook work is not completed work; no personal Colab notebooks were available in this checkout. Editable Archify sources are in `.archify/mpr-overview/` and `.archify/mpr-reproduction/`.
+
 Sources for every number below: the committed files under `results/`, or the scout report
 (`docs/scout-report.html`, cited by section). The goal is to understand the paper's ideas, not to match its tables.
 Setup the results were produced with: user 0 (13,100 statements, 2,700 questions), upstream commit `a24953c`.

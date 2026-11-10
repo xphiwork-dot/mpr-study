@@ -1,0 +1,32 @@
+--- a/.agents/skills/archify/explainer/reader.css
++++ b/.agents/skills/archify/explainer/reader.css
+@@ -28,7 +28,7 @@
+ .masthead{display:flex;align-items:center;justify-content:space-between;gap:32px;padding:36px 0 22px}
+ h1{font:700 26px/1.35 var(--sans);color:var(--ink);letter-spacing:-.015em;max-width:900px;overflow-wrap:anywhere}
+ /* Toolbar: one height, one radius, one type size for every control */
+-.js .tools{display:flex!important;align-items:center;gap:8px;flex-shrink:0}
++.js .tools{display:flex!important;align-items:center;gap:8px;flex-shrink:0;flex-wrap:wrap;max-width:100%}
+ .tools button{font-size:12.5px;line-height:1;color:var(--secondary)}
+ .tools :focus{outline:none}
+ .tools :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+--- a/.agents/skills/archify/explainer/inline.mjs
++++ b/.agents/skills/archify/explainer/inline.mjs
+@@ -11,6 +11,10 @@
+       if (url.username || url.password || /[\u0000-\u0020\u007f]/u.test(href)) return null;
+       return {kind:'web',url:href};
+     } catch { return null; }
++  }
++  // Project reports may link sibling HTML pages and repository paper PDFs.
++  if (/^(?:[A-Za-z0-9_-]+\.html|(?:\.\.\/)?papers\/[A-Za-z0-9_.-]+\.pdf)(?:#[A-Za-z0-9_=.-]+)?$/u.test(href)) {
++    return {kind:'local',url:href};
+   }
+   if (href.startsWith('source:') && identifier.test(href.slice(7))) return {kind:'source',id:href.slice(7)};
+   if (href.startsWith('block:') && identifier.test(href.slice(6))) return {kind:'block',id:href.slice(6)};
+@@ -131,6 +135,7 @@
+     if (token.type === 'strong' || token.type === 'em') return `<${token.type}>${render(token.children)}</${token.type}>`;
+     const label=escapeHtml(token.label), ref=token.reference;
+     if (ref.kind === 'web') return `<a href="${escapeHtml(ref.url)}" target="_blank" rel="noopener noreferrer">${label}</a>`;
++    if (ref.kind === 'local') return `<a href="${escapeHtml(ref.url)}">${label}</a>`;
+     if (ref.kind === 'source') {
+       const citations = context.citations || (context.citations = new Map());
+       if (!citations.has(ref.id)) citations.set(ref.id,citations.size + 1);
