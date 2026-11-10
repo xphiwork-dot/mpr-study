@@ -1,6 +1,6 @@
 # What have I reproduced, and what can I present? {#mpr-progress}
 
-**You have completed retrieval diagnostics and a seven-configuration QA pilot.** Present these as a reimplementation of selected explicit-memory baselines, plus your own analysis of why retrieval becomes difficult. Implicit memory and HybridMem are the next untested parts, not completed results.
+**You retained retrieval diagnostics and a seven-configuration QA pilot; a full eight-cell 45-question Farm grid and 0.5B LoRA/hybrid pilots also ran earlier.** The historical summaries survive, but raw answers and adapters were not retained here. Distinguish work performed from evidence preserved and from the paper's 7B results.
 
 - Finished: BM25 and e5 retrieval on 2,700 questions; a numeric-overlap check on 32,399 questions.[](source:retrieval)[](source:overlap)
 - Finished: four Naive Reasoning runs and three Sequential Reasoning runs, all on the same nine questions.[](source:qa)
@@ -18,7 +18,7 @@
 @source runner title="Farm execution wrapper" path=scripts/farm_run.sh lines=1:30
 @source setup title="Environment, upstream and dataset setup" path=setup.sh lines=12:68
 @source notes title="Recorded upstream training and adapter issues" path=docs/upstream-notes.md lines=7:23
-@source historical title="Historical scouting only; not current raw outputs" path=docs/scout-report.html
+@source historical title="Historical scouting report: earlier 0.5B LoRA and HybridMem results; raw artifacts not retained" path=docs/scout-report.html
 @source paper title="Published MPR paper: Figures 3–10, Table 3 and Appendix A" url=https://doi.org/10.1145/3770854.3780184
 @source preprint title="arXiv v1: same study, with detailed reasoning prompts in Appendix B" url=https://arxiv.org/abs/2508.13250
 @source colab title="Google Colab FAQ: hardware and runtime limits are variable" url=https://research.google.com/colaboratory/faq.html
@@ -39,6 +39,8 @@ Start with the [big-picture coverage and decision map](experiment-overview.html)
 | Working: scoring | Normalize answers, then compare with gold | Recomputed exact-match results; optional lenient score | `scripts/score.py` |
 
 The seven QA files contain 63 answers but only **nine distinct questions**. The retrieval probes cover many more questions than the QA pilot.[](source:qa)[](source:retrieval)
+
+**Performed earlier, summarized only:** the scout report records all eight NR/SR × Ignoramus/Oracle/SparseRAG/DenseRAG cells on 45 shared questions (including SR DenseRAG), plus three 0.5B AskSFT variants, direct SFT+DenseRAG and five-cluster HybridMem. It also reports single-hop seen/paraphrase probes and a 0.5B padding-format ablation. These are real experiments, but their raw artifacts are not in this checkout.[](source:historical)
 
 ## 2. What did I reimplement from the paper? {#method span=12}
 
@@ -119,7 +121,7 @@ xychart-beta horizontal
 
 **Limits:** each changed answer moves a score by 11.1 percentage points: 1 / 9 × 100. One user and one question per hop cannot establish a stable method ranking.
 
-**Missing bar:** Sequential + DenseRAG was not run. Its absence is not a score of zero.
+**Missing bar in this nine-question chart only:** Sequential + DenseRAG ran in the earlier 45-question scout grid (0.333 EM), but was not rerun for these nine questions. Do not merge scores across cohorts.[](source:historical)
 
 ## 6. Dataset caveat: can the question itself reveal information? {#overlap-result span=5}
 
@@ -143,16 +145,16 @@ This regex test detects shared number tokens. It does not establish that the sha
 
 | Paper experiment | Current state | Concrete work needed |
 | --- | --- | --- |
-| Explicit-memory baseline grid; Figure 3 | Selected methods executed; paper-scale comparison incomplete {caution:Extend} | Finish SR DenseRAG, enlarge the sample, match Qwen2.5-7B, then add MR/DR |
+| Explicit-memory baseline grid; Figure 3 | Historical 45-question eight-cell grid complete; retained nine-question grid has seven cells; paper-scale comparison incomplete {caution:Extend} | Rebuild a saved same-model grid; add MR/DR, Tree/Graph and a 7B comparison separately |
 | Retrieval-count / reasoning-step sweeps; Figures 4–5 | No saved sweeps {bad:Missing} | Hold questions fixed; vary one setting at a time; record final-answer scores |
 | TreeRAG / GraphRAG; Section 4 | No local result {bad:Missing} | Build the summary/graph indexes, then evaluate on the same questions |
 | Backbone comparison; Figure 6 | No controlled 3B / 7B comparison {bad:Missing} | Use the same dataset, prompts, retrieval and scoring for both models |
-| Implicit memory; Figure 8, Appendix A | No current training/evaluation artifacts {bad:Missing} | Train AskSFT and MaskSFT; evaluate standalone and with Oracle; check epochs and prompts |
-| Direct SFT+RAG and HybridMem; Table 3 | No current matched evaluation {bad:Missing} | Validate adapters and checkpoint loading; compare hybrid against unchanged RAG controls |
+| Implicit memory; Figure 8, Appendix A | Earlier 0.5B AskSFT **ran**; results summarized in scout report, but raw outputs/adapters not retained {caution:Historical pilot} | Rebuild or recover raw evidence; 7B AskSFT/MaskSFT, Oracle variants and ablations remain unmatched |
+| Direct SFT+RAG and HybridMem; Table 3 | Earlier 0.5B SFT+RAG and five-cluster HybridMem **ran**; historical summary only {caution:Historical pilot} | Preserve matched raw baseline/hybrid outputs; paper-scale 50-cluster comparison still missing |
 | Hybrid cluster / epoch sweeps; Figures 9–10 | No saved sweep {bad:Missing} | Vary clusters and epochs after one end-to-end HybridMem run works |
 | Efficiency; Figure 7 | Token summary only, no matched timing study {caution:Different measure} | Record wall time per question; distinguish index/training cost from inference cost |
 
-Historical notes describe a 45-question grid and 0.5B training probes. Their raw outputs and adapters are not retained here; do not add them to the current completed list.[](source:historical)
+The historical 45-question grid and 0.5B AskSFT, SFT+RAG and five-cluster HybridMem **were run**, not “unrun.” The scout report records their results, while raw outputs and adapters are not retained in this checkout.[](source:historical)
 
 The paper’s Table 3 shows mixed HybridMem changes across cells. Test its claims rather than assuming every hybrid must beat RAG.[](source:paper)
 
@@ -210,10 +212,10 @@ For dense retrieval, start with smaller encoding batches than the script's fixed
 | 3. Main observation | Retrieval charts in panels 3–4 | “Longer chains make complete evidence coverage difficult; my probe agrees with the paper’s sparse/dense trend.” | Figure 3; Section 4.2 |
 | 4. End-to-end check | The paired QA pilot in panel 5 | “Memory helps on this slice, but my small run does not reproduce the paper’s SR gain.” | Figure 3 |
 | 5. Extra insight | Numeric-overlap chart in panel 6 | “This is my own diagnostic and a caution about interpreting high-hop accuracy.” | Additional analysis, not a paper claim |
-| 6. Status and next step | Completed list, missing methods, next runnable command | “The explicit-memory pilot is finished. Larger matched evaluation and implicit/hybrid methods remain.” | Figures 4–10; Table 3 |
+| 6. Status and next step | Retained work alongside the historical eight-cell Farm grid and 0.5B pilots | “I ran explicit baselines and small-model LoRA/hybrid pilots; paper-scale training and full grids remain.” | Figures 3–10; Table 3 |
 
 @callout level=note title="A precise closing sentence for your presentation"
-| “I reimplemented and ran selected explicit-memory baselines, measured their retrieval behavior, and checked their trends against the paper. I have not yet reproduced the full implicit-memory or HybridMem comparison.” |
+| “I ran an eight-cell explicit-memory grid on 45 questions and a 0.5B AskSFT/HybridMem pilot; only their summaries survive here. My retained smaller QA and retrieval runs support selected trends, not a full Qwen2.5-7B reproduction.” |
 
 ## 10. What must I double-check before presenting? {#checks span=12}
 
@@ -221,7 +223,7 @@ For dense retrieval, start with smaller encoding batches than the script's fixed
 - [ ] Say nine unique QA questions, not 63 independent examples.
 - [ ] State that the Farm model differs from the paper model and its exact deployment was not saved.
 - [ ] Use exact match as the main local score; explain lenient contains only as an extra check.
-- [ ] Do not treat the missing SR DenseRAG result as zero.
+- [ ] Treat SR DenseRAG as missing from the retained nine-question cohort, not from the earlier 45-question run; never combine the two.
 - [ ] Label numeric overlap as a risk heuristic, not proven answer leakage.
 - [ ] Keep historical 45-question and 0.5B claims separate from retained local outputs.
 - [ ] Cite the correct paper section beside every comparison.
@@ -242,23 +244,23 @@ For dense retrieval, start with smaller encoding batches than the script's fixed
 | --- | --- | --- | --- | --- |
 | E1 · first: retrieval count and users | [Completed recall curves](block:retrieval-result); `retrieval_recall.py` flags `--user`, `--k`, `--no-e5` | [Figure 4, §4.3, PDF p.6](https://dl.acm.org/doi/pdf/10.1145/3770854.3780184#page=6): recall/noise motivation, not the same metric | User 0; k=10/20/30/50; full memory; all valid questions. Then users 1–2, one at a time. Start BM25 on CPU; add e5 if practical. | Save recall@k and all-gold@k per hop/user. Compare to original user-0 k=20. Done when all planned cells exist; no QA accuracy claim. |
 | E2 · first: e5 prefix sensitivity | [Completed e5 probe](block:retrieval-result); same script, `--e5-prefix` | [§4.1, PDF p.5](https://dl.acm.org/doi/pdf/10.1145/3770854.3780184#page=5): DenseRAG implementation audit; no paper prefix-ablation figure | User 0, k=20; identical model, corpus and questions; prefixes off versus on | Two matched curves and per-hop deltas. Call this an implementation-sensitivity extension, not a paper result reproduction. |
-| E3 · next: local QA baseline grid | [Nine-question QA pilot](block:qa-result); subset generator and scorer | [Figure 3, §4.2, PDF pp.5–6](https://dl.acm.org/doi/pdf/10.1145/3770854.3780184#page=5): memory ranking and NR/SR comparison | New local model cohort: 45 questions, five per hop, seed 0; full user-0 memory. Four NR controls first, then four SR controls. Prefer stated 7B model only after fit check. | Save eight raw answer files with IDs, prompts and settings; EM by hop, paired differences. Rerun every cell locally; never merge one local SR DenseRAG cell into the old Farm cohort. |
+| E3 · next: retained local QA baseline grid | [Nine-question retained QA pilot](block:qa-result) **and** the historical 45-question eight-cell grid in the [scout report](scout-report.html) | [Figure 3, §4.2, PDF pp.5–6](https://dl.acm.org/doi/pdf/10.1145/3770854.3780184#page=5): memory ranking and NR/SR comparison | The 45-question Farm grid already ran, but lost its raw files. New local-model cohort: 45 questions, five per hop, seed 0; full user-0 memory. Four NR and four SR controls; use 7B only after fit check. | Save eight raw answer files with IDs, prompts and settings; EM by hop and paired differences. This extends archived summary evidence; do not merge a new SR DenseRAG result into either prior cohort. |
 | E4 · after E3: question-overlap audit | [Completed overlap diagnostic](block:overlap-result) plus E3 answer records | [Task definition §3.1, PDF p.3](https://dl.acm.org/doi/pdf/10.1145/3770854.3780184#page=3) and [Figure 3](https://dl.acm.org/doi/pdf/10.1145/3770854.3780184#page=5); new audit question, not a paper figure reproduction | Join numeric-overlap flags to raw answers by user and question ID. Compare no-memory, Oracle and RAG within hop and overlap strata. | Report group sizes and EM, not only pooled rates. Empty/tiny strata remain inconclusive; expand questions rather than claim causality. |
 | E5 · after E3: inference cost | E3 answer records; old Farm `usage.md` is token-only context | [Figure 7(a), §4.6, PDF p.7](https://dl.acm.org/doi/pdf/10.1145/3770854.3780184#page=7): accuracy versus inference time | Same runtime/model/questions; separate loading/index time, retrieval time and generation time. Record generated tokens and actual calls; repeat timings after warm-up. | Per-hop latency and accuracy-cost plot. Compare trends, not A800 seconds versus Colab seconds. Exclude no failed requests silently. |
 
 E1/E2 can reuse the existing CLI after setup. E3 needs local generation code; E4 needs a joined analysis; E5 needs timing instrumentation. Those additions are not already implemented.[](source:probe-code)[](source:runner)
 
-## 12. New experiments: what starts a missing paper family? {#new-ledger span=12}
+## 12. Missing comparisons and historical-pilot extensions {#new-ledger span=12}
 
-**New** means no retained matching local result. Reusing E3's harness does not turn a never-run paper ablation into a completed extension.
+**N1–N3/N6** add paper conditions without retained local results. **N4–N5** extend earlier AskSFT and HybridMem pilots whose summaries survive but raw artifacts do not. “New” in an experiment ID never means those pilots were not run.
 
 | ID / priority | What to link in the paper | Proposed experiment and existing dependency | Colab gate | Evidence needed to claim completion |
 | --- | --- | --- | --- | --- |
 | N1 · after E3: QA retrieval-count sweep | [Figure 4, §4.3, PDF p.6](https://dl.acm.org/doi/pdf/10.1145/3770854.3780184#page=6) | Use E3 fixed questions, BM25/e5 and NR first; k=10/30/50. Use E1 recall as an explanation alongside final-answer EM. | Local generation fit; measure k=50 context memory before scaling | Raw answers and contexts for every k; EM per hop and setting. A recall-only sweep is not N1. |
 | N2 · after E3: reasoning budget | [Figure 5, §4.4, PDF p.6](https://dl.acm.org/doi/pdf/10.1145/3770854.3780184#page=6); [arXiv Appendix B prompts](../papers/2508.13250v1.pdf#page=12) | E3 Oracle and BM25, same questions; SR 3 versus 5 calls, with NR as a separate one-call control | More inference time; configurable staged prompts required, not a current wrapper flag | EM and actual calls/tokens; use paper buckets 2–4/5–7/8–10. Do not implement one-step SR by merely relabeling NR. |
 | N3 · optional: reasoning structures | [Figure 3 and §3.4.3](https://dl.acm.org/doi/pdf/10.1145/3770854.3780184#page=5); [Appendix B](../papers/2508.13250v1.pdf#page=12) | Add MR and DR to E3 Oracle/BM25 before all methods; preserve branch and divide/solve/merge behavior | New local integration and extra calls; only after NR/SR outputs are complete | Traces proving the intended structure plus answer scores. A longer prompt alone is not MR or DR. |
-| N4 · stretch: implicit memory | [Figure 8, §§5.1–5.2, PDF p.7](https://dl.acm.org/doi/pdf/10.1145/3770854.3780184#page=7); [Appendix A, pp.10–11](https://dl.acm.org/doi/pdf/10.1145/3770854.3780184#page=10) | E3 supplies no-memory and Oracle controls. Train AskSFT first on a fixed fact slice, then MaskSFT. Separate held-out fact paraphrases from multi-hop QA. | Smaller 0.5B–3B LoRA pilot; successful train/save/reload smoke; padding and prompt issues resolved | Base and tuned-model results on identical questions, trained facts, data lineage and adapter checkpoints. Small-model/small-memory results are scaled adaptations, not Figure 8's 7B reproduction. |
-| N5 · stretch: direct hybrid, then HybridMem | [§§6.1–6.3 and Table 3, PDF pp.8–9](https://dl.acm.org/doi/pdf/10.1145/3770854.3780184#page=9) | After N4, compare unchanged RAG versus SFT+RAG; only then add a few clustered adapters. Keep corpus, questions and retriever fixed across all variants. | Adapter loading/checkpoint bugs resolved; persistent storage; sequential training to fit memory | Raw answers for base RAG, direct hybrid and clustered hybrid; adapter routing and selected checkpoints. Use Table 3 buckets 2–6/7–10, not 2–4/5–7/8–10. |
+| N4 · stretch: implicit memory | [Figure 8, §§5.1–5.2, PDF p.7](https://dl.acm.org/doi/pdf/10.1145/3770854.3780184#page=7); [Appendix A, pp.10–11](https://dl.acm.org/doi/pdf/10.1145/3770854.3780184#page=10) | Earlier 0.5B AskSFT ran on 300 facts and 25 multi-hop questions; recover or rebuild its raw evidence first. Then add MaskSFT/Oracle controls on matched data. | Successful train/save/reload smoke; padding and prompt issues resolved | Base and tuned-model results on identical questions, trained facts, data lineage and adapter checkpoints. The historical 0.5B pilot is not Figure 8's 7B result. |
+| N5 · stretch: direct hybrid, then HybridMem | [§§6.1–6.3 and Table 3, PDF pp.8–9](https://dl.acm.org/doi/pdf/10.1145/3770854.3780184#page=9) | Earlier 0.5B SFT+RAG and five-cluster HybridMem ran. Preserve or rebuild comparable RAG/hybrid artifacts, then expand only if feasible. | Adapter loading/checkpoint bugs resolved; persistent storage; sequential training to fit memory | Raw answers for base RAG, direct hybrid and clustered hybrid; adapter routing and selected checkpoints. Use Table 3 buckets 2–6/7–10, not 2–4/5–7/8–10. |
 | N6 · defer: broad ablations and indexes | [Figure 6](https://dl.acm.org/doi/pdf/10.1145/3770854.3780184#page=7), [Figures 9–10](https://dl.acm.org/doi/pdf/10.1145/3770854.3780184#page=8), [§4.1 TreeRAG/GraphRAG](https://dl.acm.org/doi/pdf/10.1145/3770854.3780184#page=6) | 3B/7B comparison, cluster/epoch sweeps, full TreeRAG/GraphRAG indexing | Only after a stable base run; index-building and many adapters are costly in time as well as memory | Matched settings and complete grids; keep reduced-index or few-cluster studies explicitly separate from paper-scale claims |
 
 The recorded upstream notes flag SFT padding, prompt mismatch and adapter/checkpoint issues. Verify those on the pinned code before training; fixing them changes the implementation condition.[](source:notes)

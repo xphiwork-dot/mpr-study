@@ -1,11 +1,11 @@
 # MPR: where we are, what Colab can add, and how to tell the story {#mpr-big-picture}
 
-**Our strongest current story is explicit-memory retrieval, not a completed reproduction of the entire paper.** We have working diagnostics and a small QA pilot. Use Colab to strengthen that evidence first; treat implicit memory and HybridMem as optional, untested extensions.
+**Explicit-memory coverage includes a historical complete 45-question NR/SR × four-memory grid, plus a smaller retained seven-cell run.** Earlier 0.5B LoRA and HybridMem pilots also ran. The historical runs survive as summarized results, not raw outputs or adapters in this checkout; none is a paper-scale 7B reproduction.
 
-- Covered now: BM25/e5 retrieval, numeric-overlap analysis, and seven QA configurations on nine paired questions.[](source:recall)[](source:qa)[](source:overlap)
-- Realistic next target: retrieval sweeps, followed by a matched local QA grid if the available GPU passes a fit check.
-- Stretch target: small-model implicit/hybrid pilots. Full paper-scale training and indexing are not the default Colab commitment.
-- Decision rule: choose the presentation claim first, then run only experiments that test that claim.
+- Retained now: BM25/e5 retrieval, numeric-overlap analysis, and seven QA configurations on nine paired questions.[](source:recall)[](source:qa)[](source:overlap)
+- Historical only: all eight explicit NR/SR cells on 45 questions; 0.5B AskSFT variants, single-hop probes, SFT+RAG and five-cluster HybridMem.[](source:historical)
+- Realistic next target: retrieval sweeps and a **retained, same-model** QA grid if Colab GPU fits. The 45-question Farm run already happened; do not present E3 as its first execution.
+- Stretch target: recover or rebuild the 0.5B pilots with raw evidence, then expand only if Colab resources permit.
 
 @answer scope="Current saved evidence + proposed Colab work · feasibility conditional on runtime · 10 Nov 2026"
 @meta locale=en style=clean
@@ -13,6 +13,7 @@
 @source qa title="Current QA: four NR runs, three SR runs, nine questions" path=results/farm/summary.md lines=1:27
 @source overlap title="Current numeric-overlap diagnostic: 32,399 questions" path=results/probes/leak_check.md lines=1:15
 @source notes title="Implementation and training caveats" path=docs/upstream-notes.md lines=7:23
+@source historical title="Historical 45-question eight-cell QA grid and 0.5B AskSFT/HybridMem pilots" path=docs/scout-report.html
 @source paper title="Published MPR paper" url=https://doi.org/10.1145/3770854.3780184
 @source colab title="Colab FAQ: changing hardware, memory and runtime availability" url=https://research.google.com/colaboratory/faq.html
 
@@ -24,36 +25,44 @@ Use this page to choose scope and presentation flow. Open the [detailed experime
 | paper-root | MPR study | - |
 | benchmark | Benchmark: inspected | paper-root |
 | explicit | Explicit: partial | paper-root |
-| implicit | Implicit: unrun | paper-root |
-| hybrid | Hybrid: unrun | paper-root |
-| controls | Ablations: unrun | paper-root |
+| implicit | Implicit: historical pilot | paper-root |
+| hybrid | Hybrid: historical pilot | paper-root |
+| controls | Paper sweeps: missing | paper-root |
 | evidence | Facts + multi-hop QA | benchmark |
 | retrieval-pilot | BM25/e5: done | explicit |
-| qa-pilot | NR/SR: pilot done | explicit |
+| qa-pilot | NR/SR: 8 historical, 7 retained | explicit |
 | complex-rag | Tree/Graph: unrun | explicit |
-| implicit-methods | Ask/Mask SFT | implicit |
-| implicit-controls | Oracle + SFT | implicit |
-| direct | Direct SFT+RAG | hybrid |
-| clustered | HybridMem adapters | hybrid |
+| implicit-methods | AskSFT 0.5B: ran | implicit |
+| implicit-controls | MaskSFT: unrun | implicit |
+| direct | SFT+RAG: ran at 0.5B | hybrid |
+| clustered | HybridMem 5 blocks: ran | hybrid |
 | settings | k / steps / size | controls |
-| training | Clusters / epochs | controls |
+| training | 0.5B pad/lr variants: ran | controls |
 | runtime | Efficiency timing | controls |
 
-**How to read:** “done” describes retained local experiments; “partial” describes coverage of a larger paper family. “Unrun” means no matching retained local output, not a failed method.
+**How to read:** “retained” means raw local output exists here; “historical” means the run and summary exist in the scout report, but raw outputs or adapters were discarded. “Missing” means a specific paper condition has no matching run.
 
-The benchmark was used, not regenerated. Historical 45-question and 0.5B notes are not included as retained completed outputs.
+The historical Farm grid covered Ignoramus, Oracle, SparseRAG and DenseRAG under both NR and SR (45 shared questions). The retained nine-question run covers all NR cells and three SR cells; **SR DenseRAG is missing only from that retained run**. A 0.5B AskSFT/HybridMem pilot separately used 300 facts and 25 multi-hop questions.[](source:historical)[](source:qa)
+
+| Earlier experiment | What the summary actually records | What cannot be re-audited from this checkout |
+| --- | --- | --- |
+| Farm QA, 45 questions | Eight NR/SR × four-memory cells; Oracle 0.756 NR / 0.800 SR EM; SparseRAG 0.444 / 0.422; DenseRAG 0.311 / 0.333 | Per-question answers, prompts and exact rerun artifacts |
+| 0.5B AskSFT, 300 facts | Three training variants; 25-question MPR EM 0.04 / 0.00 / 0.08; raw-format single-hop recall ≤0.11 | Saved adapters, per-question predictions and training files |
+| 0.5B hybrid, five clusters | Direct SFT+DenseRAG and HybridMem evaluated; HybridMem 0.00 EM on 25 MPR questions | Adapter files, routing records and raw hybrid answers |
+
+These pilot scores describe **different models and question sets**. Do not put them on the paper's Qwen2.5-7B score axis.[](source:historical)
 
 ## 2. What is covered now, and what could be covered next? {#coverage-horizon span=12}
 
 | Paper area and anchor | Current evidence | Sensible Colab target | Outside the core commitment |
 | --- | --- | --- | --- |
 | Benchmark; §§3.1–3.4, Tables 1–2 | Release inspected; overlap diagnostic done {good:Evidence exists} | Audit question IDs, gold facts and subset provenance | Reconstructing the dataset generation pipeline |
-| Explicit memory; Figure 3 | BM25/e5 probes done; seven adapted QA runs {good:Pilot exists} | E1/E2 retrieval sweeps; E3 same-model NR/SR grid | Claiming the paper's numerical results from a Farm pilot |
+| Explicit memory; Figure 3 | 45-question eight-cell Farm grid **ran earlier** (summary only); seven-cell nine-question run retained {caution:Partial evidence} | E3 saved, matched local-model grid; N3 MR/DR | Claiming paper-equivalent results from a Farm model |
 | Reasoning; Figures 3 and 5 | NR/SR only; no local MR/DR | N2 SR budget study; N3 MR/DR if time remains | Full four-structure, all-method grid before baseline completion |
-| Retrieval count; Figure 4 | Fixed k=20 only | E1 recall sweep; N1 QA sweep after E3 | Calling recall a reproduced QA-accuracy heatmap |
+| Retrieval count; Figure 4 | Retained probe at k=20; historical BM25 recall@10/50 for hop 10 only; **no QA k sweep** | E1 full recall sweep; N1 QA sweep after E3 | Calling recall a reproduced QA-accuracy heatmap |
 | Model size; Figure 6 | No matched size comparison | Sequential 3B/7B runs only if both fit | Comparing different prompts or quantization and attributing all change to size |
-| Implicit memory; Figure 8, Appendix A | No retained training/evaluation {bad:Not covered} | N4 reduced 0.5B–3B LoRA pilot after train/reload smoke | Full 7B training and all implicit ablations |
-| Hybrid memory; Table 3, Figures 9–10 | No retained hybrid result {bad:Not covered} | N5 direct hybrid, then few-cluster feasibility study | Paper-scale many-adapter training and cluster/epoch sweeps |
+| Implicit memory; Figure 8, Appendix A | 0.5B AskSFT **ran earlier**; summarized in scout report, raw artifacts absent {caution:Historical pilot} | Rebuild the 0.5B probe with saved adapters/outputs, then consider larger LoRA | Full 7B AskSFT/MaskSFT, Oracle variants and ablations remain uncovered |
+| Hybrid memory; Table 3, Figures 9–10 | 0.5B SFT+DenseRAG and five-cluster HybridMem **ran earlier**; summarized only {caution:Historical pilot} | Rebuild matched baseline/hybrid results with retained adapters and outputs | Paper-scale 50-cluster HybridMem and its sweeps remain uncovered |
 | Efficiency; Figure 7 | Farm tokens/calls, not latency | E5 local runtime and accuracy measurements | Matching A800 timing with a variable Colab runtime |
 | TreeRAG / GraphRAG; §4.1 | No indexes or evaluation {bad:Not covered} | Small indexed slice only as a separate optional study | Full-corpus LLM indexing as the first Colab task |
 
@@ -130,11 +139,11 @@ No notebooks were supplied in this checkout. The plan does not claim to know wha
 
 | Talk section | Current version: what to show | Upgrade after Colab work |
 | --- | --- | --- |
-| Paper overview | Memory families and the first map on this page; explain HybridMem conceptually | Keep the same literature overview |
-| Experimental scope | Completed probes and nine-question QA pilot; state model mismatch | Add E3 manifest and exact local model settings |
-| Main evidence | Gold-fact coverage drops with hops; memory helps in the tiny QA slice | Add matched k/step or multi-user comparisons |
-| Critical discussion | Numeric overlap is an extra diagnostic, not proven answer leakage | Add E4 within-hop comparisons if group sizes allow |
-| Final conclusion | “I tested selected explicit-memory behavior; implicit/hybrid work remains.” | Claim only the new families that actually have complete saved evidence |
+| Paper overview | Memory families and the coverage map; explain HybridMem conceptually | Keep the same literature overview |
+| Experimental scope | Distinguish historical 45-question Farm grid, retained nine-question grid and historical 0.5B training | Add E3 manifest and exact local model settings |
+| Main evidence | Retained retrieval curves and QA pilot; cite historical eight-cell summary separately | Add matched k/step or multi-user comparisons |
+| Critical discussion | Numeric overlap is an extra diagnostic, not proven answer leakage; 0.5B LoRA recall was low in the historical pilot | Add E4 within-hop comparisons if group sizes allow |
+| Final conclusion | “I tested selected explicit methods and earlier small-model LoRA/hybrid pilots; none reproduces the full paper.” | Claim only new conditions that have complete saved evidence |
 
 Link each slide to a paper figure and one raw artifact. Do not mix paper EM, local EM and retrieval recall on a common score axis.
 

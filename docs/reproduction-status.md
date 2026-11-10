@@ -3,15 +3,15 @@
 What of the MPR paper (Explicit v.s. Implicit Memory, KDD '26) is reproduced in this repo, what is not, and
 where the evidence is. This file is the single source of truth; the README only links here.
 
-Start with [`experiment-overview.html`](experiment-overview.html) for the paper-wide coverage map, realistic Colab targets, dependencies, and presentation choices. Then use [`reproduction-audit.html`](reproduction-audit.html) for completed results and the E1–E5 / N1–N6 experiment specifications, linked to paper figures and parent evidence. Proposed notebook work is not completed work; no personal Colab notebooks were available in this checkout. Editable Archify sources are in `.archify/mpr-overview/` and `.archify/mpr-reproduction/`.
+Start with this file for current evidence, including the completed T4 and laptop runs in section 6. [`experiment-overview.html`](experiment-overview.html) and [`reproduction-audit.html`](reproduction-audit.html) describe an earlier audit and proposed experiments; they have not yet been reconciled with the newer section 6 results. Editable Archify sources are in `.archify/mpr-overview/` and `.archify/mpr-reproduction/`.
 
 Sources for every number below: the committed files under `results/` (sections 1-5 and 6 for the Colab T4 run), or the scout report
 (`docs/scout-report.html`, cited by section). The goal is to understand the paper's ideas, not to match its tables.
-Setup the results were produced with: user 0 (13,100 statements, 2,700 questions), upstream commit `a24953c`.
+Initial probes used user 0 (13,100 statements, 2,700 questions) and upstream commit `a24953c`; section 6 records later multi-user T4 runs and a separate laptop pilot.
 
 Per-experiment deep-dives (paper counterpart, code walkthrough, provenance, how to run): `experiments/README.md` and the README in each `experiments/<folder>/`.
 
-Status values: reproduced / partially / not reproduced.
+Status distinguishes retained raw results, historical runs summarized in the scout report, and paper conditions not yet run.
 
 ## 1. No-LLM probes (run here, reproducible offline)
 
@@ -34,16 +34,16 @@ The farm patch (`experiments/01_farm_small_run/farm.patch`) adds an Azure OpenAI
 | Small run, NR (NaiveReason, 1 call per question) | partially | `results/farm/NaiveReason/*.jsonl`, `results/farm/summary.md` | Memory types run: Ignoramus, Oracle, SparseRAG, DenseRAG (all 4). Only 9 questions (user 0, 1 per hop 2-10), k = 20, a farm model instead of Qwen2.5-7B. EM / lenient: Ignoramus 0.11 / 0.11, Oracle 0.89 / 1.00, SparseRAG 0.78 / 0.78, DenseRAG 0.67 / 0.67. One question is 0.11, so only the large gaps mean anything (Oracle >> RAG >> no memory, as in the scout's 45-question run). RAG scores are higher than the scout's (SparseRAG 0.444, DenseRAG 0.311); that is sampling noise on a different 9-question draw, not evidence against the scout. |
 | Small run, SR (SequentialReason, 5 calls per question) | partially | `results/farm/SequentialReason/*.jsonl`, `results/farm/summary.md` | Memory types run: Ignoramus, Oracle, SparseRAG (3 of 4). EM / lenient: Ignoramus 0.11 / 0.11, Oracle 0.78 / 0.89, SparseRAG 0.67 / 0.89. SR did not beat NR here, as in the scout's run. We do not claim the paper's SR gain. |
 | Farm token usage of the small run | reproduced | `results/farm/usage.md` | 171 calls, 65,471 input and 28,071 output tokens in total, summed from the run logs (the logs are not committed). |
-| SR with DenseRAG | not reproduced | none | Not run, to save farm budget. The scout's 45-question grid has it (SR DenseRAG 0.333 EM, scout report section 5.4A). |
-| 45-question grid (5 per hop, 8 cells) | not reproduced | none | Not re-run here. The scout run cost 1,080 farm calls (about 466k input + 183k output tokens, scout report section 5.4A). Scout NR EM: Ignoramus 0.200, Oracle 0.756, SparseRAG 0.444, DenseRAG 0.311. `experiments/01_farm_small_run/make_subset.py --per-hop 5` builds the question set. |
+| SR with DenseRAG | historical 45-question run; absent from retained nine-question Farm cohort | `docs/scout-report.html` section 5.4A | The earlier eight-cell Farm grid includes SR DenseRAG (0.333 EM). It was not rerun in the nine-question Farm cohort; the newer T4 SR grid is documented separately in section 6. No raw answers survive from the 45-question run. |
+| 45-question Farm grid (5 per hop, 8 cells) | historical full grid ran; raw files not retained here | `docs/scout-report.html` section 5.4A | All eight NR/SR × four-memory cells finished (1,080 farm calls). Scout NR EM: Ignoramus 0.200, Oracle 0.756, SparseRAG 0.444, DenseRAG 0.311. `experiments/01_farm_small_run/make_subset.py --per-hop 5` builds the question set. |
 
 ## 3. Implicit memory and hybrids
 
 | Item | Status | Evidence | Reason / notes |
 |---|---|---|---|
-| Implicit memory, LoRA SFT at 7B (50 adapters) | not reproduced | none | Does not fit a 6 GB laptop GPU (scout report, summary and section 5.4B). |
-| Implicit memory, 0.5B probe (Qwen2.5-0.5B, AskSFT) | partially reproduced | `results/laptop/sft/summary.md` | Laptop run on 300 facts with farm-generated pairs; strong single-LoRA closed-book contains recall was 6/60 seen and 7/60 paraphrased, versus 0/60 and 1/60 for the base model. Small, non-independent probe; not the paper's 7B setup. |
-| HybridMem (BlockSFT: k-means clusters, one LoRA per cluster) | partially reproduced | `results/laptop/sft/summary.md`, `experiments/s4_laptop_lora_hybridmem/laptop_sft.py` | Five fact clusters, distinct adapters reloaded after training and selected by a vote over e5-retrieved facts. With retrieval, HybridMem scored 38/60 seen and 36/60 paraphrased at the strong rate, versus plain retrieval 41/60 and 43/60; neither rate beat single LoRA with retrieval on this slice. This is not evidence of a general ordering. |
+| Implicit memory, LoRA SFT at 7B | not reproduced | none | The earlier scout used 0.5B instead because 7B training did not fit its 6 GB laptop GPU; the retained 0.5B run below is also a scaled pilot. |
+| Implicit memory, 0.5B AskSFT probe | partially reproduced; newer laptop run retained, earlier scout pilot historical | `results/laptop/sft/summary.md`, `docs/scout-report.html` section 5.4B | The retained laptop run used 300 facts and farm-generated pairs: single-LoRA closed-book strong contains recall was 6/60 seen and 7/60 paraphrased, versus 0/60 and 1/60 for the base model. The separate earlier scout run evaluated 25 multi-hop questions and reported at most 11% raw-format single-hop recall; its raw outputs/adapters were discarded. Neither is the paper's 7B setup. |
+| HybridMem (BlockSFT: k-means clusters, one LoRA per cluster) | partially reproduced; newer laptop run retained, earlier scout pilot historical | `results/laptop/sft/summary.md`, `experiments/s4_laptop_lora_hybridmem/laptop_sft.py`, `docs/scout-report.html` section 5.4B | The retained run trained five cluster adapters and selected them by a vote over e5-retrieved facts: strong contains 38/60 seen and 36/60 paraphrased, versus plain retrieval 41/60 and 43/60; it did not beat single LoRA with retrieval on this slice. An earlier five-cluster scout pilot also ran after reloading its adapters, but its raw artifacts were discarded. Neither is the paper's 50-cluster experiment. |
 | MaskSFT | not reproduced | none | Not run (needs LoRA training). |
 
 ## 4. Other explicit-memory methods and reasoning styles
@@ -58,7 +58,7 @@ The farm patch (`experiments/01_farm_small_run/farm.patch`) adds an Azure OpenAI
 
 | Item | Status | Evidence | Reason / notes |
 |---|---|---|---|
-| Paper tables on Qwen2.5-7B (8 A800 GPUs) | not reproduced, not comparable | none | Different model (farm model), tiny subset, our own scorer. Absolute numbers cannot be compared; only the ordering Oracle >> RAG >> no memory and the retrieval pattern carry over. |
+| Published Qwen2.5-7B tables (8 A800 GPUs) | not reproduced exactly; 7B AWQ adaptations are in section 6 | `results/t4/summary_s1.md`, `results/t4/summary_s2.md` | Later T4 runs used 4-bit weights, greedy decoding, a different question slice and our scorer. Absolute scores are not paper-equivalent; evaluate ordering and trends with these conditions stated. |
 
 ## 6. Colab T4 runs (sessions 1, 2, 3a, 3b): Qwen2.5-7B-Instruct
 
@@ -91,5 +91,3 @@ torchao 0.10 is refused by peft 0.21; one e5 run failed on all questions (a bug 
 Notes on the T4 sessions (all done). A free T4 has 16 GB VRAM, fp16 only, and sessions can be
 cut, so all scripts write resumable output. Sessions 2 (SR grid), 3a (top-k) and 3b (step sweep) are done, see section 6; session 4 ran on the laptop instead. No T4 session of the plan is left.
 `results/t4/estimates.md` explains how the estimates were made.
-
-Not planned for a T4: TreeRAG and GraphRAG (the index build cost is in LLM calls, not GPU), and 7B LoRA with 50 adapters.
