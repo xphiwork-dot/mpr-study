@@ -13,6 +13,8 @@ and a toy LoRA / HybridMem run on a laptop. The goal is to understand the paper'
 3. Pick an experiment below and read its folder README: the paper experiment it relates to, what we ran, a code walkthrough, a provenance table, how to run, the outcome.
 4. Read `docs/reproduction-status.md` (what is reproduced, with evidence) and skim `docs/upstream-notes.md` (upstream gaps and bugs).
 
+5. Open [`docs/mpr-experiment-map.html`](docs/mpr-experiment-map.html) for the current paper-to-experiment map, concise findings tables, and team task plan. Download/open the HTML in a browser for interactive cards and local owner fields.
+
 ## Experiments
 
 Provenance legend: **BORROWED** = identical to the original (nuster1128/MPR at `a24953c`, cited with lines), **ADAPTED** = derived from it, **ORIGINAL TO THIS REPO** = no upstream reference.
