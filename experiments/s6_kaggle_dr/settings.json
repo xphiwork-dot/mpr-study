@@ -1,0 +1,117 @@
+{
+  "experiment": "s6_kaggle_dr",
+  "reason": "DecompositionReason",
+  "upstream": {
+    "repo": "https://github.com/nuster1128/MPR",
+    "commit": "a24953c8f342c9f3b2064e562ead49d477d49138",
+    "reasonings_file": "reasonings/DecompositionReason.py",
+    "prompts_file": "baselines/prompts.py"
+  },
+  "model": {
+    "id": "Qwen/Qwen2.5-7B-Instruct-AWQ",
+    "revision": "b25037543e9394b818fdfca67ab2a00ecc7dd641",
+    "served_name": "qwen",
+    "dtype": "float16",
+    "quantization": "awq",
+    "max_model_len": 8192,
+    "gpu_memory_utilization": 0.80,
+    "max_num_seqs": 64,
+    "generation_config": "vllm",
+    "tensor_parallel_size": 1,
+    "gpu": "single T4 (CUDA_VISIBLE_DEVICES=0); a second T4, if allocated, is unused"
+  },
+  "method": {
+    "decompose_num": 5,
+    "max_sub_questions_observed_limit": 5,
+    "divide_uses_retrieval": false,
+    "solve_sequential": true,
+    "merge_re_retrieves": true,
+    "nominal_calls_per_question": 7,
+    "nominal_calls_full_run": 4284
+  },
+  "decoding": {
+    "temperature": 0.0,
+    "sampling": false,
+    "max_tokens": {
+      "divide": 200,
+      "solve": 200,
+      "merge": 64
+    },
+    "rationale": "greedy, matching the historical NR/SR runs; 200-token intermediate steps like the SequentialReason thoughts, 64-token final answer like NR/SR"
+  },
+  "parser": {
+    "policy": "ref_faithful_drop_blank",
+    "upstream_rule": "text.split('\\n')[:decompose_num]",
+    "deviations": [
+      "whitespace-only lines are dropped (they cannot be sub-questions); counted per row",
+      "if no non-blank line remains, the original question is used as the single sub-question, flagged fallback=true (the DR call flow still runs: 3 calls)",
+      "lib.chat strips leading/trailing whitespace of every engine response, as in the historical NR/SR runs"
+    ],
+    "kept_as_upstream": [
+      "sub-questions are the first decompose_num non-blank lines in order",
+      "numbering and other prefixes are kept verbatim",
+      "no dedup, no repair, no truncation of long lines",
+      "Solve and Merge state formatting: '%d. %s (Answer: %s)' / '(Current Sub-question)' lines joined with newline",
+      "Solve retrieval key: '(question) {question}\\n (sub-question) {sub_question}'",
+      "Merge retrieval key: the answered current_state string"
+    ]
+  },
+  "retrieval": {
+    "systems": ["SparseRAG", "DenseRAG"],
+    "topk": 20,
+    "bm25s_version": "0.2.9",
+    "bm25_stopwords": "en",
+    "e5_model": "intfloat/e5-base-v2",
+    "e5_prefixes": false,
+    "e5_normalized": true,
+    "e5_stored_dtype": "float16"
+  },
+  "run": {
+    "slice": "s306.json",
+    "questions": 306,
+    "expected_rows_per_system": 306,
+    "expected_rows_total": 612,
+    "workers": 32,
+    "seed": 0,
+    "seed_policy": "greedy decoding, so no sampling seed; seed 0 fixes only the deterministic smoke-key selection and ordering (slice order otherwise)",
+    "smoke": {
+      "keys_per_hop_group": 2,
+      "hop_groups": {"2-4": 2, "5-7": 5, "8-10": 9},
+      "questions": 6,
+      "rows": 12,
+      "written_to_main_result_files": true,
+      "reason": "same frozen settings as the full run, so the full run resumes them instead of repeating calls"
+    },
+    "baseline_sanity": {
+      "keys": 6,
+      "memories": ["SparseRAG", "DenseRAG"],
+      "source": "results/t4/s1 NaiveReason rows restricted to the 306-key slice, recomputed in this job with the same deployment",
+      "gates": {
+        "min_exact_response_matches_of_6": 3,
+        "min_questions_with_retrieval_overlap_18_of_20": 5
+      },
+      "rationale": "detects unexplained deployment drift (model revision, engine, templates, retrieval) before the full run"
+    },
+    "deadline": {
+      "session_timeout_s": 14400,
+      "stop_submitting_before_session_end_s": 1500,
+      "watchdog_exit_before_session_end_s": 600,
+      "reason": "graceful stop leaves time for Kaggle to persist/commit /kaggle/working"
+    }
+  },
+  "kaggle": {
+    "kernel": "phinguynxun/mpr-dr-reasoning",
+    "dataset": "phinguynxun/mpr-dr-inputs",
+    "accelerator": "NvidiaTeslaT4",
+    "timeout_s": 14400
+  },
+  "scoring": {
+    "metrics": ["EM", "contains"],
+    "normalization": "experiments/_shared/score.py (SQuAD-style)",
+    "bootstrap_resamples": 2000,
+    "bootstrap_seed_ci": 0,
+    "bootstrap_seed_paired": 1,
+    "hop_groups": [[2, 4], [5, 7], [8, 10]],
+    "leak_free_rule": "slice flag leak_any == false (no number shared with own gold statements)"
+  }
+}
