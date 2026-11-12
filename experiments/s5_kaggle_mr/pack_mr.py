@@ -7,7 +7,7 @@ The staged folder contains only:
   s1_*.jsonl, s2_*.jsonl                            (committed NR/SR rows, sanity + local analysis)
   mr.py, lib.py, score.py                           (runner + reused helpers)
   input_manifest.json                               (hashes/revisions)
-  datasets-metadata.json                            (private dataset metadata)
+  dataset-metadata.json                             (private dataset metadata)
 
 Everything is flat: the Kaggle CLI default dir-mode=skip would otherwise drop
 subdirectories, so the staging layout deliberately has no directories.
@@ -121,7 +121,7 @@ def main():
             "the pinned upstream commit at runtime."
         ),
     }
-    with open(os.path.join(out, "datasets-metadata.json"), "w", encoding="utf-8") as f:
+    with open(os.path.join(out, "dataset-metadata.json"), "w", encoding="utf-8") as f:
         json.dump(meta, f, indent=2, sort_keys=True)
         f.write("\n")
     total = sum(v["bytes"] for v in files.values())
