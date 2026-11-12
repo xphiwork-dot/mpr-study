@@ -152,7 +152,9 @@ def watchdog():
     while time.time() < HARD_STOP:
         time.sleep(5)
     try:
-        set_status(stage="watchdog_exit", watchdog=f"hard stop at +{SESSION_TIMEOUT_S - WATCHDOG_EXIT_BEFORE_END_S}s")
+        set_status(status="complete" if _state.get("complete_612") else "partial",
+                   stage="watchdog_exit",
+                   watchdog=f"hard stop at +{SESSION_TIMEOUT_S - WATCHDOG_EXIT_BEFORE_END_S}s")
         log("watchdog: session deadline close, exiting so Kaggle commits the output")
     finally:
         os._exit(0)
@@ -221,43 +223,86 @@ def pip_versions(pkgs):
     return out
 
 
+def probe_versions(modules):
+    """Import each module in a SEPARATE process and report its version.
+
+    Never import torch/vllm in the kernel process: on the historical T4 runs that opened a CUDA context
+    costing about 3.5 GB and vLLM then ran out of memory on its first request
+    (experiments/_shared/README.md, Pitfalls).
+    """
+    code = (
+        "import json\n"
+        "import importlib\n"
+        "out = {}\n"
+        "for m in %r:\n"
+        "    try:\n"
+        "        mod = importlib.import_module(m)\n"
+        "        out[m] = str(getattr(mod, '__version__', None))\n"
+        "    except Exception as e:\n"
+        "        out[m] = 'IMPORT ERROR: ' + repr(e)\n"
+        "print('VERSIONS_JSON=' + json.dumps(out))\n"
+    ) % (list(modules),)
+    p = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, timeout=900)
+    for line in p.stdout.splitlines():
+        if line.startswith("VERSIONS_JSON="):
+            return json.loads(line.split("=", 1)[1]), p.returncode
+    return {m: "IMPORT PROBE FAILED" for m in modules}, p.returncode
+
+
 def stage_deps():
     set_status(stage="deps")
+    import importlib.util
     logfile = os.path.join(WORK, "setup_pip.log")
     tracked = ["vllm", "torch", "transformers", "sentence-transformers", "bm25s", "numpy", "scipy",
                "accelerate", "torchao", "huggingface-hub", "peft"]
     before = pip_versions(tracked)
-    installs = []
+    installs, attempts = [], []
 
     def have(module):
-        import importlib.util
+        importlib.invalidate_caches()
         return importlib.util.find_spec(module) is not None
 
     if (before.get("bm25s") != "0.2.9") or not have("bm25s"):
-        run_cmd([sys.executable, "-m", "pip", "install", "-q", "bm25s==0.2.9"], logfile, timeout=900)
+        t = time.time()
+        p = run_cmd([sys.executable, "-m", "pip", "install", "-q", "bm25s==0.2.9"], logfile,
+                    timeout=900, check=False)
+        attempts.append({"target": "bm25s==0.2.9", "rc": p.returncode, "secs": round(time.time() - t, 1)})
         installs.append("bm25s==0.2.9")
+        if p.returncode != 0:
+            raise RuntimeError(f"bm25s==0.2.9 install failed (see {logfile})")
     if not have("sentence_transformers"):
-        run_cmd([sys.executable, "-m", "pip", "install", "-q", "sentence-transformers"], logfile, timeout=1800)
+        t = time.time()
+        p = run_cmd([sys.executable, "-m", "pip", "install", "-q", "sentence-transformers"], logfile,
+                    timeout=1800, check=False)
+        attempts.append({"target": "sentence-transformers (unpinned)", "rc": p.returncode,
+                         "secs": round(time.time() - t, 1)})
         installs.append("sentence-transformers (unpinned, image compatible)")
-    if not have("vllm"):
-        log("vllm missing: installing unpinned so it matches the image's torch/CUDA build")
-        run_cmd([sys.executable, "-m", "pip", "install", "-q", "vllm"], logfile, timeout=2700)
-        installs.append("vllm (unpinned, image compatible)")
+        if p.returncode != 0:
+            raise RuntimeError(f"sentence-transformers install failed (see {logfile})")
     # the T4 sessions uninstalled torchao: vLLM's torch.compile path hit it (experiments/_shared/README.md)
     run_cmd([sys.executable, "-m", "pip", "uninstall", "-y", "torchao"], logfile, timeout=300, check=False)
+    if not have("vllm"):
+        # unpinned first: the Kaggle image's Python/torch generation decides the compatible vLLM.
+        for spec in ("vllm", "vllm==0.10.2"):
+            t = time.time()
+            log(f"vllm missing: pip install {spec}")
+            p = run_cmd([sys.executable, "-m", "pip", "install", "-q", spec], logfile,
+                        timeout=1800, check=False)
+            attempts.append({"target": spec, "rc": p.returncode, "secs": round(time.time() - t, 1)})
+            if p.returncode == 0:
+                installs.append(spec + " (install attempt, unpinned first)")
+                break
+        if not have("vllm"):
+            raise RuntimeError(f"could not install vLLM (see {logfile})")
 
-    import importlib
-    versions = {}
-    for mod in ("vllm", "torch", "transformers", "sentence_transformers", "bm25s", "numpy", "scipy"):
-        try:
-            versions[mod] = getattr(importlib.import_module(mod), "__version__", None)
-        except Exception as e:  # noqa: BLE001
-            versions[mod] = f"IMPORT ERROR: {e!r}"
-    deps = {"before": before, "installs": installs, "versions": versions,
-            "pip_versions": pip_versions(tracked)}
+    importlib.invalidate_caches()
+    versions, rc = probe_versions(["vllm", "torch", "transformers", "sentence_transformers", "bm25s",
+                                   "numpy", "scipy"])
+    deps = {"before": before, "installs": installs, "attempts": attempts, "versions": versions,
+            "probe_rc": rc, "pip_versions": pip_versions(tracked)}
     write_json(os.path.join(WORK, "deps.json"), deps)
     for mod in ("vllm", "torch", "transformers", "sentence_transformers", "bm25s"):
-        if str(versions.get(mod, "")).startswith("IMPORT ERROR"):
+        if str(versions.get(mod, "")).startswith("IMPORT"):
             raise RuntimeError(f"dependency import failed: {mod}: {versions[mod]} (see {logfile})")
     log(f"deps versions={versions}")
     return deps
@@ -374,46 +419,99 @@ def stage_retrieval_gate():
     return out
 
 
+def _gpu_free_mb():
+    try:
+        out = subprocess.run(["nvidia-smi", "--query-gpu=memory.used,memory.total", "--format=csv,noheader",
+                              "-i", "0"], capture_output=True, text=True).stdout.strip()
+        used, total = [x.strip().split()[0] for x in out.split(",")]
+        return int(total) - int(used)
+    except Exception:  # noqa: BLE001
+        return None
+
+
+def _serve_attempt(label, cmd, extra_env, logfile, wait_s):
+    """Start vLLM, wait for health; return (ok, info). Kill the process group on failure."""
+    env = dict(os.environ)
+    env["CUDA_VISIBLE_DEVICES"] = "0"
+    env.update(extra_env)
+    with open(logfile, "a", encoding="utf-8") as f:
+        f.write(f"\n===== attempt {label}: {cmd}\nenv={extra_env}\n")
+        f.flush()
+        proc = subprocess.Popen(cmd, shell=True, stdout=f, stderr=subprocess.STDOUT,
+                                start_new_session=True, env=env)
+    t0 = time.time()
+    reason = None
+    while time.time() - t0 < wait_s:
+        try:
+            urllib.request.urlopen(HEALTH, timeout=3)
+            models = json.load(urllib.request.urlopen(MODELS_URL, timeout=10))
+            served = [x.get("id") for x in models.get("data", [])]
+            if _settings["model"]["served_name"] not in served:
+                raise RuntimeError(f"served names {served} do not include {_settings['model']['served_name']}")
+            return True, {"label": label, "cmd": cmd, "env": extra_env,
+                          "health_after_s": round(time.time() - t0, 1), "models": models.get("data")}
+        except Exception as e:  # noqa: BLE001
+            reason = repr(e)
+            if proc.poll() is not None:
+                break
+            time.sleep(10)
+    alive = proc.poll() is None
+    if alive:
+        try:
+            os.killpg(os.getpgid(proc.pid), 15)
+            time.sleep(5)
+            if proc.poll() is None:
+                os.killpg(os.getpgid(proc.pid), 9)
+        except Exception:  # noqa: BLE001
+            pass
+    try:
+        tail = "".join(open(logfile, errors="replace").readlines()[-30:])
+    except Exception:  # noqa: BLE001
+        tail = ""
+    return False, {"label": label, "cmd": cmd, "env": extra_env, "died": not alive,
+                   "last_error": reason, "tail": tail}
+
+
 def stage_serve():
     set_status(stage="serve")
-    s = _settings
-    m = s["model"]
+    m = _settings["model"]
     try:
         urllib.request.urlopen(HEALTH, timeout=3)
         log("vLLM already healthy")
         return
     except Exception:  # noqa: BLE001
         pass
-    cmd = (f"vllm serve {m['id']} --revision {m['revision']} --served-model-name {m['served_name']} "
-           f"--dtype {m['dtype']} --quantization {m['quantization']} --max-model-len {m['max_model_len']} "
-           f"--gpu-memory-utilization {m['gpu_memory_utilization']} --max-num-seqs {m['max_num_seqs']} "
-           f"--generation-config {m['generation_config']} --port 8000 --host 127.0.0.1")
-    env = dict(os.environ)
-    env["CUDA_VISIBLE_DEVICES"] = "0"
+    if shutil.which("vllm"):
+        launch = f"vllm serve {m['id']}"
+    else:  # pip puts console scripts next to the interpreter, but be robust to PATH differences
+        launch = f"{sys.executable} -m vllm.entrypoints.openai.api_server --model {m['id']}"
+    base = (f"{launch} --revision {m['revision']} --served-model-name {m['served_name']} "
+            f"--dtype {m['dtype']} --quantization {m['quantization']} --max-model-len {m['max_model_len']} "
+            f"--gpu-memory-utilization {m['gpu_memory_utilization']} --max-num-seqs {m['max_num_seqs']} "
+            f"--port 8000 --host 127.0.0.1")
+    attempts = [
+        # historical Colab deployment: same flags, engine-selected backend
+        ("historical", base + f" --generation-config {m['generation_config']}", {}, 900),
+        # fallback inside this same session if the image's newer engine rejects a flag or the backend:
+        # Triton attention, no flashinfer sampler, no generation-config flag
+        ("fallback_triton", base, {"VLLM_ATTENTION_BACKEND": "TRITON_ATTN",
+                                   "VLLM_USE_FLASHINFER_SAMPLER": "0"}, 600),
+    ]
     logfile = os.path.join(WORK, "vllm.log")
-    with open(logfile, "w", encoding="utf-8") as f:
-        f.write(f"$ {cmd}\n")
-        f.flush()
-        subprocess.Popen(cmd, shell=True, stdout=f, stderr=subprocess.STDOUT, start_new_session=True, env=env)
-    t0 = time.time()
-    while time.time() - t0 < 1800:
-        try:
-            urllib.request.urlopen(HEALTH, timeout=3)
-            models = json.load(urllib.request.urlopen(MODELS_URL, timeout=10))
-            served = [x.get("id") for x in models.get("data", [])]
-            if m["served_name"] not in served:
-                raise RuntimeError(f"served names {served} do not include {m['served_name']}")
-            info = {"cmd": cmd, "health_after_s": round(time.time() - t0, 1), "models": models.get("data")}
-            write_json(os.path.join(WORK, "server.json"), info)
-            log(f"vLLM healthy after {info['health_after_s']}s: {served}")
-            return info
-        except Exception:  # noqa: BLE001
-            time.sleep(10)
-    try:
-        tail = "".join(open(logfile, errors="replace").readlines()[-40:])
-    except Exception:  # noqa: BLE001
-        tail = ""
-    raise RuntimeError(f"vLLM did not become healthy in 30 min; log tail:\n{tail}")
+    out = {"gpu_free_mb_before": _gpu_free_mb(), "attempts": []}
+    for label, cmd, env, wait_s in attempts:
+        log(f"vLLM attempt {label} (wait up to {wait_s}s)")
+        ok, info = _serve_attempt(label, cmd, env, logfile, wait_s)
+        out["attempts"].append(info)
+        if ok:
+            out.update({k: v for k, v in info.items() if k != "attempts"})
+            out["used"] = label
+            write_json(os.path.join(WORK, "server.json"), out)
+            log(f"vLLM healthy via {label} after {info['health_after_s']}s")
+            return out
+        log(f"vLLM attempt {label} failed: {info.get('last_error')} died={info.get('died')}")
+    write_json(os.path.join(WORK, "server.json"), out)
+    raise RuntimeError("vLLM did not become healthy with either configuration; see vllm.log")
 
 
 def stage_divide_gate():
