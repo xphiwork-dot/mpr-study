@@ -510,7 +510,6 @@ def stage_sanity_naive(items):
     """
     set_status(stage="sanity_naive")
     import dr
-    import lib
     _, keys = smoke_keys(items)
     gates = _settings["run"]["baseline_sanity"]["gates"]
     runner = dr.Runner(_settings)

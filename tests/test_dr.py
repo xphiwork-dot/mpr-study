@@ -661,9 +661,8 @@ class AnalysisToolTests(unittest.TestCase):
             self.assertFalse(rep["complete_612"])  # 2-row fixture, not the 306-question run
 
     def test_summarizer_writes_a_summary(self):
-        try:
-            import numpy  # noqa: F401
-        except ImportError:
+        import importlib.util
+        if importlib.util.find_spec("numpy") is None:
             self.skipTest("numpy not installed in this interpreter (use the repo venv)")
         with tempfile.TemporaryDirectory() as tmp:
             slice_path, runs, _qa_dir = self._fixture(tmp)

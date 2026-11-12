@@ -14,7 +14,6 @@ Writes the markdown summary to --out and the same numbers as JSON to <out withou
 Provenance: original to this repo (no upstream reference; upstream ships no analysis code).
 """
 import argparse
-import glob
 import json
 import os
 import sys

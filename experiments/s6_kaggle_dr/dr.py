@@ -31,7 +31,6 @@ import argparse
 import hashlib
 import json
 import os
-import re
 import sys
 import threading
 import time
@@ -395,7 +394,7 @@ class Runner:
                 while pending:
                     finished, _ = wait(list(pending), timeout=15, return_when=FIRST_COMPLETED)
                     for fu in finished:
-                        item = pending.pop(fu)
+                        pending.pop(fu)
                         row, failure = fu.result()
                         if row is not None:
                             w.write(row)
