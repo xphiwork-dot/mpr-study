@@ -57,6 +57,27 @@ is therefore *not* concluded here. Confirming it needs the account owner
 (https://www.kaggle.com/settings, or Kaggle support if the account is already
 verified).
 
+## UI-started fallback (no push required)
+
+The private dataset now ships `kernel.py` itself (v2, 25 files; `kernel.py`
+SHA-256 `82641cb0...` in `input_manifest.json`). If only the Kaggle UI can
+allocate a GPU, open a private notebook with `phinguynxun/mpr-mr-inputs`
+attached, internet on and Accelerator = GPU T4 x2, and run one cell:
+
+```python
+import glob, shutil, subprocess, sys
+src = glob.glob('/kaggle/input/**/kernel.py', recursive=True)[0]
+shutil.copyfile(src, '/kaggle/working/kernel.py')
+sys.exit(subprocess.call([sys.executable, '-u', '/kaggle/working/kernel.py']))
+```
+
+`kernel.py` resolves the nested dataset mount itself, verifies every input
+hash, clones the pinned upstream commit, picks the vLLM wheel family from the
+node driver (0.32.0 for driver >= 580, 0.11.2 for 525-579), gates on
+`torch.cuda`, runs the NR sanity check, the MR smoke and the full 306 x 2
+evaluation, and writes status/manifest/results to `/kaggle/working`. Locally,
+`monitor_remote.sh` holds the shared lock and downloads the version output.
+
 ## What runs once the accelerator works
 
 ```bash

@@ -136,3 +136,20 @@ At this point the local coordinator asked for direct UI evidence (a private
 notebook with T4 enabled and successful `nvidia-smi` output) before any
 full-job submission, because the push/API path still provisions CPU only.
 No further probes or submissions were made.
+
+## 7. UI-executable code shipped in the private dataset (no GPU)
+
+Dataset `phinguynxun/mpr-mr-inputs` v2 adds `kernel.py` (SHA-256
+`82641cb08066c9e2f04a0c35b4ff836b3022316dcfde01523b34acb5c01408d4`, recorded
+in `input_manifest.json`; `git_commit=2132ac7`, `git_dirty=false`, 25 files).
+A UI-started private notebook with the dataset attached, internet on and GPU
+T4 x2 can exec the exact committed entrypoint:
+
+```python
+import glob, shutil, subprocess, sys
+src = glob.glob('/kaggle/input/**/kernel.py', recursive=True)[0]
+shutil.copyfile(src, '/kaggle/working/kernel.py')
+sys.exit(subprocess.call([sys.executable, '-u', '/kaggle/working/kernel.py']))
+```
+
+This is code delivery only; no session was started.
