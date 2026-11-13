@@ -93,17 +93,17 @@
       "rationale": "detects unexplained deployment drift (model revision, engine, templates, retrieval) before the full run"
     },
     "deadline": {
-      "session_timeout_s": 14400,
-      "stop_submitting_before_session_end_s": 1500,
+      "session_timeout_s": 9000,
+      "stop_submitting_before_session_end_s": 1200,
       "watchdog_exit_before_session_end_s": 600,
-      "reason": "graceful stop leaves time for Kaggle to persist/commit /kaggle/working"
+      "reason": "shared account has 6 GPU-hours per refresh and the two workers serialize on the GPU lock, so this job is pushed with --timeout 9000 (2.5 h) after MR's 3 h and stops submitting 1200 s before the hard kill, leaving time for Kaggle to persist/commit /kaggle/working"
     }
   },
   "kaggle": {
     "kernel": "phinguynxun/mpr-dr-reasoning",
     "dataset": "phinguynxun/mpr-dr-inputs",
     "accelerator": "NvidiaTeslaT4",
-    "timeout_s": 14400
+    "timeout_s": 9000
   },
   "scoring": {
     "metrics": ["EM", "contains"],

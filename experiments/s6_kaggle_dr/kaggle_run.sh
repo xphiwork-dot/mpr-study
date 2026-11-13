@@ -6,7 +6,7 @@
 # What it does, in order:
 #   1. acquire the shared host advisory lock (~/.local/state/mpr-study/kaggle-gpu.lock) so the peer's MR
 #      job never runs concurrently with ours (serialization default from the delegation);
-#   2. show live GPU quota, push the private kernel (T4, session timeout 14400 s);
+#   2. show live GPU quota, push the private kernel (T4, session timeout 9000 s = 2.5 h);
 #   3. poll `kaggle kernels status` until the job is terminal (a push is not completion);
 #   4. download every output file to results/kaggle/dr/raw and print the status/DONE lines;
 #   5. release the lock on exit (also on failure).
@@ -24,8 +24,8 @@ mkdir -p "$(dirname "$LOCK")" "$(dirname "$LOG")" "$OUT"
 
 exec 9>"$LOCK"
 echo "== $(date -u +%FT%TZ) waiting for the GPU lock ($LOCK)" | tee -a "$LOG"
-if ! flock -w 7200 9; then
-  echo "== $(date -u +%FT%TZ) lock not acquired within 2 h; not pushing" | tee -a "$LOG"
+if ! flock -w 14400 9; then
+  echo "== $(date -u +%FT%TZ) lock not acquired within 4 h; not pushing" | tee -a "$LOG"
   exit 1
 fi
 echo "== $(date -u +%FT%TZ) GPU lock acquired" | tee -a "$LOG"
@@ -34,8 +34,8 @@ trap 'echo "== $(date -u +%FT%TZ) releasing the GPU lock" | tee -a "$LOG"' EXIT
 echo "== live quota" | tee -a "$LOG"
 "$K" quota 2>&1 | tee -a "$LOG"
 
-echo "== pushing $REF (T4, timeout 14400 s, expected wall 1.5-2.5 h)" | tee -a "$LOG"
-"$K" kernels push -p build/kaggle/dr_kernel --timeout 14400 --accelerator NvidiaTeslaT4 2>&1 | tee -a "$LOG"
+echo "== pushing $REF (T4, timeout 9000 s, expected wall 1.2-1.8 h)" | tee -a "$LOG"
+"$K" kernels push -p build/kaggle/dr_kernel --timeout 9000 --accelerator NvidiaTeslaT4 2>&1 | tee -a "$LOG"
 push_rc=${PIPESTATUS[0]}
 if [ "$push_rc" -ne 0 ]; then
   echo "== push failed rc=$push_rc; nothing launched" | tee -a "$LOG"

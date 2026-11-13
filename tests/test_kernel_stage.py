@@ -98,6 +98,55 @@ class KernelStagingTests(unittest.TestCase):
                 status = json.load(f)
             self.assertEqual(status["stage"], "stage_inputs")
 
+    def test_stage_inputs_discovers_nested_datasets_mount_layout(self):
+        """The 2026-11-13 layout: /kaggle/input/datasets/<owner>/<slug>, not /kaggle/input/<slug>."""
+        km = load_kernel()
+        with tempfile.TemporaryDirectory() as tmp:
+            inp, _manifest = make_input(tmp)
+            base = os.path.join(tmp, "kaggle_input")
+            nested = os.path.join(base, "datasets", "phinguynxun", "mpr-dr-inputs")
+            os.makedirs(os.path.dirname(nested))
+            os.rename(inp, nested)
+            point_at(km, tmp, os.path.join(base, "mpr-dr-inputs"))  # the Pi-era assumption: absent
+            km.INPUT_BASE = base
+            got, verified = km.stage_inputs()
+            self.assertEqual(got["code_commit"], "test-commit")
+            self.assertTrue(all(v["matches_manifest"] for v in verified.values()))
+            with open(os.path.join(km.WORK, "input_probe.json")) as f:
+                probe = json.load(f)
+            self.assertEqual(probe["resolved"], nested)
+            self.assertEqual(probe["strategy"], "explicit")
+            self.assertEqual(len(probe["files"]), 20)
+            with open(km.STATUS_PATH) as f:
+                status = json.load(f)
+            self.assertEqual(status["input_root"], nested)
+
+    def test_discover_input_root_failure_reports_candidates_and_tree(self):
+        km = load_kernel()
+        with tempfile.TemporaryDirectory() as tmp:
+            base = os.path.join(tmp, "kaggle_input")
+            os.makedirs(os.path.join(base, "unrelated_dir"))
+            km.INPUT_BASE = base
+            km.INPUT_ROOT = os.path.join(tmp, "absent_mpr_dr_inputs")
+            with self.assertRaises(FileNotFoundError) as cm:
+                km.discover_input_root(timeout_s=0)
+            msg = str(cm.exception)
+            self.assertIn("manifest.json not found in any known input layout", msg)
+            self.assertIn(os.path.join(tmp, "absent_mpr_dr_inputs"), msg)
+            self.assertIn("unrelated_dir", msg)
+
+    def test_stage_inputs_rejects_manifest_of_the_other_dataset(self):
+        km = load_kernel()
+        with tempfile.TemporaryDirectory() as tmp:
+            inp, manifest = make_input(tmp)
+            manifest["kaggle"] = {"dataset": "phinguynxun/mpr-mr-inputs"}
+            with open(os.path.join(inp, "manifest.json"), "w", encoding="utf-8") as f:
+                json.dump(manifest, f)
+            point_at(km, tmp, inp)
+            with self.assertRaises(RuntimeError) as cm:
+                km.stage_inputs()
+            self.assertIn("belongs to dataset", str(cm.exception))
+
     def test_stage_inputs_rejects_tampering(self):
         km = load_kernel()
         with tempfile.TemporaryDirectory() as tmp:

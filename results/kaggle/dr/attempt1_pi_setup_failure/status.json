@@ -1,0 +1,12 @@
+{
+ "status": "failed",
+ "stage": "finished",
+ "started": 1794506342.8039777,
+ "session_timeout_s": 14400,
+ "updated": 1794506342.8411996,
+ "elapsed_s": 0.0,
+ "error": "FileNotFoundError: manifest.json not found under /kaggle/input/mpr-dr-inputs",
+ "rows": null,
+ "complete_612": null,
+ "wall_s": 0.0
+}

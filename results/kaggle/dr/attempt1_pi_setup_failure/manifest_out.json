@@ -1,0 +1,19 @@
+{
+ "experiment": null,
+ "reason": null,
+ "code_commit": null,
+ "input_manifest": {},
+ "input_files_verified": {},
+ "model": null,
+ "settings": null,
+ "software_versions": null,
+ "installs": null,
+ "kaggle": {
+  "kernel": "phinguynxun/mpr-dr-reasoning",
+  "dataset": "phinguynxun/mpr-dr-inputs",
+  "session_timeout_s": 14400
+ },
+ "started": 1794506342.8039777,
+ "finished": 1794506342.8356035,
+ "wall_s": 0.0
+}

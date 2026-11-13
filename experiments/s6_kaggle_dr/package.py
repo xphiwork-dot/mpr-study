@@ -38,6 +38,8 @@ DATASET_REF = "phinguynxun/mpr-dr-inputs"
 KERNEL_REF = "phinguynxun/mpr-dr-reasoning"
 UPSTREAM_COMMIT = "a24953c8f342c9f3b2064e562ead49d477d49138"
 KAGGLE = os.environ.get("KAGGLE_BIN", os.path.expanduser("~/.local/bin/kaggle"))
+# Shared account: 6 GPU-hours per refresh and two serialized workers, so this job gets 2.5 h (MR takes 3 h).
+SESSION_TIMEOUT_S = int(os.environ.get("MPR_SESSION_TIMEOUT_S", "9000"))
 
 
 def sha256_file(path):
@@ -199,7 +201,7 @@ def dataset(action):
 
 
 def kernel():
-    run([KAGGLE, "kernels", "push", "-p", KERNEL_DIR, "--timeout", "14400",
+    run([KAGGLE, "kernels", "push", "-p", KERNEL_DIR, "--timeout", str(SESSION_TIMEOUT_S),
          "--accelerator", "NvidiaTeslaT4"])
 
 

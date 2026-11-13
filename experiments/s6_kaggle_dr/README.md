@@ -129,9 +129,16 @@ the run manifest; neither is edited by this branch.
   the slice (for the sanity gate), and `manifest.json` with a sha256 of every file plus the code commit,
   upstream commit and model revision. Only this explicit allowlist is uploaded; no `.git`, credentials,
   upstream sources or other agents' state.
-- Private script kernel `phinguynxun/mpr-dr-reasoning`, `kaggle kernels push --timeout 14400
+- Private script kernel `phinguynxun/mpr-dr-reasoning`, `kaggle kernels push --timeout 9000
   --accelerator NvidiaTeslaT4`; internet on, needed for the pinned upstream clone and the model/e5
   downloads; one GPU replica (`CUDA_VISIBLE_DEVICES=0`), the second T4 (if allocated) is recorded and idle.
+  The 2.5-hour cap is a shared-account constraint, not a method choice: the account has 6 GPU-hours per
+  refresh and both workers serialize on the host GPU lock, so MR takes 3 h and DR 2.5 h (see (e2)).
+- The kernel **discovers** the read-only input directory instead of assuming it (`kernel.py:
+  discover_input_root`): it tries `MPR_INPUT_ROOT`, `/kaggle/input`, `/kaggle/input/<slug>` and
+  `/kaggle/input/datasets/<owner>/<slug>`, then walks `/kaggle/input` to depth 4, retrying for 90 s, and
+  writes the resolved path, candidate list and a bounded tree to `input_probe.json`. This is the fix for
+  attempt 1 (see (e1)).
 - The kernel stages, verifies every input hash, records `nvidia-smi`, installs `bm25s==0.2.9` and
   sentence-transformers/vLLM if absent (vLLM unpinned to match the image's torch; exact versions
   recorded), clones upstream at the pinned commit and **refuses to run if `prompts.py` does not hash to
@@ -149,12 +156,47 @@ the run manifest; neither is edited by this branch.
     in the remaining session budget, else the full run does not start;
   - **full run**, then validation (unique coverage, ground truth, row invariants) and EM/contains overall,
     per hop group and leak-free; `status.json`, `DONE`, `manifest_out.json` and `run.log` are written for
-    download. A watchdog exits at +13,800 s so the output is committed before the 4-hour limit.
+    download. A watchdog exits at +8,400 s and the runner stops submitting at +7,800 s so the output is
+    committed before the 2.5-hour limit.
 - Every result line is flushed and fsynced (shared `lib.JsonlWriter`); a cut line is ignored on resume and
   a missing final newline is repaired before appending (`dr.ensure_trailing_newline`). The job is one
   session: no retries, no replacement job without new user approval. A host advisory `flock`
   (`~/.local/state/mpr-study/kaggle-gpu.lock`) serialises this job with the peer's MR job on the shared
   Kaggle account.
+
+## (e1) Attempt 1 failed in setup: the dataset was mounted under a different path
+
+Attempt 1 (`phinguynxun/mpr-dr-reasoning`, Pi-era worker, 2026-11-12 17:58 UTC) was a script kernel that
+died after 0.0 s of script time with `FileNotFoundError: manifest.json not found under
+/kaggle/input/mpr-dr-inputs`. Its evidence is preserved unedited in
+`results/kaggle/dr/attempt1_pi_setup_failure/` (`DONE`, `status.json`, `manifest_out.json`,
+`run_log.txt`, `kernel_log.json`). It produced **no** experiment rows and is not an evaluation.
+
+Root cause, verified with the private CPU-only kernel `phinguynxun/mpr-dr-mount-probe`
+(source `diagnostics/mount_probe.py`, output `results/kaggle/dr/mount_probe/mountprobe.json`,
+2026-11-13, 0 GPU quota): the attached dataset is mounted at
+`/kaggle/input/datasets/phinguynxun/mpr-dr-inputs/`, not `/kaggle/input/mpr-dr-inputs/`.
+`/kaggle/input` contained exactly one entry, `datasets`. All 20 expected files were present with the
+expected sizes, and `manifest.json` hashed to
+`3fdfc315da42fe1d5e0d7c8b784959ac9ded014e47e6f42e09ebf531ab0a9b04`.
+
+Fix (tested in `tests/test_kernel_stage.py`): `discover_input_root()` resolves the mount from explicit
+candidates plus a bounded walk and retries, `stage_inputs()` publishes the probe and the resolved root to
+`status.json`/`input_probe.json`, and it refuses a manifest that declares a different Kaggle dataset (so
+the MR dataset can never be staged by mistake).
+
+## (e2) Shared-account GPU budget: one 2.5-hour job, serialized with the MR worker
+
+Both experiments run on one Kaggle account. `kaggle quota` on 2026-11-13 reported GPU `used 0.00h`,
+`remaining 30.00h`, refresh 2026-11-14T00:00Z, while the API view (`quota_view().totalTimeAllowed`) used
+by the MR worker reported 21600 s = 6 h. We budget against the stricter 6 h: MR may take 3 h and DR 2.5 h
+(`--timeout 9000`), which fits with a 30-minute margin and cannot starve either job. The two jobs are
+serialized by the host advisory lock `~/.local/state/mpr-study/kaggle-gpu.lock`
+(`kaggle_run.sh`, which waits up to 4 h for it and holds it until its kernel is terminal and downloaded).
+The runtime gate inside the job still refuses to start the full evaluation when its own token-throughput
+projection does not fit the remaining session, and the runner stops submitting 1200 s before the hard
+limit, so a slow job yields partial rows instead of being killed mid-write. There is no automatic retry
+and no replacement job.
 
 ## (f) How to run (reproduce)
 
@@ -169,7 +211,7 @@ python3 -m unittest discover -s tests -v
 # 2. freeze/commit, then build the private inputs + manifest and upload them
 python3 experiments/s6_kaggle_dr/package.py build
 kaggle datasets create -p build/kaggle/dr_dataset --keep-tabular     # or: package.py dataset-version
-kaggle kernels push -p build/kaggle/dr_kernel --timeout 14400 --accelerator NvidiaTeslaT4
+kaggle kernels push -p build/kaggle/dr_kernel --timeout 9000 --accelerator NvidiaTeslaT4
 
 # 3. monitor, then download the outputs (do not stop at "push")
 kaggle kernels status phinguynxun/mpr-dr-reasoning

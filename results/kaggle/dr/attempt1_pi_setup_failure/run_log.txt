@@ -1,0 +1,12 @@
+[     0.0s] FATAL: FileNotFoundError: manifest.json not found under /kaggle/input/mpr-dr-inputs
+Traceback (most recent call last):
+  File "/kaggle/src/script.py", line 816, in main
+    manifest, verified = stage_inputs()
+                         ~~~~~~~~~~~~^^
+  File "/kaggle/src/script.py", line 168, in stage_inputs
+    manifest = json.load(open(find_input("manifest.json"), encoding="utf-8"))
+                              ~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/kaggle/src/script.py", line 148, in find_input
+    raise FileNotFoundError(f"{name} not found under {INPUT_ROOT}")
+FileNotFoundError: manifest.json not found under /kaggle/input/mpr-dr-inputs
+[     0.0s] finish status=failed wall=0.0s error=FileNotFoundError: manifest.json not found under /kaggle/input/mpr-dr-inputs

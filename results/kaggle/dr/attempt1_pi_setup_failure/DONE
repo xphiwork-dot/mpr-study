@@ -1,0 +1,1 @@
+status=failed stage=finished wall_s=0.0 error=FileNotFoundError: manifest.json not found under /kaggle/input/mpr-dr-inputs

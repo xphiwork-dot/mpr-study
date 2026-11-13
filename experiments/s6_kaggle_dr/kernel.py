@@ -7,12 +7,17 @@ One session, one GPU job (design and gates: experiments/s6_kaggle_dr/README.md):
      against archived S1 rows) -> full 306x2 evaluation (resumable, deadline-aware)
   -> validation + EM/contains -> status.json/DONE + evidence files.
 
-Inputs are read-only from /kaggle/input/mpr-dr-inputs (private dataset: the released question_answer
+Inputs are read-only from the private dataset phinguynxun/mpr-dr-inputs (the released question_answer
 JSONs, the s306 slice, dr.py/lib.py/score.py/settings.json, the archived S1 rows restricted to the slice,
-and manifest.json with every sha256). Everything the job must publish is written under /kaggle/working;
-the DR runner flushes and fsyncs every result row, so a cut session still leaves usable partial rows.
+and manifest.json with every sha256). The mount directory is discovered, not assumed: Kaggle served
+`/kaggle/input/<slug>` to the failed 2026-11-12 run and `/kaggle/input/datasets/<owner>/<slug>` to the
+2026-11-13 probe, so discover_input_root() tries both, walks /kaggle/input, and retries for 90 s.
+Everything the job must publish is written under /kaggle/working; the DR runner flushes and fsyncs every
+result row, so a cut session still leaves usable partial rows.
 
-A watchdog exits cleanly ~10 minutes before the session timeout so Kaggle commits the output.
+Session budget: the shared account has 6 GPU-hours per refresh and two serialized workers, so this kernel
+is pushed with --timeout 9000 (2.5 h) and stops submitting 1200 s before that. A watchdog exits cleanly
+~10 minutes before the session timeout so Kaggle commits the output.
 """
 import hashlib
 import json
@@ -26,10 +31,14 @@ import traceback
 import urllib.request
 
 START = time.time()
-SESSION_TIMEOUT_S = int(os.environ.get("MPR_SESSION_TIMEOUT_S", "14400"))
+SESSION_TIMEOUT_S = int(os.environ.get("MPR_SESSION_TIMEOUT_S", "9000"))   # must equal the pushed --timeout
 WATCHDOG_EXIT_BEFORE_END_S = 600
-STOP_SUBMIT_BEFORE_END_S = 1500
-INPUT_ROOT = os.environ.get("MPR_INPUT_ROOT", "/kaggle/input/mpr-dr-inputs")
+STOP_SUBMIT_BEFORE_END_S = 1200
+INPUT_BASE = os.environ.get("MPR_INPUT_BASE", "/kaggle/input")
+# Resolved before any file is read: Kaggle has shipped two mount layouts for the same private dataset --
+# /kaggle/input/<slug> (assumed by the Pi-era run, which then died on a missing manifest.json) and the
+# observed 2026-11-13 layout /kaggle/input/datasets/<owner>/<slug>. See discover_input_root().
+INPUT_ROOT = os.environ.get("MPR_INPUT_ROOT", INPUT_BASE)
 WORK = os.environ.get("MPR_WORK", "/kaggle/working")
 ROOT = os.environ.get("MPR_ROOT", "/tmp/mpr-dr")      # scratch, not published
 SCRIPTS = os.path.join(ROOT, "scripts")
@@ -138,14 +147,92 @@ def run_cmd(cmd, log_path, timeout=None, check=True):
     return p
 
 
-def find_input(name):
-    direct = os.path.join(INPUT_ROOT, name)
+def input_tree(root=None, max_depth=3):
+    """Compact, non-raising listing of an input directory; used only for diagnostics/evidence."""
+    root = root or INPUT_BASE
+    if not os.path.isdir(root):
+        return [{"path": root, "missing": True}]
+    base_depth = root.rstrip("/").count(os.sep)
+    tree = []
+    for cur, dirs, files in os.walk(root):
+        depth = cur.rstrip("/").count(os.sep) - base_depth
+        if depth >= max_depth:
+            dirs[:] = []
+        tree.append({"path": cur, "dir": True, "depth": depth})
+        for f in sorted(files):
+            try:
+                size = os.path.getsize(os.path.join(cur, f))
+            except OSError:
+                size = None
+            tree.append({"path": os.path.join(cur, f), "dir": False, "bytes": size, "depth": depth + 1})
+    return tree
+
+
+def _input_candidates():
+    owner, slug = DATASET_REF.split("/")
+    cands = []
+    env = os.environ.get("MPR_INPUT_ROOT")
+    if env:
+        cands.append(env)
+    cands += [INPUT_ROOT, INPUT_BASE, f"{INPUT_BASE}/{slug}", f"{INPUT_BASE}/datasets/{owner}/{slug}"]
+    out = []
+    for c in cands:
+        if c and c not in out:
+            out.append(c)
+    return out
+
+
+def discover_input_root(timeout_s=90, poll_s=5):
+    """Return (root, probe) for the directory that holds manifest.json.
+
+    Kaggle has shipped at least two mount layouts for the same attached dataset: `/kaggle/input/<slug>`
+    (assumed by the Pi-era run of 2026-11-12, which then died on a missing manifest.json after 0.0s of
+    work) and `/kaggle/input/datasets/<owner>/<slug>` (verified 2026-11-13 by the private CPU mount-probe
+    kernel phinguynxun/mpr-dr-mount-probe). Neither is assumed: explicit candidates are tried first, then
+    a bounded walk of INPUT_BASE, and the loop retries so a still-mounting dataset is not reported as a
+    permanent failure. The probe is written to WORK/input_probe.json so a failure is diagnosable from the
+    published artifacts alone.
+    """
+    t0 = time.time()
+    info = {"input_base": INPUT_BASE, "dataset": DATASET_REF, "candidates": [], "attempts": 0,
+            "walked": False, "resolved": None, "strategy": None}
+    while True:
+        info["attempts"] += 1
+        info["candidates"] = [{"path": c, "exists": os.path.isdir(c),
+                               "has_manifest": os.path.isfile(os.path.join(c, "manifest.json"))}
+                              for c in _input_candidates()]
+        for c in info["candidates"]:
+            if c["has_manifest"]:
+                info.update(resolved=c["path"], strategy="explicit", waited_s=round(time.time() - t0, 1))
+                return c["path"], info
+        if os.path.isdir(INPUT_BASE):
+            info["walked"] = True
+            base_depth = INPUT_BASE.rstrip("/").count(os.sep)
+            for cur, dirs, files in os.walk(INPUT_BASE):
+                if cur.rstrip("/").count(os.sep) - base_depth >= 4:
+                    dirs[:] = []
+                if "manifest.json" in files:
+                    info.update(resolved=cur, strategy="walk", waited_s=round(time.time() - t0, 1))
+                    return cur, info
+        if time.time() - t0 >= timeout_s:
+            info["tree"] = input_tree()
+            info["waited_s"] = round(time.time() - t0, 1)
+            raise FileNotFoundError(
+                "manifest.json not found in any known input layout; candidates: "
+                + ", ".join(f"{c['path']} (exists={c['exists']})" for c in info["candidates"])
+                + f"; also walked {INPUT_BASE} to depth 4; tree: {json.dumps(info['tree'])[:2000]}")
+        time.sleep(poll_s)
+
+
+def find_input(name, root=None):
+    root = root or INPUT_ROOT
+    direct = os.path.join(root, name)
     if os.path.isfile(direct):
         return direct
-    for root, _dirs, files in os.walk(INPUT_ROOT):
+    for cur, _dirs, files in os.walk(root):
         if name in files:
-            return os.path.join(root, name)
-    raise FileNotFoundError(f"{name} not found under {INPUT_ROOT}")
+            return os.path.join(cur, name)
+    raise FileNotFoundError(f"{name} not found under {root}; tree: {json.dumps(input_tree(root))[:2000]}")
 
 
 def watchdog():
@@ -162,10 +249,22 @@ def watchdog():
 
 # ---------------------------------------------------------------- stages
 def stage_inputs():
+    global INPUT_ROOT
     set_status(stage="stage_inputs")
     for d in (SCRIPTS, CACHE, RUNS, os.path.dirname(SLICE), QA_DIR):
         os.makedirs(d, exist_ok=True)
+    INPUT_ROOT, probe = discover_input_root()
+    probe["files"] = [{"name": f, "bytes": os.path.getsize(os.path.join(INPUT_ROOT, f))}
+                      for f in sorted(os.listdir(INPUT_ROOT))
+                      if os.path.isfile(os.path.join(INPUT_ROOT, f))]
+    write_json(os.path.join(WORK, "input_probe.json"), probe)
+    set_status(input_root=INPUT_ROOT, input_strategy=probe["strategy"], input_files=len(probe["files"]))
+    log(f"inputs at {INPUT_ROOT} (strategy={probe['strategy']}, waited={probe['waited_s']}s, "
+        f"{len(probe['files'])} files)")
     manifest = json.load(open(find_input("manifest.json"), encoding="utf-8"))
+    declared = (manifest.get("kaggle") or {}).get("dataset")
+    if declared and declared != DATASET_REF:
+        raise RuntimeError(f"input manifest belongs to dataset {declared!r}, expected {DATASET_REF!r}")
     verified = {}
 
     def copy_verified(name, src_name, dst):
