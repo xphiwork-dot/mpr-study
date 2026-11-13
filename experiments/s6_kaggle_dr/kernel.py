@@ -311,6 +311,28 @@ def preflight():
     return info
 
 
+def driver_major_version():
+    """Major CUDA driver version from nvidia-smi, or None. Decides the installable vLLM CUDA generation."""
+    try:
+        out = subprocess.run(["nvidia-smi", "--query-gpu=driver_version", "--format=csv,noheader"],
+                             capture_output=True, text=True, timeout=120).stdout.strip().splitlines()
+        return int(out[0].split(".")[0]) if out else None
+    except Exception:  # noqa: BLE001
+        return None
+
+
+def _importable(probed, name):
+    v = probed.get(name)
+    return bool(v) and not str(v).startswith("IMPORT")
+
+
+def vllm_specs(driver_major):
+    """Ordered vLLM pins: CUDA-13 builds (0.32.0, the historical T4 version) need driver >= 580."""
+    if driver_major is not None and driver_major >= 580:
+        return ["vllm==0.32.0", "vllm==0.11.2", "vllm==0.10.2"]
+    return ["vllm==0.11.2", "vllm==0.10.2"]
+
+
 def pip_versions(pkgs):
     import importlib.metadata as md
     out = {}
@@ -339,6 +361,13 @@ def probe_versions(modules):
         "        out[m] = str(getattr(mod, '__version__', None))\n"
         "    except Exception as e:\n"
         "        out[m] = 'IMPORT ERROR: ' + repr(e)\n"
+        "try:\n"
+        "    import torch\n"
+        "    out['_torch_cuda_build'] = str(torch.version.cuda)\n"
+        "    out['_cuda_available'] = bool(torch.cuda.is_available())\n"
+        "    out['_device_count'] = int(torch.cuda.device_count())\n"
+        "except Exception as e:\n"
+        "    out['_torch_cuda_build'] = 'IMPORT ERROR: ' + repr(e)\n"
         "print('VERSIONS_JSON=' + json.dumps(out))\n"
     ) % (list(modules),)
     p = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, timeout=900)
@@ -380,25 +409,37 @@ def stage_deps():
             raise RuntimeError(f"sentence-transformers install failed (see {logfile})")
     # the T4 sessions uninstalled torchao: vLLM's torch.compile path hit it (experiments/_shared/README.md)
     run_cmd([sys.executable, "-m", "pip", "uninstall", "-y", "torchao"], logfile, timeout=300, check=False)
+    driver_major = driver_major_version()
     if not have("vllm"):
-        # unpinned first: the Kaggle image's Python/torch generation decides the compatible vLLM.
-        for spec in ("vllm", "vllm==0.10.2"):
+        # vLLM pick is a CUDA-generation decision, not a preference. PyPI evidence (2026-11-13):
+        #   0.32.0 -> torch==2.13.0 + humming-kernels[cu13]  => requires driver >= 580
+        #   0.11.2 -> torch==2.9.0                           => CUDA 12.x wheels, works on driver 5xx
+        #   0.10.2 -> torch==2.8.0                           => same, older fallback
+        # The historical T4 sessions used vLLM 0.32.0 (results/t4/timing_log.md), so it is tried first only
+        # when this GPU's driver can run CUDA 13; otherwise the newest CUDA-12-compatible pin is used and
+        # the deviation is recorded in deps.json.
+        for spec in vllm_specs(driver_major):
             t = time.time()
-            log(f"vllm missing: pip install {spec}")
+            log(f"vllm missing: pip install {spec} (driver major {driver_major})")
             p = run_cmd([sys.executable, "-m", "pip", "install", "-q", spec], logfile,
-                        timeout=1800, check=False)
-            attempts.append({"target": spec, "rc": p.returncode, "secs": round(time.time() - t, 1)})
-            if p.returncode == 0:
-                installs.append(spec + " (install attempt, unpinned first)")
+                        timeout=1500, check=False)
+            probed, _prc = probe_versions(["vllm", "torch"])
+            ok = p.returncode == 0 and _importable(probed, "vllm") and _importable(probed, "torch")
+            attempts.append({"target": spec, "rc": p.returncode, "secs": round(time.time() - t, 1),
+                             "probe": probed, "usable": ok})
+            if ok:
+                installs.append(spec)
                 break
-        if not have("vllm"):
-            raise RuntimeError(f"could not install vLLM (see {logfile})")
+            log(f"{spec} unusable (rc={p.returncode}, vllm={probed.get('vllm')!r}, "
+                f"torch_cuda={probed.get('_torch_cuda_build')!r}); trying the next CUDA-compatible pin")
+        if not any(a.get("usable") for a in attempts if a.get("target", "").startswith("vllm")):
+            raise RuntimeError(f"could not install a CUDA-compatible vLLM (see {logfile})")
 
     importlib.invalidate_caches()
     versions, rc = probe_versions(["vllm", "torch", "transformers", "sentence_transformers", "bm25s",
                                    "numpy", "scipy"])
     deps = {"before": before, "installs": installs, "attempts": attempts, "versions": versions,
-            "probe_rc": rc, "pip_versions": pip_versions(tracked)}
+            "probe_rc": rc, "pip_versions": pip_versions(tracked), "driver_major": driver_major}
     write_json(os.path.join(WORK, "deps.json"), deps)
     for mod in ("vllm", "torch", "transformers", "sentence_transformers", "bm25s"):
         if str(versions.get(mod, "")).startswith("IMPORT"):

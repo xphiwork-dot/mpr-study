@@ -140,10 +140,17 @@ the run manifest; neither is edited by this branch.
   writes the resolved path, candidate list and a bounded tree to `input_probe.json`. This is the fix for
   attempt 1 (see (e1)).
 - The kernel stages, verifies every input hash, records `nvidia-smi`, installs `bm25s==0.2.9` and
-  sentence-transformers/vLLM if absent (vLLM unpinned to match the image's torch; exact versions
-  recorded), clones upstream at the pinned commit and **refuses to run if `prompts.py` does not hash to
-  the audited file**, builds the e5 embedding cache before starting vLLM, serves the model with the
-  historical flags, and then:
+  sentence-transformers/vLLM if absent, clones upstream at the pinned commit and **refuses to run if
+  `prompts.py` does not hash to the audited file**, builds the e5 embedding cache before starting vLLM,
+  serves the model with the historical flags, and then:
+  - **vLLM pin is chosen from the GPU's CUDA generation** (`vllm_specs`), because it is not a free
+    choice: 0.32.0 (the historical T4 version, `results/t4/timing_log.md`) depends on
+    `torch==2.13.0` + `humming-kernels[cu13]` and therefore needs driver >= 580, while 0.11.2
+    (`torch==2.9.0`) and 0.10.2 (`torch==2.8.0`) are CUDA-12 pins that work on driver 5xx. The driver
+    major, every install attempt, the import probe of `vllm`/`torch` and `torch.version.cuda` are written
+    to `deps.json`, and a pin is accepted only if a separate process can import both; the kernel fails
+    loudly if no pin is importable. A CUDA-12 pin is a documented deviation from the historical
+    deployment, not a silent one.
   - **divide gate**: one real `Decomposition_Divide` call must be non-empty and parse to 1-5 lines;
   - **DR smoke**: 6 questions (2 per hop group, hops 2/5/9) x 2 memories, written into the main result
     files because the settings are identical; each smoke row is checked for calls = 1+N+1, N sub-answers,

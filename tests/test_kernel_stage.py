@@ -158,6 +158,17 @@ class KernelStagingTests(unittest.TestCase):
                 km.stage_inputs()
             self.assertIn("hash mismatch", str(cm.exception))
 
+    def test_vllm_pins_follow_the_gpu_driver_cuda_generation(self):
+        """vLLM >= 0.12 ships CUDA 13 wheels (needs driver >= 580); older drivers need a CUDA 12 pin."""
+        km = load_kernel()
+        self.assertEqual(km.vllm_specs(580)[0], "vllm==0.32.0")   # historical T4 version, CUDA 13 ok
+        self.assertEqual(km.vllm_specs(590)[0], "vllm==0.32.0")
+        for driver in (550, 570, None):
+            specs = km.vllm_specs(driver)
+            self.assertNotIn("vllm==0.32.0", specs, (driver, specs))
+            self.assertEqual(specs[0], "vllm==0.11.2")
+        self.assertTrue(all(s.startswith("vllm==") for s in km.vllm_specs(550)))
+
     def test_smoke_keys_cover_all_hop_groups_on_the_real_slice(self):
         km = load_kernel()
         km._settings = json.load(open(os.path.join(EXP, "settings.json"), encoding="utf-8"))
