@@ -1,0 +1,22 @@
+{
+ "quotaRefreshTime": "2026-11-14 00:00:00",
+ "gpu": {
+  "time_used": "0:00:00",
+  "time_reserved": "0:00:00",
+  "total_time_allowed": "1 day, 6:00:00",
+  "minimum_time_allowed": "1 day, 6:00:00",
+  "has_ever_run": false,
+  "is_pay_to_scale_enabled": false,
+  "total_time_allowed_s": 108000,
+  "note": "1 day + 6 h = 30 h/week; 'total_time_allowed' above is a timedelta whose repr includes the day component. An earlier read of timedelta.seconds showed 21600 s and was mistaken for a 6 h allowance."
+ },
+ "tpu": {
+  "time_used": "0:00:00",
+  "time_reserved": "0:00:00",
+  "total_time_allowed": "20:00:00",
+  "minimum_time_allowed": "20:00:00",
+  "has_ever_run": false,
+  "is_pay_to_scale_enabled": false
+ },
+ "note": "kaggle quota CLI and the SDK agree once the timedelta day component is counted: GPU 30 h/week total, 0 used, has_ever_run=false; TPU 20 h/week. The serialization plan (MR 3 h, DR 2.5 h) is far below both."
+}

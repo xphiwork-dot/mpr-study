@@ -132,8 +132,8 @@ the run manifest; neither is edited by this branch.
 - Private script kernel `phinguynxun/mpr-dr-reasoning`, `kaggle kernels push --timeout 9000
   --accelerator NvidiaTeslaT4`; internet on, needed for the pinned upstream clone and the model/e5
   downloads; one GPU replica (`CUDA_VISIBLE_DEVICES=0`), the second T4 (if allocated) is recorded and idle.
-  The 2.5-hour cap is a shared-account constraint, not a method choice: the account has 6 GPU-hours per
-  refresh and both workers serialize on the host GPU lock, so MR takes 3 h and DR 2.5 h (see (e2)).
+  The 2.5-hour cap is a shared-account constraint, not a method choice: both workers serialize on the
+  host GPU lock, so MR takes 3 h and DR 2.5 h (see (e2)).
 - The kernel **discovers** the read-only input directory instead of assuming it (`kernel.py:
   discover_input_root`): it tries `MPR_INPUT_ROOT`, `/kaggle/input`, `/kaggle/input/<slug>` and
   `/kaggle/input/datasets/<owner>/<slug>`, then walks `/kaggle/input` to depth 4, retrying for 90 s, and
@@ -195,9 +195,10 @@ the MR dataset can never be staged by mistake).
 ## (e2) Shared-account GPU budget: one 2.5-hour job, serialized with the MR worker
 
 Both experiments run on one Kaggle account. `kaggle quota` on 2026-11-13 reported GPU `used 0.00h`,
-`remaining 30.00h`, refresh 2026-11-14T00:00Z, while the API view (`quota_view().totalTimeAllowed`) used
-by the MR worker reported 21600 s = 6 h. We budget against the stricter 6 h: MR may take 3 h and DR 2.5 h
-(`--timeout 9000`), which fits with a 30-minute margin and cannot starve either job. The two jobs are
+`remaining 30.00h`, refresh 2026-11-14T00:00Z, and the SDK quota object confirms 30 h/week
+(`time_used` 0, `has_ever_run` false) — an earlier read of `timedelta.seconds` (21600 s) was mistaken for
+a 6 h allowance; the correct value is 1 day + 6 h = 108000 s. MR may take 3 h and DR 2.5 h
+(`--timeout 9000`), comfortably inside that allowance, and the two cannot starve each other. The two jobs are
 serialized by the host advisory lock `~/.local/state/mpr-study/kaggle-gpu.lock`
 (`kaggle_run.sh`, which waits up to 4 h for it and holds it until its kernel is terminal and downloaded).
 The runtime gate inside the job still refuses to start the full evaluation when its own token-throughput
@@ -237,7 +238,14 @@ has none.
 
 ## (g) Results
 
-See [`report.md`](report.md) for the final status, the run's numbers, paired differences, costs, kernel
-URL, commit hashes and caveats, and `results/kaggle/dr/` for the evidence (`runs/*.jsonl`, failures,
-`validation_local.json`, `summary_dr.md`, `summary_dr.json`, `manifest_out.json`, `status.json`,
-`sanity_naive.json`, `smoke_dr.json`, logs).
+**Blocked: no accelerator on the shared Kaggle account; 0 of 612 rows, no metric reported.** See
+[`report.md`](report.md) for the full account, and `results/kaggle/dr/` for the evidence:
+
+- `attempt1_pi_setup_failure/` — the Pi-era attempt that died in setup, preserved unedited; its cause
+  (dataset mounted at `/kaggle/input/datasets/<owner>/<slug>`, not `/kaggle/input/<slug>`) is proven by
+  `mount_probe/mountprobe.json` and fixed in `kernel.py: discover_input_root`.
+- `gpu_availability/` — four private accelerator probes (two kernel types, three request shapes) all ran
+  CPU-only with `enable_gpu: true` stored server-side, `torch 2.11.0+cpu`, no `/dev/nvidia*`, and
+  `GPU used 0.00h` / `has_ever_run: false`. The job was stopped rather than burning the attempt on a
+  CPU-only vLLM setup failure.
+- `runs/` stays empty until a GPU session can run §6 end to end.

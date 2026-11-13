@@ -71,7 +71,7 @@
     "questions": 306,
     "expected_rows_per_system": 306,
     "expected_rows_total": 612,
-    "workers": 32,
+    "workers": 40,
     "seed": 0,
     "seed_policy": "greedy decoding, so no sampling seed; seed 0 fixes only the deterministic smoke-key selection and ordering (slice order otherwise)",
     "smoke": {
@@ -96,7 +96,7 @@
       "session_timeout_s": 9000,
       "stop_submitting_before_session_end_s": 1200,
       "watchdog_exit_before_session_end_s": 600,
-      "reason": "shared account has 6 GPU-hours per refresh and the two workers serialize on the GPU lock, so this job is pushed with --timeout 9000 (2.5 h) after MR's 3 h and stops submitting 1200 s before the hard kill, leaving time for Kaggle to persist/commit /kaggle/working"
+      "reason": "shared account has 30 GPU-hours per refresh (verified: timedelta 1 day 6 h, 0 used) and the two workers still serialize on the GPU lock, so this job is pushed with --timeout 9000 (2.5 h) after MR's 3 h and stops submitting 1200 s before the hard kill, leaving time for Kaggle to persist/commit /kaggle/working"
     }
   },
   "kaggle": {

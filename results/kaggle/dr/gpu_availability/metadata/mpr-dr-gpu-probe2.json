@@ -1,0 +1,9 @@
+{
+ "id": "phinguynxun/mpr-dr-gpu-probe2",
+ "enable_gpu": true,
+ "enable_tpu": false,
+ "machine_shape": "NvidiaTeslaT4",
+ "docker_image": "gcr.io/kaggle-images/python@sha256:0717e81990be591f8c5f98f033d29ab23e9ffde057e5b3a6bd4371f93969e962",
+ "kernel_type": "script",
+ "docker_image_pinning_type": null
+}

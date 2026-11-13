@@ -1,0 +1,36 @@
+{
+ "nvidia_smi_path": {
+  "rc": 127,
+  "out": "",
+  "err": ""
+ },
+ "nvidia_smi_L": {
+  "rc": 127,
+  "out": "",
+  "err": "/bin/sh: 1: nvidia-smi: not found"
+ },
+ "nvidia_smi_query": {
+  "rc": 127,
+  "out": "",
+  "err": "/bin/sh: 1: nvidia-smi: not found"
+ },
+ "devices": [],
+ "proc_driver": {
+  "rc": 1,
+  "out": "",
+  "err": "cat: /proc/driver/nvidia/version: No such file or directory"
+ },
+ "cuda_visible_devices": null,
+ "torch": {
+  "version": "2.11.0+cpu",
+  "cuda_build": null,
+  "cuda_available": false,
+  "device_count": 0
+ },
+ "df": {
+  "rc": 0,
+  "out": "Filesystem      Size  Used Avail Use% Mounted on\n/dev/loop2       20G  104K   20G   1% /kaggle/working",
+  "err": ""
+ },
+ "_source_kernel": "phinguynxun/mpr-dr-gpu-probe"
+}

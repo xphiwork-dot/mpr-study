@@ -15,7 +15,7 @@ and manifest.json with every sha256). The mount directory is discovered, not ass
 Everything the job must publish is written under /kaggle/working; the DR runner flushes and fsyncs every
 result row, so a cut session still leaves usable partial rows.
 
-Session budget: the shared account has 6 GPU-hours per refresh and two serialized workers, so this kernel
+Session budget: the shared account has 30 GPU-hours per refresh and two serialized workers, so this kernel
 is pushed with --timeout 9000 (2.5 h) and stops submitting 1200 s before that. A watchdog exits cleanly
 ~10 minutes before the session timeout so Kaggle commits the output.
 """
@@ -793,30 +793,55 @@ def stage_sanity_naive(items):
     return report
 
 
+def project_full_run(rows, workers, remaining_secs, safety=1.3):
+    """Closed-loop projection of the full 612-row run from the measured smoke rows.
+
+    Per-call latency is measured by the smoke stage, so the projection is
+    `mean_calls_per_row * 612 * mean_call_secs / workers * safety`. The previous version divided total
+    token counts by the smoke's wall clock, which silently assumed the smoke (12 rows) was as concurrent
+    as the full run (workers slots) and therefore under-projected throughput by the concurrency ratio --
+    it could refuse a full run that easily fits.
+    """
+    calls = sum(int(r.get("calls", 0) or 0) for r in rows)
+    engine = sum(float(r.get("secs", 0.0) or 0.0) for r in rows)
+    n = len(rows)
+    mean_calls = calls / max(n, 1)
+    mean_call_secs = engine / max(calls, 1)
+    full_calls = int(round(mean_calls * 612))
+    est = full_calls * mean_call_secs / max(workers, 1) * safety
+    return {
+        "smoke_rows": n,
+        "smoke_calls": calls,
+        "smoke_tokens": sum(int(r.get("prompt_tokens", 0) or 0) + int(r.get("completion_tokens", 0) or 0)
+                            for r in rows),
+        "smoke_engine_secs": round(engine, 1),
+        "mean_calls_per_row": round(mean_calls, 3),
+        "mean_call_secs": round(mean_call_secs, 2),
+        "projected_full_calls": full_calls,
+        "workers": workers,
+        "safety_factor": safety,
+        "estimated_full_secs": round(est, 1),
+        "remaining_secs": round(remaining_secs, 1),
+        "decision": "start_full_run" if est <= remaining_secs else "do_not_start_full_run",
+    }
+
+
 def stage_run(items):
     set_status(stage="runtime_estimate")
     import dr
     import lib
     smoke = json.load(open(os.path.join(WORK, "smoke_dr.json"), encoding="utf-8"))
-    smoke_rows = smoke["SparseRAG_rows"] + smoke["DenseRAG_rows"]
-    smoke_tokens, smoke_engine = 0, 0.0
+    rows = []
     for name in ("SparseRAG", "DenseRAG"):
-        rows, _ = dr.unique_rows(lib.read_jsonl(os.path.join(RUNS, f"DecompositionReason_{name}_k20.jsonl")))
-        for r in rows:
-            smoke_tokens += r.get("prompt_tokens", 0) + r.get("completion_tokens", 0)
-            smoke_engine += r.get("secs", 0.0)
-    remaining = RUN_DEADLINE - time.time()
-    full_tokens = smoke_tokens / max(smoke_rows, 1) * 612
-    rate = smoke_tokens / max(smoke["wall_s"], 1e-6)
-    est = full_tokens / max(rate, 1e-6) * 1.3   # 1.3 safety on a 12-question, fully-concurrent smoke
-    estimate = {"smoke_rows": smoke_rows, "smoke_tokens": smoke_tokens,
-                "smoke_engine_secs": round(smoke_engine, 1), "smoke_wall_s": smoke["wall_s"],
-                "aggregate_tokens_per_s": round(rate, 1),
-                "projected_full_tokens": round(full_tokens),
-                "estimated_full_secs": round(est, 1), "remaining_secs": round(remaining, 1),
-                "decision": "start_full_run" if est <= remaining * 0.9 else "do_not_start_full_run"}
+        got, _ = dr.unique_rows(lib.read_jsonl(os.path.join(RUNS, f"DecompositionReason_{name}_k20.jsonl")))
+        rows.extend(got)
+    workers = int(_settings["run"]["workers"])
+    estimate = project_full_run(rows, workers, RUN_DEADLINE - time.time())
+    estimate["smoke_wall_s"] = smoke["wall_s"]
+    estimate["smoke_memory_rows"] = {k: v for k, v in smoke.items() if k.endswith("_rows")}
     write_json(os.path.join(WORK, "runtime_estimate.json"), estimate)
-    log(f"runtime estimate {est:.0f}s vs remaining {remaining:.0f}s -> {estimate['decision']}")
+    log(f"runtime estimate {estimate['estimated_full_secs']:.0f}s vs remaining "
+        f"{estimate['remaining_secs']:.0f}s -> {estimate['decision']}")
     if estimate["decision"] != "start_full_run":
         raise RuntimeError("runtime estimate does not fit the remaining session budget")
     set_status(stage="full_run")
