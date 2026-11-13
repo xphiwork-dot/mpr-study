@@ -158,6 +158,21 @@ class KernelStagingTests(unittest.TestCase):
                 km.stage_inputs()
             self.assertIn("hash mismatch", str(cm.exception))
 
+    def test_runtime_projection_uses_per_call_latency_and_worker_slots(self):
+        """The gate must not divide the 612-row token total by the 12-row smoke wall clock."""
+        km = load_kernel()
+        rows = [{"calls": 7, "secs": 35.0, "prompt_tokens": 5000, "completion_tokens": 200}
+                for _ in range(12)]
+        est = km.project_full_run(rows, 42, remaining_secs=6000)
+        self.assertEqual(est["projected_full_calls"], 7 * 612)
+        self.assertAlmostEqual(est["estimated_full_secs"], round(7 * 612 * 5.0 / 42 * 1.3, 1), places=1)
+        self.assertEqual(est["decision"], "start_full_run")
+        # doubling the worker slots halves the projection; a tight budget refuses the full run
+        self.assertAlmostEqual(km.project_full_run(rows, 84, 6000)["estimated_full_secs"],
+                               round(est["estimated_full_secs"] / 2, 1), places=1)
+        self.assertEqual(km.project_full_run(rows, 42, remaining_secs=100)["decision"],
+                         "do_not_start_full_run")
+
     def test_vllm_pins_follow_the_gpu_driver_cuda_generation(self):
         """vLLM >= 0.12 ships CUDA 13 wheels (needs driver >= 580); older drivers need a CUDA 12 pin."""
         km = load_kernel()
