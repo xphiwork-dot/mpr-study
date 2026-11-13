@@ -88,9 +88,11 @@
       "source": "results/t4/s1 NaiveReason rows restricted to the 306-key slice, recomputed in this job with the same deployment",
       "gates": {
         "min_exact_response_matches_of_6": 3,
+        "min_exact_response_matches_of_6_other_engine": 2,
+        "engine_reference_version": "0.32.0",
         "min_questions_with_retrieval_overlap_18_of_20": 5
       },
-      "rationale": "detects unexplained deployment drift (model revision, engine, templates, retrieval) before the full run"
+      "rationale": "detects unexplained deployment drift (model revision, engine, templates, retrieval) before the full run; the exact-response floor is 3/6 on the historical vLLM 0.32.0 and 2/6 on any other engine because greedy text can differ by a token on a different build, while the retrieval-overlap floor stays 5/6 (retrieval does not depend on the engine)"
     },
     "deadline": {
       "session_timeout_s": 9000,

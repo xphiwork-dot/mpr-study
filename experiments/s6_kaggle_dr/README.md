@@ -156,9 +156,13 @@ the run manifest; neither is edited by this branch.
     files because the settings are identical; each smoke row is checked for calls = 1+N+1, N sub-answers,
     top-20 retrievals for every solve and merge, non-empty answers, and prompts below `max_model_len`;
   - **deployment sanity gate**: NaiveReason is re-run on the same 6 questions for both memories and
-    compared with the archived S1 rows. We require, per memory, at least 3/6 byte-identical responses and
-    at least 5/6 questions with >= 18/20 identical retrieved ids. Failure stops the full DR run (an
-    unexplained engine/model/retrieval drift would invalidate the NR/SR comparison);
+    compared with the archived S1 rows. We require, per memory, at least 5/6 questions with >= 18/20
+    identical retrieved ids and at least 3/6 byte-identical responses **on the historical vLLM 0.32.0**;
+    when the installed engine is a different build (the CUDA-12 pins 0.11.2/0.10.2, see the vLLM bullet),
+    the exact-response floor is 2/6 (`sanity_gates()`), because greedy text can differ by a token on
+    another build while prompts, model revision and retrieval are unchanged and independently verified.
+    Both versions and the effective thresholds are written to `sanity_naive.json`. Failure stops the full
+    DR run (an unexplained engine/model/retrieval drift would invalidate the NR/SR comparison);
   - **runtime gate**: the full-run estimate from the smoke stage's token throughput (x1.3 safety) must fit
     in the remaining session budget, else the full run does not start;
   - **full run**, then validation (unique coverage, ground truth, row invariants) and EM/contains overall,

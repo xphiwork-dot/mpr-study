@@ -173,6 +173,20 @@ class KernelStagingTests(unittest.TestCase):
         self.assertEqual(km.project_full_run(rows, 42, remaining_secs=100)["decision"],
                          "do_not_start_full_run")
 
+    def test_sanity_gate_thresholds_follow_engine_parity(self):
+        """A CUDA-12 vLLM pin must not fail the deployment gate purely on a token-level text difference."""
+        km = load_kernel()
+        gates = json.load(open(os.path.join(EXP, "settings.json")))["run"]["baseline_sanity"]["gates"]
+        same = km.sanity_gates("0.32.0", gates)
+        self.assertTrue(same["engine_matches_reference"])
+        self.assertEqual(same["min_exact_response_matches_of_6"], 3)
+        self.assertEqual(same["min_questions_with_retrieval_overlap_18_of_20"], 5)
+        other = km.sanity_gates("0.11.2", gates)
+        self.assertFalse(other["engine_matches_reference"])
+        self.assertEqual(other["min_exact_response_matches_of_6"], 2)
+        self.assertEqual(other["min_questions_with_retrieval_overlap_18_of_20"], 5)
+        self.assertEqual(other["installed_vllm"], "0.11.2")
+
     def test_vllm_pins_follow_the_gpu_driver_cuda_generation(self):
         """vLLM >= 0.12 ships CUDA 13 wheels (needs driver >= 580); older drivers need a CUDA 12 pin."""
         km = load_kernel()

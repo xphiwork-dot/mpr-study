@@ -12,7 +12,7 @@ implementation: every number below was observed.
 | Method | DecompositionReason, faithful to upstream `a24953c` with one documented parser deviation |
 | Model / serving | Qwen2.5-7B-Instruct-AWQ `b25037543e9394b818fdfca67ab2a00ecc7dd641`, vLLM, greedy, 8192 ctx |
 | Retrieval | BM25 (SparseRAG) and e5-base-v2 (DenseRAG), k=20, 306-question `s306` slice |
-| Local tests | `python3 -m unittest discover -s tests` → **52 tests, OK** (6 skip without numpy); the same 52 pass with `.venv/bin/python` |
+| Local tests | `python3 -m unittest discover -s tests` → **53 tests, OK** (6 skip without numpy); the same 53 pass with `.venv/bin/python` |
 | Kaggle GPU quota spent | **0.00 h** (`has_ever_run: false`); 30 h/week allowance untouched |
 | Successful DR rows | **0 / 612** |
 | Blocker | accelerator requests are accepted and then silently not honoured (CPU-only container) |
@@ -77,8 +77,8 @@ the attempt on a setup failure.
 ## 3. What was verified locally (no GPU)
 
 ```
-python3 -m unittest discover -s tests              # 52 tests, OK (6 numpy-dependent skips)
-.venv/bin/python -m unittest discover -s tests     # 52 tests, OK (bootstrap/paired included)
+python3 -m unittest discover -s tests              # 53 tests, OK (6 numpy-dependent skips)
+.venv/bin/python -m unittest discover -s tests     # 53 tests, OK (bootstrap/paired included)
 python3 experiments/s6_kaggle_dr/package.py build  # dataset+kernel staged, manifest hashes, clean tree
 ```
 
@@ -88,7 +88,9 @@ python3 experiments/s6_kaggle_dr/package.py build  # dataset+kernel staged, mani
   resume after a cut JSONL line, duplicate keys, deadlines, circuit breaker and concurrent unique-key
   coverage are covered.
 * new in this attempt: mount-layout discovery, foreign-manifest rejection, driver-aware vLLM pinning
-  (`vllm==0.32.0` needs driver ≥ 580; `0.11.2`/`0.10.2` are the CUDA-12 fallbacks), the closed-loop
+  (`vllm==0.32.0` needs driver ≥ 580; `0.11.2`/`0.10.2` are the CUDA-12 fallbacks, and the deployment
+  sanity gate then uses a pre-registered 2/6 exact-response floor instead of 3/6 so a valid run is not
+  aborted by token-level text drift), the closed-loop
   runtime projection (per-call latency × calls / worker slots, no more dividing the 612-row token total by
   the 12-row smoke wall clock), and tests for the two result tools (`tests/test_dr_scoring.py`, 11 tests:
   validator row invariants, missing/extra-key reporting, deduplication, paired-comparison denominators and
