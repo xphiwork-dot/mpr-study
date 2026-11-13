@@ -50,7 +50,7 @@ The farm patch (`experiments/01_farm_small_run/farm.patch`) adds an Azure OpenAI
 |---|---|---|---|
 | TreeRAG | not reproduced | none | Builds its index with an LLM over about 13.1k facts per user. Scout estimate: thousands of LLM calls (scout report, risks list). Never measured. |
 | GraphRAG | not reproduced | none | Same: LLM entity/relation extraction over about 13.1k facts per user, thousands of calls estimated by the scout, never measured. |
-| MR and DR reasoning | not reproduced | `experiments/s6_kaggle_dr/report.md` (DR) | DR: implementation, Kaggle packaging and 52 local tests are complete, but the shared Kaggle account provisions no accelerator (four probe kernels: `enable_gpu` stored server-side, no `/dev/nvidia*`, `torch 2.11.0+cpu`, GPU quota untouched), so the corrected T4 job was not pushed and **0 of 612 rows** exist. The Pi-era setup failure is root-caused (dataset mounts at `/kaggle/input/datasets/<owner>/<slug>`) and fixed. MR is a separate parallel experiment; no MR numbers are claimed here. |
+| MR and DR reasoning | not reproduced | `experiments/s6_kaggle_dr/report.md` (DR) | DR: implementation, Kaggle packaging and 56 local tests are complete, but the shared Kaggle account provisions no accelerator (four probe kernels: `enable_gpu` stored server-side, no `/dev/nvidia*`, `torch 2.11.0+cpu`, GPU quota untouched), so the corrected T4 job was not pushed and **0 of 612 rows** exist. The Pi-era setup failure is root-caused (dataset mounts at `/kaggle/input/datasets/<owner>/<slug>`) and fixed. MR is a separate parallel experiment; no MR numbers are claimed here. |
 
 ## 5. Paper numbers
 

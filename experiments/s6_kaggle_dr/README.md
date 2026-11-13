@@ -234,7 +234,17 @@ python3 experiments/s6_kaggle_dr/validate_dr.py --runs results/kaggle/dr/runs
 python3 experiments/s6_kaggle_dr/summarize_dr.py \
   --dr results/kaggle/dr/runs --slice results/t4/slices/s306.json \
   --nr results/t4/s1 --sr results/t4/s2 --out results/kaggle/dr/summary_dr.md
+
+# 5. cross-method comparison (DR vs the MR worker's export) with the same paired conventions
+python3 experiments/s6_kaggle_dr/compare_mr_dr.py \
+  --a-dir results/kaggle/dr/runs --a-label DR \
+  --b-dir /path/to/mr/runs --b-pattern 'MRReasoning_{mem}_k20.jsonl' --b-label MR \
+  --slice results/t4/slices/s306.json --out results/kaggle/dr/summary_mr_vs_dr.md
 ```
+
+`compare_mr_dr.py` only needs the shared row schema (`uid`, `rc_id`, `k_hop`, `response`,
+`ground_truth`), so it compares DR with any other reasoning method without assuming a call flow; it
+drops questions missing on either side and reports the shared `n` for every paired row.
 
 `package.py` refuses to build from a dirty tracked tree so the manifest's code commit matches the code
 that ran. `summarize_dr.py` needs numpy (bootstrap only); run it with the repo venv if the system Python

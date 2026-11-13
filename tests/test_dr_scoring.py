@@ -292,5 +292,67 @@ class SummarizeTests(unittest.TestCase):
             self.assertFalse(payload["complete"])
 
 
+@unittest.skipUnless(HAVE_NUMPY, "compare_mr_dr.py bootstrap needs numpy (use the repo venv)")
+class CompareMethodsTests(unittest.TestCase):
+    def _run(self, a_dir, b_dir, out, b_pattern="OtherReasoning_{mem}_k20.jsonl"):
+        cmd = [sys.executable, os.path.join(EXP, "compare_mr_dr.py"),
+               "--a-dir", a_dir, "--a-label", "DR", "--b-dir", b_dir, "--b-label", "MR",
+               "--b-pattern", b_pattern, "--slice", self._slice, "--out", out]
+        return subprocess.run(cmd, capture_output=True, text=True, cwd=REPO, timeout=600)
+
+    def test_paired_difference_reports_sign_and_shared_n(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            paths, rows = make_tree(tmp)
+            self._slice = paths["slice"]
+            b_dir = os.path.join(tmp, "mr")
+            # MR answers the hop-5 question correctly while DR does not: dEM = 2/3 - 1 = -1/3
+            b_rows = [dict(r) for r in rows["SparseRAG"]]
+            b_rows[1]["response"] = "7"
+            b_rows[1]["ground_truth"] = "7"
+            write_jsonl(os.path.join(b_dir, "OtherReasoning_SparseRAG_k20.jsonl"), b_rows)
+            write_jsonl(os.path.join(b_dir, "OtherReasoning_DenseRAG_k20.jsonl"),
+                        [dict(r) for r in rows["DenseRAG"]])
+            out = os.path.join(tmp, "cmp.md")
+            p = self._run(paths["dr"], b_dir, out)
+            self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+            payload = json.load(open(os.path.join(tmp, "cmp.json"), encoding="utf-8"))
+            overall = payload["paired"]["SparseRAG"]["overall"]
+            self.assertEqual(overall["n"], 3)
+            self.assertAlmostEqual(overall["dEM"], -1 / 3, places=3)   # DR wrong on hop 5, MR right
+            self.assertEqual(payload["paired"]["DenseRAG"]["overall"]["dEM"], 0.0)
+            self.assertIn("## Paired differences (DR minus MR)", open(out, encoding="utf-8").read())
+
+    def test_unequal_coverage_shrinks_the_paired_denominator(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            paths, rows = make_tree(tmp)
+            self._slice = paths["slice"]
+            b_dir = os.path.join(tmp, "mr")
+            write_jsonl(os.path.join(b_dir, "OtherReasoning_SparseRAG_k20.jsonl"),
+                        [dict(r) for r in rows["SparseRAG"][:2]])
+            write_jsonl(os.path.join(b_dir, "OtherReasoning_DenseRAG_k20.jsonl"),
+                        [dict(r) for r in rows["DenseRAG"]])
+            out = os.path.join(tmp, "cmp.md")
+            p = self._run(paths["dr"], b_dir, out)
+            self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+            payload = json.load(open(os.path.join(tmp, "cmp.json"), encoding="utf-8"))
+            self.assertEqual(payload["coverage"]["MR"]["SparseRAG"]["rows"], 2)
+            self.assertEqual(payload["coverage"]["MR"]["SparseRAG"]["missing"], 1)
+            self.assertEqual(payload["paired"]["SparseRAG"]["overall"]["n"], 2)
+
+    def test_no_shared_questions_is_reported_not_crashed(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            paths, _rows = make_tree(tmp)
+            self._slice = paths["slice"]
+            b_dir = os.path.join(tmp, "mr")
+            write_jsonl(os.path.join(b_dir, "OtherReasoning_SparseRAG_k20.jsonl"), [])
+            write_jsonl(os.path.join(b_dir, "OtherReasoning_DenseRAG_k20.jsonl"), [])
+            out = os.path.join(tmp, "cmp.md")
+            p = self._run(paths["dr"], b_dir, out)
+            self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+            payload = json.load(open(os.path.join(tmp, "cmp.json"), encoding="utf-8"))
+            self.assertEqual(payload["paired"]["SparseRAG"], {})
+            self.assertEqual(payload["coverage"]["MR"]["SparseRAG"]["missing"], 3)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

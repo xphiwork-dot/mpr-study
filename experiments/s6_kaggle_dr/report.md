@@ -12,7 +12,7 @@ implementation: every number below was observed.
 | Method | DecompositionReason, faithful to upstream `a24953c` with one documented parser deviation |
 | Model / serving | Qwen2.5-7B-Instruct-AWQ `b25037543e9394b818fdfca67ab2a00ecc7dd641`, vLLM, greedy, 8192 ctx |
 | Retrieval | BM25 (SparseRAG) and e5-base-v2 (DenseRAG), k=20, 306-question `s306` slice |
-| Local tests | `python3 -m unittest discover -s tests` → **53 tests, OK** (6 skip without numpy); the same 53 pass with `.venv/bin/python` |
+| Local tests | `python3 -m unittest discover -s tests` → **56 tests, OK** (9 skip without numpy); the same 56 pass with `.venv/bin/python` |
 | Kaggle GPU quota spent | **0.00 h** (`has_ever_run: false`); 30 h/week allowance untouched |
 | Successful DR rows | **0 / 612** |
 | Blocker | accelerator requests are accepted and then silently not honoured (CPU-only container) |
@@ -84,8 +84,8 @@ the attempt on a setup failure.
 ## 3. What was verified locally (no GPU)
 
 ```
-python3 -m unittest discover -s tests              # 53 tests, OK (6 numpy-dependent skips)
-.venv/bin/python -m unittest discover -s tests     # 53 tests, OK (bootstrap/paired included)
+python3 -m unittest discover -s tests              # 56 tests, OK (9 numpy-dependent skips)
+.venv/bin/python -m unittest discover -s tests     # 56 tests, OK (bootstrap/paired included)
 python3 experiments/s6_kaggle_dr/package.py build  # dataset+kernel staged, manifest hashes, clean tree
 ```
 
@@ -101,7 +101,8 @@ python3 experiments/s6_kaggle_dr/package.py build  # dataset+kernel staged, mani
   runtime projection (per-call latency × calls / worker slots, no more dividing the 612-row token total by
   the 12-row smoke wall clock), and tests for the two result tools (`tests/test_dr_scoring.py`, 11 tests:
   validator row invariants, missing/extra-key reporting, deduplication, paired-comparison denominators and
-  zero-difference CIs). Writing those tests found and fixed two validator crashes on out-of-slice rows.
+  zero-difference CIs, and the DR-vs-MR comparison tool with unequal coverage and no-overlap cases).
+  Writing those tests found and fixed two validator crashes on out-of-slice rows.
 
 ## 4. Costs and artifacts
 
