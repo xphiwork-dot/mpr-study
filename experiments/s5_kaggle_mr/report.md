@@ -78,6 +78,18 @@ node driver (0.32.0 for driver >= 580, 0.11.2 for 525-579), gates on
 evaluation, and writes status/manifest/results to `/kaggle/working`. Locally,
 `monitor_remote.sh` holds the shared lock and downloads the version output.
 
+## Colab fallback (provider switch authorized)
+
+`colab_mr.sh` runs the same committed `kernel.py` on a free Colab T4 under the
+same shared lock. It ships the same private dataset staging, sets
+`MPR_INPUT_ROOT` (checked first by `find_input`), optionally symlinks the
+Kaggle dataset path, refuses to start without `nvidia-smi`, resumes from
+previously downloaded jsonl rows after a preemption, downloads results and
+stops the session. Free Colab is a **single 16 GB T4**, so
+`--gpu-memory-utilization 0.80` and one model replica are unchanged; Colab can
+preempt a session, which the fsynced-row resume handles. Results from this path
+are labeled Colab, not Kaggle.
+
 ## What runs once the accelerator works
 
 ```bash
