@@ -139,9 +139,10 @@ No further probes or submissions were made.
 
 ## 7. UI-executable code shipped in the private dataset (no GPU)
 
-Dataset `phinguynxun/mpr-mr-inputs` v2 adds `kernel.py` (SHA-256
-`82641cb08066c9e2f04a0c35b4ff836b3022316dcfde01523b34acb5c01408d4`, recorded
-in `input_manifest.json`; `git_commit=2132ac7`, `git_dirty=false`, 25 files).
+Dataset `phinguynxun/mpr-mr-inputs` v2 added `kernel.py`; v3 carries the
+current entrypoint (SHA-256
+`095abf934e4f2329264e2e281162b1d2c8757353165f7168961ada0e5732b3ad`, verified by
+downloading that single file; `git_commit=b5734c7`, `git_dirty=false`, 25 files).
 A UI-started private notebook with the dataset attached, internet on and GPU
 T4 x2 can exec the exact committed entrypoint:
 

@@ -59,8 +59,8 @@ verified).
 
 ## UI-started fallback (no push required)
 
-The private dataset now ships `kernel.py` itself (v2, 25 files; `kernel.py`
-SHA-256 `82641cb0...` in `input_manifest.json`). If only the Kaggle UI can
+The private dataset now ships `kernel.py` itself (v3, 25 files; `kernel.py`
+SHA-256 `095abf93...` at commit `b5734c7`, recorded in `input_manifest.json`). If only the Kaggle UI can
 allocate a GPU, open a private notebook with `phinguynxun/mpr-mr-inputs`
 attached, internet on and Accelerator = GPU T4 x2, and run one cell:
 
