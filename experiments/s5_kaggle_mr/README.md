@@ -61,7 +61,7 @@ Consequences for the reference-faithful primary run:
 | Other | no gold answer is passed to the runner; ground truth is attached after the answer returns |
 | Seeds | experiment seed 0; per-question seeds are derived from `uid`, `rc_id`, round and branch, not from scheduling order. No accuracy-driven tuning or unbounded retry-until-distinct. |
 | Hardware budget | exactly one **private** Kaggle GPU job, `NvidiaTeslaT4` (T4 x2 shape), CLI timeout 14,400 s (4 h, the approved cap; the account has a 30 h/week GPU allowance) with a 30 min in-job reserve; embedded smoke + full run in that one job; serialized with the peer through `/home/xphi/.local/state/mpr-study/kaggle-gpu.lock`. 64 workers match `--max-num-seqs 64`. A `check_cuda()` gate fails fast if the allocated torch cannot see a GPU. |
-| Software | vLLM pinned `0.32.0` (matching the prior T4 session), `bm25s==0.2.9`, `sentence-transformers==6.3.0`; actual resolved versions are recorded in the run manifest and `environment.json` |
+| Software | vLLM pinned `0.32.0` (CUDA 13 wheels, matching the prior T4 session) when the node reports driver >= 580, otherwise `0.11.2` (CUDA 12 wheels) for 525 <= driver < 580, and the kernel refuses to run below 525 (`choose_vllm_pin`, tested). `bm25s==0.2.9`, `sentence-transformers==6.3.0`; actual resolved versions are recorded in the run manifest and `environment.json` |
 | Expected rows | 306 unique successful rows per retriever = **612** total; any less is partial/blocked |
 
 ### Why branch calls are sampled
@@ -105,7 +105,7 @@ Before scoring, the following are fixed:
 | File | Role |
 |---|---|
 | `mr.py` | ADAPTED reference flow, safe selector, retrieval wiring, resumable runner, smoke/sanity/coverage gates |
-| `kernel.py` | ORIGINAL TO THIS REPO private Kaggle entrypoint: input verification, pinned clone, pinned install, embedding cache, vLLM, sanity, smoke, full run, manifest/package |
+| `kernel.py` | ORIGINAL TO THIS REPO private Kaggle entrypoint: input verification, pinned clone, driver-aware vLLM install, CUDA gate, embedding cache, vLLM, sanity, smoke, full run, manifest/package. Also shipped inside the private dataset so a UI-started notebook can exec the same code |
 | `pack_mr.py` | ORIGINAL TO THIS REPO explicit-allowlist private dataset staging (flat: Kaggle CLI default dir-mode=skip drops directories) |
 | `run_remote.sh` | ORIGINAL TO THIS REPO push/monitor/download wrapper that holds the shared GPU flock (fd 9) until terminal status and output download finish |
 | `monitor_remote.sh` | ORIGINAL TO THIS REPO same lock/poll/download wrapper without a push, for a version started from the Kaggle UI |

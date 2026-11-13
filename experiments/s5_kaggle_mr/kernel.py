@@ -20,6 +20,7 @@ import importlib.metadata
 import importlib.util
 import json
 import os
+import re
 import shutil
 import signal
 import subprocess
@@ -47,7 +48,9 @@ VLLM_URL = f"http://127.0.0.1:{VLLM_PORT}"
 MODEL = "Qwen/Qwen2.5-7B-Instruct-AWQ"
 MODEL_REVISION = "b25037543e9394b818fdfca67ab2a00ecc7dd641"
 UPSTREAM_COMMIT = "a24953c8f342c9f3b2064e562ead49d477d49138"
-VLLM_PIN = "0.32.0"
+VLLM_PIN_CUDA13 = "0.32.0"   # needs NVIDIA driver >= 580 (CUDA 13 wheels)
+VLLM_PIN_CUDA12 = "0.11.2"   # fallback for 525 <= driver < 580 (CUDA 12 wheels)
+VLLM_PIN = VLLM_PIN_CUDA13
 BM25S_PIN = "0.2.9"
 ST_PIN = "6.3.0"
 WORKERS = 64        # matches vLLM --max-num-seqs so the server batch stays full
@@ -216,15 +219,17 @@ def clone_upstream():
     return up
 
 
-def ensure_packages():
+def ensure_packages(vllm_pin=None):
+    vllm_pin = vllm_pin or VLLM_PIN
+
     def installed_version(mod, dist):
         if importlib.util.find_spec(mod) is None:
             return None
         return package_version(dist)
 
     need = []
-    if installed_version("vllm", "vllm") != VLLM_PIN:
-        need.append(f"vllm=={VLLM_PIN}")
+    if installed_version("vllm", "vllm") != vllm_pin:
+        need.append(f"vllm=={vllm_pin}")
     if installed_version("bm25s", "bm25s") != BM25S_PIN:
         need.append(f"bm25s=={BM25S_PIN}")
     if installed_version("sentence_transformers", "sentence-transformers") != ST_PIN:
@@ -250,6 +255,32 @@ def package_version(name):
         return importlib.metadata.version(name)
     except importlib.metadata.PackageNotFoundError:
         return None
+
+
+def parse_driver_major(text):
+    """Major NVIDIA driver version from ``nvidia-smi --query-gpu=...,driver_version``."""
+    for row in (text or "").splitlines():
+        parts = [p.strip() for p in row.split(",")]
+        if len(parts) < 4:
+            continue
+        m = re.match(r"(\d+)\.", parts[-1])
+        if m:
+            return int(m.group(1))
+    return None
+
+
+def choose_vllm_pin(driver_major):
+    """Pick the vLLM/Torch wheel family that can run on this driver."""
+    if driver_major is None:
+        return VLLM_PIN_CUDA13
+    if driver_major >= 580:
+        return VLLM_PIN_CUDA13
+    if driver_major >= 525:
+        return VLLM_PIN_CUDA12
+    raise RuntimeError(
+        f"NVIDIA driver {driver_major}.x is too old for the CUDA 12/13 wheels "
+        f"(need >= 525); refusing to spend the session"
+    )
 
 
 def gpu_info():
@@ -360,7 +391,8 @@ def run_mr(code_dir, args, e, timeout):
     return run_stream(cmd, env=e, timeout=timeout, check=False, tag="mr " + " ".join(args[:2]))
 
 
-def gather_manifest(input_root, input_manifest, slice_path, up, code_dir, env_info, gates):
+def gather_manifest(input_root, input_manifest, slice_path, up, code_dir, env_info, gates,
+                    vllm_pin=None):
     if code_dir not in sys.path:
         sys.path.insert(0, code_dir)
     import mr
@@ -384,7 +416,7 @@ def gather_manifest(input_root, input_manifest, slice_path, up, code_dir, env_in
         "model": {"repo": MODEL, "revision": MODEL_REVISION, "served_name": "qwen",
                   "dtype": "float16", "quantization": "awq", "max_model_len": 8192,
                   "gpu_memory_utilization": 0.80, "max_num_seqs": 64,
-                  "tensor_parallel_size": 1, "vllm": VLLM_PIN},
+                  "tensor_parallel_size": 1, "vllm": vllm_pin or VLLM_PIN},
         "embedding": emb,
         "slice": {"path": os.path.basename(slice_path), "sha256": sha256_file(slice_path),
                   "meta": slice_meta},
@@ -455,10 +487,13 @@ def main():
             raise RuntimeError("no GPU allocated")
         vllm_gpu = "0"
         main_gpu = "1" if gpu["count"] >= 2 else ""
-        log(f"allocation: vLLM GPU={vllm_gpu}, retrieval/query encoder GPU={main_gpu or 'CPU'}")
+        driver_major = parse_driver_major(gpu.get("nvidia_smi", ""))
+        vllm_pin = choose_vllm_pin(driver_major)
+        log(f"allocation: vLLM GPU={vllm_gpu}, retrieval/query encoder GPU={main_gpu or 'CPU'}, "
+            f"driver major={driver_major}, vllm pin={vllm_pin}")
 
         up = clone_upstream()
-        ensure_packages()
+        ensure_packages(vllm_pin)
         cuda_info = check_cuda()
         # Make the pinned prompt file visible to the in-process gate helpers too.
         os.environ["MPR_PROMPTS"] = os.path.join(up, "baselines", "prompts.py")
@@ -470,6 +505,8 @@ def main():
                 "vllm", "torch", "transformers", "sentence-transformers", "bm25s",
                 "numpy", "tokenizers", "huggingface-hub", "accelerate", "safetensors")},
             "gpu": gpu,
+            "driver_major": driver_major,
+            "vllm_pin": vllm_pin,
             "cuda": cuda_info,
             "allocation": {"vllm_gpu": vllm_gpu, "main_gpu": main_gpu or "cpu"},
         }
@@ -554,7 +591,7 @@ def main():
             "elapsed_s": round(time.time() - START, 1),
         })
         manifest = gather_manifest(input_root, input_manifest, slice_path, up, code_dir,
-                                  env_info, gates)
+                                  env_info, gates, vllm_pin)
         write_json(os.path.join(OUT, "manifest.json"), manifest)
         write_json(os.path.join(OUT, "status.json"), status)
         log("status: " + json.dumps(status, indent=2)[:4000])

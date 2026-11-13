@@ -5,7 +5,7 @@ The staged folder contains only:
   question_answer_{0..11}.json                      (released dataset memory/QA)
   s306.json                                         (frozen evaluation slice)
   s1_*.jsonl, s2_*.jsonl                            (committed NR/SR rows, sanity + local analysis)
-  mr.py, lib.py, score.py                           (runner + reused helpers)
+  mr.py, lib.py, score.py, kernel.py                (runner, reused helpers, runnable entrypoint)
   input_manifest.json                               (hashes/revisions)
   dataset-metadata.json                             (private dataset metadata)
 
@@ -86,6 +86,7 @@ def main():
             if name.endswith(".jsonl") and name != "timing.jsonl":
                 add(os.path.join(ROOT, "results", "t4", tag, name), f"{tag}_{name}")
     add(os.path.join(HERE, "mr.py"), "mr.py")
+    add(os.path.join(HERE, "kernel.py"), "kernel.py")
     add(os.path.join(ROOT, "experiments", "_shared", "lib.py"), "lib.py")
     add(os.path.join(ROOT, "experiments", "_shared", "score.py"), "score.py")
 
@@ -116,9 +117,10 @@ def main():
         "description": (
             "Private allowlisted inputs for the MR (StructuredReason) Kaggle experiment. "
             "Contains the released MPR question_answer files, the frozen s306 slice, "
-            "committed NR/SR baseline rows, and the experiment-local runner code. "
-            "Upstream MPR source and prompt templates are not included; the kernel clones "
-            "the pinned upstream commit at runtime."
+            "committed NR/SR baseline rows, and the experiment-local runner code, "
+            "including kernel.py so a UI-started notebook can exec the exact committed "
+            "entrypoint. Upstream MPR source and prompt templates are not included; the "
+            "kernel clones the pinned upstream commit at runtime."
         ),
     }
     with open(os.path.join(out, "dataset-metadata.json"), "w", encoding="utf-8") as f:

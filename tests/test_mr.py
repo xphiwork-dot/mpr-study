@@ -465,3 +465,31 @@ class KernelMountTest(unittest.TestCase):
                 self.kernel.find_input(wait_s=0)
         finally:
             os.walk = real_walk
+
+
+class KernelDriverPinTest(unittest.TestCase):
+    """vLLM wheels are CUDA 13 by default; older drivers need the CUDA 12 pin."""
+
+    def setUp(self):
+        import importlib.util
+
+        path = os.path.join(ROOT, "experiments", "s5_kaggle_mr", "kernel.py")
+        spec = importlib.util.spec_from_file_location("mr_kaggle_kernel_pins", path)
+        self.kernel = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(self.kernel)
+
+    def test_parse_driver_major(self):
+        text = "0, Tesla T4, 15360 MiB, 580.65.06\n1, Tesla T4, 15360 MiB, 580.65.06"
+        self.assertEqual(self.kernel.parse_driver_major(text), 580)
+        self.assertEqual(self.kernel.parse_driver_major("0, Tesla T4, 15360 MiB, 470.82.01"), 470)
+        self.assertIsNone(self.kernel.parse_driver_major(""))
+        self.assertIsNone(self.kernel.parse_driver_major("nvidia-smi failed"))
+
+    def test_choose_pin_by_driver(self):
+        self.assertEqual(self.kernel.choose_vllm_pin(580), "0.32.0")
+        self.assertEqual(self.kernel.choose_vllm_pin(600), "0.32.0")
+        self.assertEqual(self.kernel.choose_vllm_pin(570), "0.11.2")
+        self.assertEqual(self.kernel.choose_vllm_pin(525), "0.11.2")
+        self.assertEqual(self.kernel.choose_vllm_pin(None), "0.32.0")
+        with self.assertRaisesRegex(RuntimeError, "too old"):
+            self.kernel.choose_vllm_pin(470)
