@@ -493,3 +493,7 @@ class KernelDriverPinTest(unittest.TestCase):
         self.assertEqual(self.kernel.choose_vllm_pin(None), "0.32.0")
         with self.assertRaisesRegex(RuntimeError, "too old"):
             self.kernel.choose_vllm_pin(470)
+
+    def test_fallback_pin_is_one_shot(self):
+        self.assertEqual(self.kernel.fallback_vllm_pin("0.32.0"), "0.11.2")
+        self.assertIsNone(self.kernel.fallback_vllm_pin("0.11.2"))

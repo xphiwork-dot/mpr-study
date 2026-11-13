@@ -283,6 +283,17 @@ def choose_vllm_pin(driver_major):
     )
 
 
+def fallback_vllm_pin(primary):
+    """Alternate wheel family to try if the primary install cannot serve.
+
+    CUDA 13 wheels need driver >= 580; the CUDA 12 pin still runs on newer
+    drivers, so it is a safe one-shot fallback there.  The reverse is not true.
+    """
+    if primary == VLLM_PIN_CUDA13:
+        return VLLM_PIN_CUDA12
+    return None
+
+
 def gpu_info():
     try:
         text = subprocess.check_output(
@@ -345,7 +356,11 @@ def start_vllm(env, gpu):
     p = subprocess.Popen(cmd, stdout=f, stderr=subprocess.STDOUT, text=True,
                          env=venv, start_new_session=True)
     p._log_file = f  # type: ignore[attr-defined]
-    wait_health(p)
+    try:
+        wait_health(p)
+    except Exception:
+        stop_vllm(p)
+        raise
     return p
 
 
@@ -529,7 +544,20 @@ def main():
         log("embedding cache ready")
 
         main_env = mr_env(input_root, up, base_env, cuda=main_gpu)
-        proc = start_vllm(base_env, vllm_gpu)
+        try:
+            proc = start_vllm(base_env, vllm_gpu)
+        except Exception as e:  # noqa: BLE001 - one bounded retry with the other wheel family
+            alt = fallback_vllm_pin(vllm_pin)
+            if alt is None:
+                raise
+            log(f"vLLM failed with pin {vllm_pin} ({e!r}); retrying with {alt}")
+            ensure_packages(alt)
+            vllm_pin = alt
+            cuda_info = check_cuda()
+            env_info["vllm_pin"] = vllm_pin
+            env_info["cuda"] = cuda_info
+            write_json(os.path.join(RUN, "environment.json"), env_info)
+            proc = start_vllm(base_env, vllm_gpu)
         log("vLLM ready")
 
         sanity_rc, _ = run_mr(code_dir, [
