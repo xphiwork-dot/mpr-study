@@ -173,6 +173,17 @@ class KernelStagingTests(unittest.TestCase):
         self.assertEqual(km.project_full_run(rows, 42, remaining_secs=100)["decision"],
                          "do_not_start_full_run")
 
+    def test_serve_plan_tries_the_installed_pin_first_then_the_others_once(self):
+        """A pin that imports is not proof it can serve the GPU; serve may downgrade inside the session."""
+        km = load_kernel()
+        self.assertEqual(km.serve_spec_plan("vllm==0.32.0",
+                                            ["vllm==0.32.0", "vllm==0.11.2", "vllm==0.10.2"]),
+                         ["vllm==0.32.0", "vllm==0.11.2", "vllm==0.10.2"])
+        self.assertEqual(km.serve_spec_plan("vllm==0.10.2", ["vllm==0.11.2", "vllm==0.10.2"]),
+                         ["vllm==0.10.2", "vllm==0.11.2"])
+        self.assertEqual(km.serve_spec_plan("unknown", ["vllm==0.11.2"]), ["vllm==0.11.2"])
+        self.assertEqual(km.serve_spec_plan("vllm==0.11.2", None), ["vllm==0.11.2"])
+
     def test_sanity_gate_thresholds_follow_engine_parity(self):
         """A CUDA-12 vLLM pin must not fail the deployment gate purely on a token-level text difference."""
         km = load_kernel()

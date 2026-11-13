@@ -326,6 +326,30 @@ def _importable(probed, name):
     return bool(v) and not str(v).startswith("IMPORT")
 
 
+def install_vllm_spec(spec, logfile):
+    """pip-install one vLLM pin and confirm `vllm` and `torch` import in a separate process."""
+    t = time.time()
+    p = run_cmd([sys.executable, "-m", "pip", "install", "-q", spec], logfile, timeout=1500, check=False)
+    probed, _prc = probe_versions(["vllm", "torch"])
+    ok = p.returncode == 0 and _importable(probed, "vllm") and _importable(probed, "torch")
+    return ok, {"target": spec, "rc": p.returncode, "secs": round(time.time() - t, 1),
+                "probe": probed, "usable": ok}
+
+
+def serve_spec_plan(installed, candidates):
+    """Ordered vLLM pins to try when bringing the server up: the installed one first, then the others.
+
+    Installing a vLLM pin that imports is not proof that it can serve this GPU (a CUDA-13 build can import
+    on a driver that cannot run its kernels, and a new engine may drop a compute capability), so the serve
+    stage may downgrade once inside the same session instead of failing the single GPU attempt.
+    """
+    out = []
+    for spec in [installed] + list(candidates or []):
+        if spec and spec != "unknown" and spec not in out:
+            out.append(spec)
+    return out
+
+
 def vllm_specs(driver_major):
     """Ordered vLLM pins: CUDA-13 builds (0.32.0, the historical T4 version) need driver >= 580."""
     if driver_major is not None and driver_major >= 580:
@@ -418,20 +442,16 @@ def stage_deps():
         # The historical T4 sessions used vLLM 0.32.0 (results/t4/timing_log.md), so it is tried first only
         # when this GPU's driver can run CUDA 13; otherwise the newest CUDA-12-compatible pin is used and
         # the deviation is recorded in deps.json.
-        for spec in vllm_specs(driver_major):
-            t = time.time()
+        specs = vllm_specs(driver_major)
+        for spec in specs:
             log(f"vllm missing: pip install {spec} (driver major {driver_major})")
-            p = run_cmd([sys.executable, "-m", "pip", "install", "-q", spec], logfile,
-                        timeout=1500, check=False)
-            probed, _prc = probe_versions(["vllm", "torch"])
-            ok = p.returncode == 0 and _importable(probed, "vllm") and _importable(probed, "torch")
-            attempts.append({"target": spec, "rc": p.returncode, "secs": round(time.time() - t, 1),
-                             "probe": probed, "usable": ok})
+            ok, info = install_vllm_spec(spec, logfile)
+            attempts.append(info)
             if ok:
                 installs.append(spec)
                 break
-            log(f"{spec} unusable (rc={p.returncode}, vllm={probed.get('vllm')!r}, "
-                f"torch_cuda={probed.get('_torch_cuda_build')!r}); trying the next CUDA-compatible pin")
+            log(f"{spec} unusable (rc={info['rc']}, vllm={info['probe'].get('vllm')!r}, "
+                f"torch_cuda={info['probe'].get('_torch_cuda_build')!r}); trying the next CUDA-compatible pin")
         if not any(a.get("usable") for a in attempts if a.get("target", "").startswith("vllm")):
             raise RuntimeError(f"could not install a CUDA-compatible vLLM (see {logfile})")
 
@@ -439,7 +459,8 @@ def stage_deps():
     versions, rc = probe_versions(["vllm", "torch", "transformers", "sentence_transformers", "bm25s",
                                    "numpy", "scipy"])
     deps = {"before": before, "installs": installs, "attempts": attempts, "versions": versions,
-            "probe_rc": rc, "pip_versions": pip_versions(tracked), "driver_major": driver_major}
+            "probe_rc": rc, "pip_versions": pip_versions(tracked), "driver_major": driver_major,
+            "vllm_candidates": vllm_specs(driver_major)}
     write_json(os.path.join(WORK, "deps.json"), deps)
     for mod in ("vllm", "torch", "transformers", "sentence_transformers", "bm25s"):
         if str(versions.get(mod, "")).startswith("IMPORT"):
@@ -638,20 +659,37 @@ def stage_serve():
                                    "VLLM_USE_FLASHINFER_SAMPLER": "0"}, 600),
     ]
     logfile = os.path.join(WORK, "vllm.log")
-    out = {"gpu_free_mb_before": _gpu_free_mb(), "attempts": []}
-    for label, cmd, env, wait_s in attempts:
-        log(f"vLLM attempt {label} (wait up to {wait_s}s)")
-        ok, info = _serve_attempt(label, cmd, env, logfile, wait_s)
-        out["attempts"].append(info)
-        if ok:
-            out.update({k: v for k, v in info.items() if k != "attempts"})
-            out["used"] = label
-            write_json(os.path.join(WORK, "server.json"), out)
-            log(f"vLLM healthy via {label} after {info['health_after_s']}s")
-            return out
-        log(f"vLLM attempt {label} failed: {info.get('last_error')} died={info.get('died')}")
+    deps = {}
+    try:
+        deps = json.load(open(os.path.join(WORK, "deps.json"), encoding="utf-8"))
+    except Exception:  # noqa: BLE001
+        pass
+    installed = (deps.get("versions") or {}).get("vllm") or "unknown"
+    plan = serve_spec_plan(installed, deps.get("vllm_candidates") or vllm_specs(driver_major_version()))
+    out = {"gpu_free_mb_before": _gpu_free_mb(), "pins": [], "attempts": []}
+    for spec in plan:
+        if spec != installed:
+            log(f"serve: switching vLLM from {installed} to {spec}")
+            ok, pin = install_vllm_spec(spec, logfile)
+            out["pins"].append(pin)
+            if not ok:
+                log(f"serve: {spec} is not importable (rc={pin['rc']}); skipping")
+                continue
+            installed = spec
+        for label, cmd, env, wait_s in attempts:
+            log(f"vLLM attempt {label} with {spec} (wait up to {wait_s}s)")
+            ok, info = _serve_attempt(f"{label}@{spec}", cmd, env, logfile, wait_s)
+            out["attempts"].append(info)
+            if ok:
+                out.update({k: v for k, v in info.items() if k != "attempts"})
+                out["used"] = f"{label}@{spec}"
+                out["vllm"] = spec
+                write_json(os.path.join(WORK, "server.json"), out)
+                log(f"vLLM healthy via {label}@{spec} after {info['health_after_s']}s")
+                return out
+            log(f"vLLM attempt {label}@{spec} failed: {info.get('last_error')} died={info.get('died')}")
     write_json(os.path.join(WORK, "server.json"), out)
-    raise RuntimeError("vLLM did not become healthy with either configuration; see vllm.log")
+    raise RuntimeError("vLLM did not become healthy with any configuration/pin; see vllm.log")
 
 
 def stage_divide_gate():

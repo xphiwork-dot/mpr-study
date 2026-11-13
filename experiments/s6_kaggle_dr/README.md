@@ -250,6 +250,27 @@ drops questions missing on either side and reports the shared `n` for every pair
 that ran. `summarize_dr.py` needs numpy (bootstrap only); run it with the repo venv if the system Python
 has none.
 
+### UI-started session (fallback when API pushes get no accelerator)
+
+On 2026-11-13 the account's API/CLI pushes (`kaggle kernels push --accelerator NvidiaTeslaT4`, script and
+notebook, all request shapes) ran CPU-only while the server stored the GPU settings (see (e1) and
+`results/kaggle/dr/gpu_availability/`). If an interactive Kaggle session *does* get a T4, run the same code
+there without pasting it: the private dataset now also carries `kernel.py` (identical to the pushed
+kernel's `code_file`, hash in `manifest.json`). In the UI notebook, one cell is enough:
+
+```python
+import glob, shutil, subprocess, sys
+src = glob.glob("/kaggle/input/**/kernel.py", recursive=True)[0]   # works for both mount layouts
+shutil.copyfile(src, "/kaggle/working/kernel.py")
+sys.exit(subprocess.call([sys.executable, "-u", "/kaggle/working/kernel.py"]))
+```
+
+Attach the private dataset `phinguynxun/mpr-dr-inputs`, enable internet, pick T4. The job self-caps at
+9000 s (`SESSION_TIMEOUT_S`, watchdog exit 600 s before that, stop-submitting 1200 s before), writes
+`status.json`/`DONE`/evidence to `/kaggle/working`, and the same validation/scoring commands below apply
+after downloading the output. Hold the shared GPU lock for the session's duration exactly as
+`kaggle_run.sh` does, and keep the capped scope and hash checks unchanged.
+
 ## (g) Results
 
 **Blocked: no accelerator on the shared Kaggle account; 0 of 612 rows, no metric reported.** See

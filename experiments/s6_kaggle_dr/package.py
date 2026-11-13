@@ -114,7 +114,10 @@ def build():
     for name, src in (("dr.py", os.path.join(HERE, "dr.py")),
                       ("lib.py", os.path.join(REPO, "experiments", "_shared", "lib.py")),
                       ("score.py", os.path.join(REPO, "experiments", "_shared", "score.py")),
-                      ("settings.json", os.path.join(HERE, "settings.json"))):
+                      ("settings.json", os.path.join(HERE, "settings.json")),
+                      # same committed file as the pushed kernel's code_file, so a UI-started session can
+                      # run this exact code without pasting it; the manifest hash covers it too
+                      ("kernel.py", os.path.join(HERE, "kernel.py"))):
         add(src, name)
     for mem in ("SparseRAG", "DenseRAG"):
         src = os.path.join(REPO, "results", "t4", "s1", f"NaiveReason_{mem}_k20.jsonl")

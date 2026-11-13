@@ -122,6 +122,19 @@ python3 experiments/s6_kaggle_dr/package.py build  # dataset+kernel staged, mani
 
 ## 6. Resume procedure (when an accelerator is available)
 
+If API/CLI pushes are still being downgraded to CPU after verification, run the same committed code in an
+**interactive** notebook (the private dataset now carries `kernel.py`, hash-covered by the manifest):
+
+```python
+import glob, shutil, subprocess, sys
+src = glob.glob("/kaggle/input/**/kernel.py", recursive=True)[0]
+shutil.copyfile(src, "/kaggle/working/kernel.py")
+sys.exit(subprocess.call([sys.executable, "-u", "/kaggle/working/kernel.py"]))
+```
+
+with the dataset attached, internet on, T4 selected, and the shared lock held for the session; the code
+enforces the same 9000 s cap, hashes and gates.
+
 ```bash
 # 0. confirm the account now gets a device (2 min, no full job)
 kaggle kernels push -p build/kaggle/dr_gpuprobe --accelerator NvidiaTeslaT4
