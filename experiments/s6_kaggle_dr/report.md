@@ -12,7 +12,7 @@ implementation: every number below was observed.
 | Method | DecompositionReason, faithful to upstream `a24953c` with one documented parser deviation |
 | Model / serving | Qwen2.5-7B-Instruct-AWQ `b25037543e9394b818fdfca67ab2a00ecc7dd641`, vLLM, greedy, 8192 ctx |
 | Retrieval | BM25 (SparseRAG) and e5-base-v2 (DenseRAG), k=20, 306-question `s306` slice |
-| Local tests | `python3 -m unittest discover -s tests` → **56 tests, OK** (9 skip without numpy); the same 56 pass with `.venv/bin/python` |
+| Local tests | `python3 -m unittest discover -s tests` → **57 tests, OK** (9 skip without numpy); the same 57 pass with `.venv/bin/python` |
 | Kaggle GPU quota spent | **0.00 h** (`has_ever_run: false`); 30 h/week allowance untouched |
 | Successful DR rows | **0 / 612** |
 | Blocker | accelerator requests are accepted and then silently not honoured (CPU-only container) |
@@ -49,7 +49,8 @@ failure-message and foreign-manifest tests.
 ## 2. Attempt 2 was prepared, then stopped on a hard blocker: no accelerator
 
 The corrected job (mount fix + driver-aware vLLM pin + a 2.5 h session cap) was built and its private
-input dataset updated to version 2, but was **not** pushed: four independent accelerator probes proved
+input dataset updated to version 2 (later 3 and 4, the last one adding `kernel.py` for UI-started sessions)
+but was **not** pushed: four independent accelerator probes proved
 that this account receives no GPU at all.
 
 | Probe | Kernel | Request | Result |
@@ -84,8 +85,8 @@ the attempt on a setup failure.
 ## 3. What was verified locally (no GPU)
 
 ```
-python3 -m unittest discover -s tests              # 56 tests, OK (9 numpy-dependent skips)
-.venv/bin/python -m unittest discover -s tests     # 56 tests, OK (bootstrap/paired included)
+python3 -m unittest discover -s tests              # 57 tests, OK (9 numpy-dependent skips)
+.venv/bin/python -m unittest discover -s tests     # 57 tests, OK (bootstrap/paired included)
 python3 experiments/s6_kaggle_dr/package.py build  # dataset+kernel staged, manifest hashes, clean tree
 ```
 
@@ -107,7 +108,7 @@ python3 experiments/s6_kaggle_dr/package.py build  # dataset+kernel staged, mani
 ## 4. Costs and artifacts
 
 * GPU: 0.00 h used, 0.00 h reserved. CPU-only probe kernels: seconds each.
-* Private dataset `phinguynxun/mpr-dr-inputs` version 2 (after v1), private kernel
+* Private dataset `phinguynxun/mpr-dr-inputs` version 4 (v1..v4; v4 adds `kernel.py` for UI sessions), private kernel
   `phinguynxun/mpr-dr-reasoning` version 1 (failed setup, preserved) and four private probe kernels.
 * No credentials, tokens, embedding caches or model weights were committed. The probe JSONs that printed
   per-session `KAGGLE_*` tokens were sanitized before being stored.
