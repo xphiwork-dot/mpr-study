@@ -122,7 +122,10 @@ The NR/SR scorer path is verified on real rows, not only on fixtures: re-scoring
 ## 4. Costs and artifacts
 
 * GPU: 0.00 h used, 0.00 h reserved. CPU-only probe kernels: seconds each.
-* Private dataset `phinguynxun/mpr-dr-inputs` version 4 (v1..v4; v4 adds `kernel.py` for UI sessions), private kernel
+* Private dataset `phinguynxun/mpr-dr-inputs` version 4 (v1..v4; v4 adds `kernel.py` for UI sessions and
+  is live: 20 files, `manifest.json` `code_commit` a427c09, `kernel.py` sha256
+  `a22c7648f5f90c30f1926acf81469fba18dd9feeb53af536af1ecd4798229f26` = the committed file; later commits
+  are docs/results only, so the shipped code hash is unchanged), private kernel
   `phinguynxun/mpr-dr-reasoning` version 1 (failed setup, preserved) and four private probe kernels.
 * No credentials, tokens, embedding caches or model weights were committed. The probe JSONs that printed
   per-session `KAGGLE_*` tokens were sanitized before being stored.
