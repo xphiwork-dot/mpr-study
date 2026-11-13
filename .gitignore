@@ -10,6 +10,10 @@ results/*
 !results/laptop/
 results/**/*.log
 __pycache__/
+.agents/skills/
+docs/*.delivery.json
+docs/*.finalize.json
+docs/*.finalize-summary.json
 # T4 runs: keep raw jsonl, summaries and slices; drop the resume tarball, VM logs, adapters and per-user partials
 results/t4/vm_results.tgz
 results/t4/logs/

@@ -10,6 +10,9 @@ and a toy LoRA / HybridMem run on a laptop. The goal is to understand the paper'
 
 1. Read the paper (arXiv v1): `papers/2508.13250v1.pdf`.
 2. Open `docs/index.html` (the study guide: paper in 60 seconds, glossary, 4 flow charts, quizzes, talk plan, and section 10 "Verification against the paper": claim-by-claim verdicts).
+   Start with [`docs/experiment-overview.html`](docs/experiment-overview.html) for paper-wide coverage, Colab feasibility, experiment dependencies, and presentation choices.
+   Use [`docs/reproduction-audit.html`](docs/reproduction-audit.html) for completed results and the E1-E5 / N1-N6 plans linked to paper figures and controls.
+   Editable report sources are `.archify/mpr-overview/candidate.archify.md` and `.archify/mpr-reproduction/candidate.archify.md` (see [report rebuilding](#rebuild-the-visual-reports)).
 3. Pick an experiment below and read its folder README: the paper experiment it relates to, what we ran, a code walkthrough, a provenance table, how to run, the outcome.
 4. Read `docs/reproduction-status.md` (what is reproduced, with evidence) and skim `docs/upstream-notes.md` (upstream gaps and bugs).
 
@@ -89,3 +92,25 @@ here: `setup.sh` clones it at commit `a24953c` into the gitignored `upstream/` a
 Zhang, Zhang, Tan, Li, Chen. "Explicit v.s. Implicit Memory: Exploring Multi-hop Complex Reasoning Over
 Personalized Information". KDD '26, pp. 1964-1974. DOI 10.1145/3770854.3780184. arXiv 2508.13250.
 The analysis here used arXiv v1 (2508.13250v1); check the KDD camera-ready for changes before presenting.
+
+## Rebuild the visual reports
+
+The HTML files are standalone; opening them does not require Archify. Source citations freeze the repository evidence used during rendering.
+
+Install Archify project-locally (the installed package itself is not vendored):
+
+```bash
+npx -y skills@latest add https://archify.si --skill archify --agent codex --copy --yes
+```
+
+Apply `.archify/archify-report.patch` once to the installed Archify 3.2 layout: it wraps the mobile toolbar and allows narrowly scoped sibling-report / paper-PDF links. An updated package may need the patch rebased; do not force it if the context differs.
+
+```bash
+git apply --check .archify/archify-report.patch
+git apply .archify/archify-report.patch
+node .agents/skills/archify/bin/archify.mjs finalize explainer .archify/mpr-reproduction/candidate.archify.md docs/reproduction-audit.html --repo-root . --json
+node .agents/skills/archify/bin/archify.mjs finalize explainer .archify/mpr-overview/candidate.archify.md docs/experiment-overview.html --repo-root . --json
+```
+
+Run the two render commands sequentially. Already applied? `git apply --reverse --check .archify/archify-report.patch` confirms the local patch without changing it.
+Delivery receipts are local verification artifacts, not committed documentation. Verify the two HTML pages and cross-links in a browser after rebuilding.
