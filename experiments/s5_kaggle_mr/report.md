@@ -81,6 +81,19 @@ the full 306 x {BM25, e5} evaluation, or stops at the failing gate. The
 `report.md` will be rewritten with the real counts, scores and paired
 comparisons after that run.
 
+## Commits on `experiments/mr-kaggle`
+
+| Commit | Content |
+|---|---|
+| `c1ad941` | dataset metadata filename fix (pre-existing) |
+| `c22e0f8` | nested dataset mount resolution, `check_cuda` fail-fast, 64 workers, mount tests |
+| `3158757` | blocker report and run log |
+| `c7ca90c` | `run_remote.sh` lock held through monitoring/download; qualified blocker cause; 4 h cap |
+| `e7ea092` | local stub-model end-to-end wiring check |
+| `66989fc` | sanitized post-confirmation CPU-only probe matrix |
+| `1254cfb` | post-confirmation re-check in this report |
+| `d73e01a` | `monitor_remote.sh` for a UI-started run |
+
 ## Reproducibility notes
 
 - Frozen settings: `README.md` (b). Method/deviation labels: `README.md` (d).
