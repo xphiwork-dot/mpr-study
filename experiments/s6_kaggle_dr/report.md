@@ -63,10 +63,17 @@ Server-side saved metadata for all four carries `enable_gpu: true` and
 `machine_shape: NvidiaTeslaT4` (`results/kaggle/dr/gpu_availability/metadata/`), so the request was
 accepted; the runtime simply ignored it. Every session ran `RUNNING → COMPLETE` in ~20 s on CPU, and
 `kaggle quota` stayed `GPU used 0.00h`, `quota_view().gpu_quota.time_used = 0`, `has_ever_run = false`
-(`results/kaggle/dr/gpu_availability/quota_view.json`). A GPU capacity shortage queues a session rather
-than silently downgrading it, and the image-pin variant rules out the known pinning pitfall. The MR worker
-independently reproduced the same result for GPU and TPU (`TpuV5E8` sessions without `/dev/accel*` or
-libtpu). The pattern matches Kaggle's one-time phone/identity verification requirement for accelerators.
+(`results/kaggle/dr/gpu_availability/quota_view.json`, raw endpoint response in `quota_api_raw.json`:
+`totalTimeAllowed` 108000 s, `timeUsed` 0, `hasEverRun` false). A GPU capacity shortage queues a session
+rather than silently downgrading it, and the image-pin variant rules out the known pinning pitfall. The MR
+worker independently reproduced the same result for GPU and TPU (`TpuV5E8` sessions without `/dev/accel*`
+or libtpu).
+
+What is **established** is that this account is not being given an accelerator while it holds an unused
+30 h/week GPU allowance and the server accepts its GPU settings. What is **not** established from
+CLI/runtime evidence alone is the cause: an account-side eligibility requirement (Kaggle requires one-time
+phone/identity verification for accelerators) or a platform-side allocation problem are both consistent
+with the observations, and only the account owner or Kaggle support can distinguish them.
 
 Why this stops the run instead of degrading: the frozen deployment is a T4 vLLM server
 (`--quantization awq`, fp16 compute, 8192 context) that the NR/SR baselines were measured on; a CPU-only
@@ -141,8 +148,9 @@ sanity, runtime projection) all run before the full evaluation and stop it on fa
 
 ## 7. Required user action
 
-1. Phone/identity-verify the `phinguynxun` Kaggle account (<https://www.kaggle.com/settings>), then resume
-   with §6; **or**
+1. Check/complete phone/identity verification of the `phinguynxun` Kaggle account
+   (<https://www.kaggle.com/settings>) — the most likely account-side cause — and/or open a Kaggle support
+   ticket with the probe evidence; then rerun the 2-minute probe in §6 against a real device; **or**
 2. explicitly authorize a different T4 provider for the frozen deployment (the repo already has the
    Colab T4 vLLM 0.32.0 recipe used by the earlier sessions); that is outside the current authorization.
 

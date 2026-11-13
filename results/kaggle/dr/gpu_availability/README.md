@@ -31,9 +31,12 @@ The failure is account-level, not a code or metadata problem:
   (`mpr-mr-mount-probe`, notebook, TPU) reproduce it, including `TpuV5E8` sessions without
   `/dev/accel*` or `libtpu`.
 
-The observable matches Kaggle's one-time phone/identity verification requirement for accelerator use:
-the account has never had an accelerator session (`hasEverRun: false`) yet the CLI reports a nominal GPU
-allowance, and push-time requests are accepted without error.
+Established: this account is not being given an accelerator while holding an unused 30 h/week GPU
+allowance (`GET /api/v1/kernels/quota`: `totalTimeAllowed` 108000 s, `timeUsed` 0, `hasEverRun` false; raw
+response in `quota_api_raw.json`) and while the server accepts its GPU settings. Not established from
+CLI/runtime evidence alone: the cause. An account-side eligibility requirement (Kaggle requires one-time
+phone/identity verification for accelerators) and a platform-side allocation problem are both consistent
+with the observations.
 
 ## What this blocks
 
