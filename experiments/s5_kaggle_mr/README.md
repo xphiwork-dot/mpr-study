@@ -109,6 +109,7 @@ Before scoring, the following are fixed:
 | `pack_mr.py` | ORIGINAL TO THIS REPO explicit-allowlist private dataset staging (flat: Kaggle CLI default dir-mode=skip drops directories) |
 | `run_remote.sh` | ORIGINAL TO THIS REPO push/monitor/download wrapper that holds the shared GPU flock (fd 9) until terminal status and output download finish |
 | `monitor_remote.sh` | ORIGINAL TO THIS REPO same lock/poll/download wrapper without a push, for a version started from the Kaggle UI |
+| `colab_mr.sh` | ORIGINAL TO THIS REPO Colab T4 fallback driver: holds the shared lock, stages the same private dataset at the path `kernel.py` resolves, runs the exact entrypoint, downloads outputs and stops the session |
 | `kernel-metadata.json` | private kernel metadata (`phinguynxun/mpr-mr-reasoning`), private dataset `phinguynxun/mpr-mr-inputs` |
 | `analyze_mr.py` | ORIGINAL TO THIS REPO scoring/comparison report from raw rows |
 | `../../tests/test_mr.py` | stdlib tests: upstream mock parity, buffer semantics, parsing, seeds, duplicates, no gold leak, cut-tail resume, reused grid regression |
@@ -161,6 +162,10 @@ experiments/s5_kaggle_mr/run_remote.sh results/kaggle/mr/_kaggle_out
 # alternative when only the Kaggle UI can allocate a GPU: open the saved
 # version, select Accelerator = GPU T4 x2 and start it, then monitor/download
 experiments/s5_kaggle_mr/monitor_remote.sh phinguynxun/mpr-mr-reasoning results/kaggle/mr/_kaggle_out
+
+# fallback if Kaggle cannot allocate an accelerator: same entrypoint on a
+# Colab T4, serialized on the same lock; requires the shared `colab` auth
+experiments/s5_kaggle_mr/colab_mr.sh results/kaggle/mr/_colab_out
 
 # 3. inspect later if needed
 ~/.local/bin/kaggle kernels status phinguynxun/mpr-mr-reasoning
