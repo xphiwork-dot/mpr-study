@@ -20,6 +20,19 @@ evaluation rows exist yet; nothing below is presented as a result.
   use a GPU.
 - 18 local stdlib tests pass.
 
+## Post-confirmation re-check (2026-11-13T02:47-02:52Z)
+
+After the user reported accelerator access fixed, an existing GPU kernel was
+re-pushed and a brand-new kernel id was pushed with `--accelerator
+NvidiaTeslaT4`. Both still ran CPU-only (no `/dev/nvidia*`, no driver,
+`torch 2.11.0+cpu`), GPU quota stayed at 0.00 h used and the API still reports
+`hasEverRun=false`; see `results/kaggle/mr/gpu_availability/probes.json`. The
+full job was therefore withheld. Direct UI evidence is the open item: a
+private notebook started with T4 selected whose output shows a working
+`nvidia-smi`. If the UI allocates a GPU while push does not, the job can be
+started from the UI on the same private inputs/kernel and monitored/downloaded
+through the API.
+
 ## Why it is blocked
 
 Kaggle accepts `enable_gpu: true` + `machine_shape: NvidiaTeslaT4` (and
