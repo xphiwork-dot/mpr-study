@@ -105,6 +105,20 @@ python3 experiments/s6_kaggle_dr/package.py build  # dataset+kernel staged, mani
   zero-difference CIs, and the DR-vs-MR comparison tool with unequal coverage and no-overlap cases).
   Writing those tests found and fixed two validator crashes on out-of-slice rows.
 
+## 3b. Expected runtime on a real T4 (grounded, not guessed)
+
+The archived SR runs (5 calls/question, 32 workers) took 1,187 s (BM25) and 1,242 s (e5) of job wall for
+306 questions (`experiments/s2_t4_chain_of_thought/README.md`; 1,530 calls each). DR makes 7 calls with
+longer solve/merge prompts but the same top-20 context, so the projection is ~1.7-1.9x that work:
+roughly 3,500-4,800 s of evaluation with the configured 40 worker slots, plus ~20-25 min for install,
+embeddings and server start. That fits the 9,000 s cap with margin, and the in-job runtime gate
+(`project_full_run`, per-call latency x calls / worker slots x 1.3) makes the final call from measured
+smoke latency rather than this estimate.
+
+The NR/SR scorer path is verified on real rows, not only on fixtures: re-scoring the archived runs with
+`compare_mr_dr.py` reproduces the documented SR BM25/e5 EM of 0.193/0.222 and the paired SR-NR differences
+(see `results/kaggle/dr/reference_nr_vs_sr.md`).
+
 ## 4. Costs and artifacts
 
 * GPU: 0.00 h used, 0.00 h reserved. CPU-only probe kernels: seconds each.
