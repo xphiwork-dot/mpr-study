@@ -108,6 +108,7 @@ Before scoring, the following are fixed:
 | `kernel.py` | ORIGINAL TO THIS REPO private Kaggle entrypoint: input verification, pinned clone, pinned install, embedding cache, vLLM, sanity, smoke, full run, manifest/package |
 | `pack_mr.py` | ORIGINAL TO THIS REPO explicit-allowlist private dataset staging (flat: Kaggle CLI default dir-mode=skip drops directories) |
 | `run_remote.sh` | ORIGINAL TO THIS REPO push/monitor/download wrapper that holds the shared GPU flock (fd 9) until terminal status and output download finish |
+| `monitor_remote.sh` | ORIGINAL TO THIS REPO same lock/poll/download wrapper without a push, for a version started from the Kaggle UI |
 | `kernel-metadata.json` | private kernel metadata (`phinguynxun/mpr-mr-reasoning`), private dataset `phinguynxun/mpr-mr-inputs` |
 | `analyze_mr.py` | ORIGINAL TO THIS REPO scoring/comparison report from raw rows |
 | `../../tests/test_mr.py` | stdlib tests: upstream mock parity, buffer semantics, parsing, seeds, duplicates, no gold leak, cut-tail resume, reused grid regression |
@@ -156,6 +157,10 @@ Private Kaggle resources (only after local tests pass):
 #    its whole lifetime, unlike `flock <lock> kaggle kernels push` which
 #    releases as soon as push returns
 experiments/s5_kaggle_mr/run_remote.sh results/kaggle/mr/_kaggle_out
+
+# alternative when only the Kaggle UI can allocate a GPU: open the saved
+# version, select Accelerator = GPU T4 x2 and start it, then monitor/download
+experiments/s5_kaggle_mr/monitor_remote.sh phinguynxun/mpr-mr-reasoning results/kaggle/mr/_kaggle_out
 
 # 3. inspect later if needed
 ~/.local/bin/kaggle kernels status phinguynxun/mpr-mr-reasoning
