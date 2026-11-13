@@ -16,6 +16,7 @@ Original code: https://github.com/nuster1128/MPR, pinned at commit `a24953c` ("u
 | [`s3a_t4_topk_sweep/`](s3a_t4_topk_sweep/) | T4 session 3a: top-k sweep k = 10 / 20 / 30 / 50 (900 questions) | Section 4.3, Figure 4 | run |
 | [`s3b_t4_step_sweep/`](s3b_t4_step_sweep/) | T4 session 3b: reasoning-step sweep | Section 4.4, Figure 5 | run (3 steps best by a small margin; no detectable gain from 3 to 8 steps) |
 | [`s4_laptop_lora_hybridmem/`](s4_laptop_lora_hybridmem/) | session 4 on the laptop: small LoRA (AskSFT) and HybridMem | Sections 5 and 6, Table 3, Figures 9 and 10 | run, small |
+| [`s6_kaggle_dr/`](s6_kaggle_dr/) | session 6 on Kaggle: DecompositionReason (DR) with Qwen2.5-7B-Instruct-AWQ on a T4, 306 questions x BM25/e5 | Sections 4.2 (MR/DR) compared with our NR and SR runs | blocked: implementation, packaging and 52 local tests complete, but the shared Kaggle account gets no accelerator (4 probe kernels), so 0/612 rows exist - see `s6_kaggle_dr/report.md` |
 | [`_shared/`](_shared/) | helpers used by several experiments, the `colab` driver `t4.sh`, T4 runbook | n/a | n/a |
 
 Raw outputs and summaries stay in [`../results/`](../results/); `docs/reproduction-status.md` is the single status table.

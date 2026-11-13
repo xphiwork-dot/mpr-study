@@ -86,7 +86,12 @@ def main():
 
         for r in rows:
             k = f"{r['uid']}:{r['rc_id']}"
-            q = qa(r["uid"])["qa"][str(r["k_hop"])][r["rc_id"]]
+            try:
+                q = qa(r["uid"])["qa"][str(r["k_hop"])][r["rc_id"]]
+            except (KeyError, FileNotFoundError):
+                # an extra/foreign row must be reported as invalid, not crash the validator
+                fail(r, f"no released-data row for uid {r.get('uid')} hop {r.get('k_hop')} {r.get('rc_id')}")
+                continue
             n = len(r.get("sub_questions") or [])
             checks = [
                 (r.get("ground_truth") == q["answer"], "ground_truth != dataset answer"),
@@ -148,7 +153,8 @@ def main():
                  "rows_with_over_limit": sum(1 for r in rows if (r.get("parser") or {}).get("over_limit")),
                  "empty_sub_answers": sum(1 for r in rows for x in r.get("sub_answers", []) if not str(x).strip()),
                  "archived_ground_truth_mismatches": gt_mismatch,
-                 "leak_free_rows": sum(1 for r in rows if not flags[f"{r['uid']}:{r['rc_id']}"]["leak_any"])}
+                 "leak_free_rows": sum(1 for r in rows
+                                       if (flags.get(f"{r['uid']}:{r['rc_id']}") or {}).get("leak_any") is False)}
         mem_r["ok"] = (mem_r["missing_count"] == 0 and mem_r["extra_count"] == 0 and dup == 0
                        and len(failures) == 0 and cut == 0 and not bad and gt_mismatch == 0)
         report["memories"][mem] = mem_r
