@@ -31,8 +31,8 @@ import traceback
 import urllib.request
 from datetime import datetime, timezone
 
-SESSION_TIMEOUT_S = 3 * 60 * 60   # actual Kaggle CLI timeout for this run (shared 6 h quota)
-RESERVE_S = 20 * 60               # stop the full run in time to write status/manifest/tar
+SESSION_TIMEOUT_S = 4 * 60 * 60   # approved single-job cap (CLI --timeout 14400; weekly allowance 30 h)
+RESERVE_S = 30 * 60               # stop the full run in time to write status/manifest/tar
 START = time.time()
 START_UTC = datetime.now(timezone.utc).isoformat()
 WORK = "/kaggle/working"

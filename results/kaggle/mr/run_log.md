@@ -44,10 +44,11 @@ GPU  used 0.00h  remaining 30.00h  total 30.00h  refresh 2026-11-14T00:00Z
 TPU  used 0.00h  remaining 20.00h  total 20.00h  refresh 2026-11-14T00:00Z
 ```
 
-The new `api.kaggle.com` quota object (CLI `KaggleApi.quota_view()`) instead
-reports `totalTimeAllowed=21600s`, `timeUsed=0s`, `hasEverRun=False`,
-`is_frozen=True`; the legacy `www.kaggle.com/api/v1/kernels/quota` reports
-108000 s. Either way the quota was not exhausted.
+The new `api.kaggle.com` quota object (CLI `KaggleApi.quota_view()`) stores
+the allowance as a timedelta; its `.seconds` component is 21600 s but the full
+value is 1 day + 6 h = 108,000 s = the same 30 h/week, with `timeUsed=0s`,
+`hasEverRun=False`, `is_frozen=True`. The quota was therefore not exhausted;
+allocation, not quota, is what failed.
 
 Probe results (all private kernels on `phinguynxun`, each `enable_gpu` /
 `enable_tpu` set in `kernel-metadata.json` and passed via `--accelerator`):
@@ -63,14 +64,21 @@ Probe results (all private kernels on `phinguynxun`, each `enable_gpu` /
 session was ever started. The internal quota object's `hasEverRun=False`
 confirms the account has never had an accelerator session.
 
-Hosted references: Kaggle documents that GPU/TPU require one-time phone
-verification, and kaggle-cli issue #1197 documents that push-based accelerator
-requests can be accepted while the session silently runs in the standard
-CPU/GPU image. Here the failure is not the pinned `docker_image` (probe 4
-pinned `latest` and still had no device) and not the zone (three zones), so the
-remaining causes are account accelerator entitlement (phone verification /
-account hold) or a Kaggle platform fault. Neither can be fixed from inside the
-kernel; both need the Kaggle account owner.
+Hosted references: Kaggle documents that free GPU/TPU access requires one-time
+phone verification, and kaggle-cli issue #1197 documents that push-based
+accelerator requests can be accepted while the session silently runs in the
+standard CPU/GPU image. Here the failure is not the pinned `docker_image`
+(probe 4 pinned `latest` and still had no device) and not the zone (three
+zones). The evidence establishes only CPU-only provisioning; possible causes
+are account accelerator entitlement (verification or hold) or a Kaggle
+platform fault. No cause is concluded, and none can be fixed from inside the
+kernel.
+
+Probe kernels (private, kept as evidence):
+`phinguynxun/mpr-mr-mount-probe` (v1 CPU mount probe, v2 CPU environment probe,
+v3 GPU script probe, v4 GPU device probe, v5 TPU probe),
+`phinguynxun/mpr-mr-gpu-notebook-probe` (v1 notebook GPU probe),
+`phinguynxun/mpr-mr-gpu-probe2` (v1 latest-pinning GPU probe).
 
 ## 4. Work completed before the blocker
 

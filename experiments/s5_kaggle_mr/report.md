@@ -26,16 +26,23 @@ Kaggle accepts `enable_gpu: true` + `machine_shape: NvidiaTeslaT4` (and
 `enable_tpu: true` + `TpuV5E8`) but executes every run on CPU: no
 `/dev/nvidia*`, no driver, `torch 2.11.0+cpu`, no `/dev/accel*`; the GPU quota
 meter never moves (`used 0.00h`) and the internal quota object reports
-`hasEverRun=False`. Script and notebook kernels, three zones, with and without
-the `docker_image` pin, GPU and TPU - all CPU. Details and probe IDs are in
-`results/kaggle/mr/run_log.md`.
+`hasEverRun=False` while the weekly allowance was untouched (30 h GPU, 20 h
+TPU). Script and notebook kernels, three zones, with and without the
+`docker_image` pin, GPU and TPU - all CPU. Details and probe IDs are in
+`results/kaggle/mr/run_log.md` (probe kernels
+`phinguynxun/mpr-mr-mount-probe` versions 1-5,
+`phinguynxun/mpr-mr-gpu-notebook-probe` v1, `phinguynxun/mpr-mr-gpu-probe2`
+v1).
 
-Kaggle requires one-time phone verification on the account before accelerators
-are available. This account (`phinguynxun`) has never had an accelerator
-session. Resolving it needs the account owner: verify at
-<https://www.kaggle.com/settings> (phone verification), or open a Kaggle
-support ticket if the account is already verified and the accelerator is still
-not provisioned.
+What the evidence establishes is only that Kaggle provisioned CPU-only
+containers for every accelerator request on this account (`hasEverRun=false`,
+no quota charged). Kaggle documents that free accelerators require one-time
+phone verification and that push-based accelerator requests can be accepted
+while the session runs in the standard image (kaggle-cli #1197); an account
+hold or a platform fault would look the same from inside a kernel. The cause
+is therefore *not* concluded here. Confirming it needs the account owner
+(https://www.kaggle.com/settings, or Kaggle support if the account is already
+verified).
 
 ## What runs once the accelerator works
 
@@ -43,17 +50,14 @@ not provisioned.
 # 1. local tests
 python -m unittest tests.test_mr -v
 
-# 2. hold the shared GPU lock for the whole job, then push the one 3 h job
-flock /home/xphi/.local/state/mpr-study/kaggle-gpu.lock \
-  ~/.local/bin/kaggle kernels push -p experiments/s5_kaggle_mr \
-  --accelerator NvidiaTeslaT4 --timeout 10800
+# 2. push under the shared lock, poll to terminal status and download outputs;
+#    the wrapper holds the flock on fd 9 until the script exits.  A bare
+#    `flock <lock> kaggle kernels push ...` would release the lock as soon as
+#    push returns (the kernel is only queued at that point), letting the peer
+#    start while this job still runs.
+experiments/s5_kaggle_mr/run_remote.sh results/kaggle/mr/_kaggle_out
 
-# 3. monitor to terminal status, then download
-~/.local/bin/kaggle kernels status phinguynxun/mpr-mr-reasoning
-~/.local/bin/kaggle kernels output phinguynxun/mpr-mr-reasoning \
-  -p results/kaggle/mr/_kaggle_out
-
-# 4. score and compare with NR/SR
+# 3. score and compare with NR/SR
 python experiments/s5_kaggle_mr/analyze_mr.py --results-dir results/kaggle/mr \
   --slice results/t4/slices/s306.json \
   --data-dir ../mpr-study/data/mpr_dataset/question_answer

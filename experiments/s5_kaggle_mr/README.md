@@ -60,7 +60,7 @@ Consequences for the reference-faithful primary run:
 | Selection parser | strip surrounding whitespace, ASCII digits only, safe `int`, out-of-range/non-digit -> path 0; no `eval` |
 | Other | no gold answer is passed to the runner; ground truth is attached after the answer returns |
 | Seeds | experiment seed 0; per-question seeds are derived from `uid`, `rc_id`, round and branch, not from scheduling order. No accuracy-driven tuning or unbounded retry-until-distinct. |
-| Hardware budget | exactly one **private** Kaggle GPU job, `NvidiaTeslaT4` (T4 x2 shape), CLI timeout 10,800 s (3 h) with a 20 min in-job reserve so it fits the conservative 6 h shared-quota view (the weekly allowance is 30 h); embedded smoke + full run in that one job; serialized with the peer through `/home/xphi/.local/state/mpr-study/kaggle-gpu.lock`. 64 workers match `--max-num-seqs 64`. A `check_cuda()` gate fails fast if the allocated torch cannot see a GPU. |
+| Hardware budget | exactly one **private** Kaggle GPU job, `NvidiaTeslaT4` (T4 x2 shape), CLI timeout 14,400 s (4 h, the approved cap; the account has a 30 h/week GPU allowance) with a 30 min in-job reserve; embedded smoke + full run in that one job; serialized with the peer through `/home/xphi/.local/state/mpr-study/kaggle-gpu.lock`. 64 workers match `--max-num-seqs 64`. A `check_cuda()` gate fails fast if the allocated torch cannot see a GPU. |
 | Software | vLLM pinned `0.32.0` (matching the prior T4 session), `bm25s==0.2.9`, `sentence-transformers==6.3.0`; actual resolved versions are recorded in the run manifest and `environment.json` |
 | Expected rows | 306 unique successful rows per retriever = **612** total; any less is partial/blocked |
 
@@ -107,6 +107,7 @@ Before scoring, the following are fixed:
 | `mr.py` | ADAPTED reference flow, safe selector, retrieval wiring, resumable runner, smoke/sanity/coverage gates |
 | `kernel.py` | ORIGINAL TO THIS REPO private Kaggle entrypoint: input verification, pinned clone, pinned install, embedding cache, vLLM, sanity, smoke, full run, manifest/package |
 | `pack_mr.py` | ORIGINAL TO THIS REPO explicit-allowlist private dataset staging (flat: Kaggle CLI default dir-mode=skip drops directories) |
+| `run_remote.sh` | ORIGINAL TO THIS REPO push/monitor/download wrapper that holds the shared GPU flock (fd 9) until terminal status and output download finish |
 | `kernel-metadata.json` | private kernel metadata (`phinguynxun/mpr-mr-reasoning`), private dataset `phinguynxun/mpr-mr-inputs` |
 | `analyze_mr.py` | ORIGINAL TO THIS REPO scoring/comparison report from raw rows |
 | `../../tests/test_mr.py` | stdlib tests: upstream mock parity, buffer semantics, parsing, seeds, duplicates, no gold leak, cut-tail resume, reused grid regression |
@@ -150,15 +151,15 @@ Private Kaggle resources (only after local tests pass):
 # or, after a change: kaggle datasets version -p ... -m "..."
 # the staged folder is flat on purpose; pass -r only if you change that layout
 
-# 2. hold the shared GPU lock for the whole job, then push one private T4 job
-~/.local/bin/kaggle kernels push \
-  -p experiments/s5_kaggle_mr \
-  --accelerator NvidiaTeslaT4 --timeout 10800
+# 2. push under the shared GPU lock and keep the lock until the run is terminal
+#    and the outputs are downloaded; run_remote.sh holds fd 9 on the lock for
+#    its whole lifetime, unlike `flock <lock> kaggle kernels push` which
+#    releases as soon as push returns
+experiments/s5_kaggle_mr/run_remote.sh results/kaggle/mr/_kaggle_out
 
-# 3. monitor to terminal status, then retrieve outputs
+# 3. inspect later if needed
 ~/.local/bin/kaggle kernels status phinguynxun/mpr-mr-reasoning
 ~/.local/bin/kaggle kernels logs phinguynxun/mpr-mr-reasoning
-~/.local/bin/kaggle kernels output phinguynxun/mpr-mr-reasoning -p results/kaggle/mr/_kaggle_out
 
 # 4. score locally (numpy required)
 python experiments/s5_kaggle_mr/analyze_mr.py \
