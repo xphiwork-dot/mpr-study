@@ -88,3 +88,24 @@ v3 GPU script probe, v4 GPU device probe, v5 TPU probe),
 - 18 local tests pass (`python -m unittest tests.test_mr -v`).
 - No GPU session, no evaluation rows, no scores: the experiment is blocked at
   accelerator provisioning, not at the method or the packaging.
+
+## 5. Local end-to-end wiring check (stub model, no GPU; not a result)
+
+The real CLI path was exercised against the released dataset, the pinned
+upstream templates and a local OpenAI-compatible stub (no model weights):
+
+```bash
+.venv/bin/python experiments/s5_kaggle_mr/mr.py run --stage full \
+  --slice results/t4/slices/s306.json --data-dir ../mpr-study/data/mpr_dataset/question_answer \
+  --cache-dir /tmp/mr-local/cache --output-dir /tmp/mr-local/out \
+  --memories sparse --topk 20 --max-step 5 --branch-size 2 --expected-calls 12 \
+  --seed 0 --workers 2 --limit 2 --device cpu
+```
+
+Observed: 2 unique rows, 24 calls (12 per row, no failures), real BM25 top-20
+ids per retrieval call, selection buffer sizes 1/3/5/7 (old paths retained),
+selected final path depth 2 (a retained shallow path was chosen, as upstream
+allows), 0 duplicate branch pairs, coverage rc=0. `analyze_mr.py
+--allow-partial` then produced the summary and `analysis_validation.json`
+without error. These are wiring checks only; the stub's strings are not
+experiment results and nothing from this run is committed.
