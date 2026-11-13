@@ -109,3 +109,30 @@ allows), 0 duplicate branch pairs, coverage rc=0. `analyze_mr.py
 --allow-partial` then produced the summary and `analysis_validation.json`
 without error. These are wiring checks only; the stub's strings are not
 experiment results and nothing from this run is committed.
+
+## 6. Re-check after the user reported access fixed (2026-11-13T02:47-02:52Z)
+
+The user confirmed Kaggle accelerator access was fixed. Two requests were made
+after that confirmation, both still CPU-only:
+
+- `phinguynxun/mpr-mr-gpu-probe2` v2, `--accelerator NvidiaTeslaT4`, run at
+  02:47Z in `us-central1-c`: no `/dev/nvidia*`, no `/proc/driver/nvidia`,
+  `torch 2.11.0+cpu`, `cuda False`.
+- `phinguynxun/mpr-mr-gpu-fresh-2026-11-13` v1, a brand-new kernel id with
+  `enable_gpu: true`, `--accelerator NvidiaTeslaT4`, started
+  2026-11-13T02:52:05Z in `asia-east1-c`: same result.
+
+`kaggle quota` stayed at GPU 0.00h used / 30.00h total and the API quota object
+still reports `hasEverRun=false`, so no accelerator session was started at all.
+Sanitized machine-readable evidence: `gpu_availability/probes.json`.
+
+The MR kernel `phinguynxun/mpr-mr-reasoning` was created with `--no-run` only
+(version 1, correct GPU metadata and dataset source; no experiment code ran and
+no quota was used). Its save-validation session ended in
+`KernelWorkerStatus.ERROR` while converting the saved script; a later running
+push creates a new version and is unaffected.
+
+At this point the local coordinator asked for direct UI evidence (a private
+notebook with T4 enabled and successful `nvidia-smi` output) before any
+full-job submission, because the push/API path still provisions CPU only.
+No further probes or submissions were made.
