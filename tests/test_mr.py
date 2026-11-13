@@ -403,3 +403,65 @@ class VLLMClientTest(unittest.TestCase):
         finally:
             srv.shutdown()
             srv.server_close()
+
+
+class KernelMountTest(unittest.TestCase):
+    """The Kaggle dataset mount layout has changed; the kernel must find it either way."""
+
+    def setUp(self):
+        import importlib.util
+
+        path = os.path.join(ROOT, "experiments", "s5_kaggle_mr", "kernel.py")
+        spec = importlib.util.spec_from_file_location("mr_kaggle_kernel", path)
+        self.kernel = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(self.kernel)
+        td = tempfile.mkdtemp()
+        self.addCleanup(__import__("shutil").rmtree, td, True)
+        self.tmp = td
+        self.kernel.LOGS = os.path.join(td, "logs")
+        self.kernel.LOG_PATH = os.path.join(td, "logs", "kernel.log")
+        os.makedirs(self.kernel.LOGS, exist_ok=True)
+        self._saved_root = os.environ.pop("MPR_INPUT_ROOT", None)
+        if self._saved_root is not None:
+            self.addCleanup(os.environ.__setitem__, "MPR_INPUT_ROOT", self._saved_root)
+
+    def _layout(self, *parts):
+        root = os.path.join(self.tmp, *parts)
+        os.makedirs(root, exist_ok=True)
+        with open(os.path.join(root, "s306.json"), "w", encoding="utf-8") as f:
+            f.write("{}")
+        return root
+
+    def test_both_known_mount_layouts_resolve(self):
+        legacy = self._layout("input", "mpr-mr-inputs")
+        nested = self._layout("input", "datasets", "phinguynxun", "mpr-mr-inputs")
+        for root in (legacy, nested):
+            self.kernel.INPUT_CANDIDATES = [root]
+            got, slice_path = self.kernel.find_input(wait_s=0)
+            self.assertEqual(got, os.path.abspath(root))
+            self.assertEqual(slice_path, os.path.join(os.path.abspath(root), "s306.json"))
+
+    def test_bounded_walk_fallback_and_clear_failure(self):
+        actual = self._layout("input", "datasets", "phinguynxun", "mpr-mr-inputs")
+        self.kernel.INPUT_CANDIDATES = [os.path.join(self.tmp, "does-not-exist")]
+        real_walk = os.walk
+
+        def found_walk(top):
+            yield os.path.join(self.tmp, "input"), ["datasets"], []
+            yield os.path.join(self.tmp, "input", "datasets"), ["phinguynxun"], []
+            yield os.path.dirname(actual), ["mpr-mr-inputs"], []
+            yield actual, [], ["s306.json"]
+
+        def empty_walk(top):
+            yield os.path.join(self.tmp, "input"), ["datasets"], []
+            yield os.path.join(self.tmp, "input", "datasets"), [], []
+
+        try:
+            os.walk = found_walk
+            got, _ = self.kernel.find_input(wait_s=0)
+            self.assertEqual(got, os.path.abspath(actual))
+            os.walk = empty_walk
+            with self.assertRaisesRegex(RuntimeError, "does not contain s306.json"):
+                self.kernel.find_input(wait_s=0)
+        finally:
+            os.walk = real_walk

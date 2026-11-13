@@ -31,8 +31,8 @@ import traceback
 import urllib.request
 from datetime import datetime, timezone
 
-SESSION_TIMEOUT_S = 4 * 60 * 60
-RESERVE_S = 30 * 60
+SESSION_TIMEOUT_S = 3 * 60 * 60   # actual Kaggle CLI timeout for this run (shared 6 h quota)
+RESERVE_S = 20 * 60               # stop the full run in time to write status/manifest/tar
 START = time.time()
 START_UTC = datetime.now(timezone.utc).isoformat()
 WORK = "/kaggle/working"
@@ -50,7 +50,7 @@ UPSTREAM_COMMIT = "a24953c8f342c9f3b2064e562ead49d477d49138"
 VLLM_PIN = "0.32.0"
 BM25S_PIN = "0.2.9"
 ST_PIN = "6.3.0"
-WORKERS = 48
+WORKERS = 64        # matches vLLM --max-num-seqs so the server batch stays full
 
 LOG_PATH = os.path.join(LOGS, "kernel.log")
 _LOG_LOCK = threading.Lock()
@@ -123,12 +123,60 @@ def run_stream(cmd, *, env=None, timeout=None, check=True, tag=None):
     return rc, "\n".join(lines)
 
 
-def find_input():
-    hits = glob.glob("/kaggle/input/*/s306.json")
-    if not hits:
-        raise RuntimeError("private input dataset does not contain s306.json")
-    root = os.path.dirname(hits[0])
-    return root, os.path.join(root, "s306.json")
+INPUT_SLUG = "phinguynxun/mpr-mr-inputs"
+INPUT_CANDIDATES = [
+    "/kaggle/input/mpr-mr-inputs",              # legacy flat mount
+    "/kaggle/input/datasets/" + INPUT_SLUG,     # current mount layout
+]
+
+
+def log_input_tree(root="/kaggle/input", limit=200):
+    """Log the actual mount layout; Kaggle has used both layouts."""
+    lines = []
+    for dirpath, dirnames, filenames in os.walk(root):
+        depth = dirpath.count(os.sep) - root.count(os.sep)
+        if depth > 3:
+            dirnames[:] = []
+            continue
+        lines.append("  " * depth + os.path.basename(dirpath) + "/")
+        for n in sorted(filenames)[:limit]:
+            lines.append("  " * (depth + 1) + n)
+    for line in lines[:limit]:
+        log("input tree: " + line)
+
+
+def find_input(wait_s=90):
+    """Resolve the private dataset root, tolerating both Kaggle mount layouts.
+
+    A CPU probe on this account showed the dataset is mounted at
+    ``/kaggle/input/datasets/<owner>/<slug>``; a failed earlier peer run assumed
+    the flat ``/kaggle/input/<slug>`` layout.  The 90 s window is insurance
+    against a slow mount at container start.
+    """
+    started = time.time()
+    while True:
+        for cand in [os.environ.get("MPR_INPUT_ROOT"), *INPUT_CANDIDATES]:
+            if cand and os.path.isfile(os.path.join(cand, "s306.json")):
+                root = os.path.abspath(cand)
+                log(f"input dataset mounted at {root}")
+                return root, os.path.join(root, "s306.json")
+        hits = []
+        for dirpath, dirnames, filenames in os.walk("/kaggle/input"):
+            if "s306.json" in filenames:
+                hits.append(os.path.join(dirpath, "s306.json"))
+            if dirpath.count(os.sep) - "/kaggle/input".count(os.sep) >= 4:
+                dirnames[:] = []
+        if hits:
+            root = os.path.dirname(sorted(hits)[0])
+            log(f"input dataset found by search at {root}")
+            return root, os.path.join(root, "s306.json")
+        if time.time() - started >= wait_s:
+            log_input_tree()
+            raise RuntimeError(
+                "private input dataset does not contain s306.json "
+                f"(searched {INPUT_CANDIDATES} and a bounded walk of /kaggle/input)"
+            )
+        time.sleep(5)
 
 
 def verify_inputs(input_root, slice_path):
@@ -361,6 +409,31 @@ def gather_manifest(input_root, input_manifest, slice_path, up, code_dir, env_in
     }
 
 
+def check_cuda():
+    """Verify the installed torch can actually use the GPU before spending time."""
+    code = (
+        "import json, torch; print(json.dumps({'torch': torch.__version__,"
+        "'cuda': torch.version.cuda, 'available': torch.cuda.is_available(),"
+        "'devices': torch.cuda.device_count(),"
+        "'caps': [torch.cuda.get_device_capability(i) for i in range(torch.cuda.device_count())]}))"
+    )
+    rc, text = run_stream([sys.executable, "-c", code], timeout=300, check=False,
+                          tag="cuda check")
+    info = {}
+    for line in reversed(text.splitlines()):
+        line = line.strip()
+        if line.startswith("{"):
+            try:
+                info = json.loads(line)
+                break
+            except Exception:  # noqa: BLE001
+                continue
+    log("cuda check: " + json.dumps(info))
+    if rc != 0 or not info.get("available"):
+        raise RuntimeError(f"torch cannot use CUDA after the pinned install: {info or text[-800:]}")
+    return info
+
+
 def main():
     setup_dirs()
     proc = None
@@ -386,6 +459,7 @@ def main():
 
         up = clone_upstream()
         ensure_packages()
+        cuda_info = check_cuda()
         # Make the pinned prompt file visible to the in-process gate helpers too.
         os.environ["MPR_PROMPTS"] = os.path.join(up, "baselines", "prompts.py")
         os.environ["MPR_QA_DIR"] = input_root
@@ -396,6 +470,7 @@ def main():
                 "vllm", "torch", "transformers", "sentence-transformers", "bm25s",
                 "numpy", "tokenizers", "huggingface-hub", "accelerate", "safetensors")},
             "gpu": gpu,
+            "cuda": cuda_info,
             "allocation": {"vllm_gpu": vllm_gpu, "main_gpu": main_gpu or "cpu"},
         }
         write_json(os.path.join(RUN, "environment.json"), env_info)

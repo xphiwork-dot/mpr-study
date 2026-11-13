@@ -60,7 +60,7 @@ Consequences for the reference-faithful primary run:
 | Selection parser | strip surrounding whitespace, ASCII digits only, safe `int`, out-of-range/non-digit -> path 0; no `eval` |
 | Other | no gold answer is passed to the runner; ground truth is attached after the answer returns |
 | Seeds | experiment seed 0; per-question seeds are derived from `uid`, `rc_id`, round and branch, not from scheduling order. No accuracy-driven tuning or unbounded retry-until-distinct. |
-| Hardware budget | exactly one **private** Kaggle GPU job, `NvidiaTeslaT4` (T4 x2 shape), CLI timeout 14,400 s (4 h), embedded smoke + full run in that one job; serialized with the peer through `/home/xphi/.local/state/mpr-study/kaggle-gpu.lock` |
+| Hardware budget | exactly one **private** Kaggle GPU job, `NvidiaTeslaT4` (T4 x2 shape), CLI timeout 10,800 s (3 h) with a 20 min in-job reserve so it fits the conservative 6 h shared-quota view (the weekly allowance is 30 h); embedded smoke + full run in that one job; serialized with the peer through `/home/xphi/.local/state/mpr-study/kaggle-gpu.lock`. 64 workers match `--max-num-seqs 64`. A `check_cuda()` gate fails fast if the allocated torch cannot see a GPU. |
 | Software | vLLM pinned `0.32.0` (matching the prior T4 session), `bm25s==0.2.9`, `sentence-transformers==6.3.0`; actual resolved versions are recorded in the run manifest and `environment.json` |
 | Expected rows | 306 unique successful rows per retriever = **612** total; any less is partial/blocked |
 
@@ -111,7 +111,9 @@ Before scoring, the following are fixed:
 | `analyze_mr.py` | ORIGINAL TO THIS REPO scoring/comparison report from raw rows |
 | `../../tests/test_mr.py` | stdlib tests: upstream mock parity, buffer semantics, parsing, seeds, duplicates, no gold leak, cut-tail resume, reused grid regression |
 
-`kernel.py` stages in this order: verify private inputs -> clone upstream at the
+`kernel.py` resolves the dataset root (`/kaggle/input/datasets/<owner>/<slug>`
+or the legacy flat `/kaggle/input/<slug>`, then a bounded walk, 90 s retry) and
+stages in this order: verify private inputs -> clone upstream at the
 pinned commit -> install pinned packages -> build e5 embedding cache for all 12
 users -> start one vLLM replica on GPU 0 -> NR sanity -> MR smoke -> full
 306 x 2 -> coverage/manifest/package. If the T4 x2 shape really exposes two
@@ -151,7 +153,7 @@ Private Kaggle resources (only after local tests pass):
 # 2. hold the shared GPU lock for the whole job, then push one private T4 job
 ~/.local/bin/kaggle kernels push \
   -p experiments/s5_kaggle_mr \
-  --accelerator NvidiaTeslaT4 --timeout 14400
+  --accelerator NvidiaTeslaT4 --timeout 10800
 
 # 3. monitor to terminal status, then retrieve outputs
 ~/.local/bin/kaggle kernels status phinguynxun/mpr-mr-reasoning
