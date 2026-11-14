@@ -615,14 +615,15 @@
     <div class="eyebrow">Independent Reproduction · KDD ’26 (arXiv:2508.13250v1)</div>
     <h1>Multi-Hop Personal Memory: What Actually Works?</h1>
     <p class="hero-sub">
-      When an AI assistant stores <strong>13,100 private facts</strong> about a person, how should it remember them and chain clues together? We reproduced Zhang et al.’s MPR repo (<code>nuster1128/MPR @ a24953c</code>) across all four reasoning styles—<strong>NR</strong>, <strong>SR</strong>, <strong>MR</strong> (612 rows), and <strong>DR</strong> (612 rows)—on a Tesla T4 to separate real gains from wasted compute.
+      When an AI assistant stores <strong>13,100 private facts</strong> about a person, how should it remember them and chain clues together? We completed and independently audited all six reproduction stages of Zhang et al.’s MPR repo (<code>nuster1128/MPR @ a24953c</code>)—covering <strong>NR</strong>, <strong>SR</strong>, <strong>MR</strong> (612/612), <strong>DR</strong> (612/612), and <strong>LoRA</strong>—to separate real gains from wasted compute.
     </p>
     <div class="status-strip">
-      <span class="badge badge-ok">✓ NR 1-Shot (900 Qs)</span>
-      <span class="badge badge-ok">✓ SR 5-Step (306 Qs)</span>
-      <span class="badge badge-ok">✓ Top-k &amp; Step Sweeps</span>
-      <span class="badge badge-ok">✓ MR 12-Call Tree (612/612)</span>
-      <span class="badge badge-ok">✓ DR Decomposition (612/612)</span>
+      <span class="badge badge-ok">✓ S1 NR 1-Shot (900 Qs)</span>
+      <span class="badge badge-ok">✓ S2 SR 5-Step (306 Qs)</span>
+      <span class="badge badge-ok">✓ S3 Top-k &amp; Step Sweeps</span>
+      <span class="badge badge-ok">✓ S4 LoRA / HybridMem</span>
+      <span class="badge badge-ok">✓ S5 MR Tree (612/612)</span>
+      <span class="badge badge-ok">✓ S6 DR Decomp (612/612)</span>
       <span class="badge badge-ok">✓ 32,399-Q Data Audit</span>
     </div>
   </div>
@@ -642,7 +643,7 @@
     <div class="kpi">
       <div class="num" style="color:var(--amber)">2.4× Cost, 0 Gain</div>
       <div class="lbl">12-Call MR Ties SR</div>
-      <div class="sub"><code>20.3%</code> / <code>21.6%</code> EM at <code>1.9×</code> wall time; <code>74.5%</code> stop at shallow depth 1–2.</div>
+      <div class="sub"><code>20.3%</code> / <code>21.6%</code> EM at <code>2.05×</code> wall time; <code>74.5%</code> stop at shallow depth 1–2.</div>
     </div>
     <div class="kpi">
       <div class="num" style="color:var(--rose)">53% Leak Numbers</div>
@@ -666,10 +667,9 @@
         <span class="badge badge-ok">✓ Holds Up</span>
         <h3>Confirmed in Reproduction</h3>
         <ul>
-          <li><strong>Explicit text beats closed-book:</strong> RAG beats no-memory guessing across all 900 tested questions.</li>
-          <li><strong>Iterative loops double EM:</strong> <code>SR</code> adds <code>+7.8</code> to <code>+11.8 pp</code> on RAG and lifts <code>Oracle</code> <code>25.5% → 51.3%</code>.</li>
-          <li><strong>3 steps is the sweet spot:</strong> Accuracy peaks at 3 steps (<code>22.9%</code> BM25, <code>24.5%</code> e5) then plateaus.</li>
-          <li><strong>LoRA can’t store 13k facts:</strong> Closed-book SFT recalls almost nothing and hurts multi-hop reasoning.</li>
+          <li><strong><code>SR ≈ MR &gt;&gt; DR ≈ NR</code> tier holds:</strong> Iterative <code>SR</code> (<code>19.3%</code>/<code>22.2%</code>) and <code>MR</code> (<code>20.3%</code>/<code>21.6%</code>) lead <code>DR</code> and <code>NR</code> by <code>+6.2</code> to <code>+10.5 pp</code>—matching Paper Table 3’s <code>SR &gt;&gt; DR</code> gap (<code>+8.0</code> to <code>+12.3 pp</code>).</li>
+          <li><strong>3 steps is the sweet spot:</strong> Accuracy peaks at 3 steps (<code>22.9%</code> BM25, <code>24.5%</code> e5) and lifts <code>Oracle</code> <code>25.5% → 51.3%</code>.</li>
+          <li><strong>Explicit text beats closed-book:</strong> RAG beats no-memory guessing across all 900 tested questions; LoRA SFT can’t hold 13k facts.</li>
         </ul>
       </div>
 
@@ -687,9 +687,9 @@
         <span class="badge badge-no">✕ Does Not Hold</span>
         <h3>Refuted or Overstated</h3>
         <ul>
-          <li><strong><code>DR</code> or <code>MR</code> beat <code>SR</code>:</strong> Blind-divide <code>DR</code> ties 1-shot <code>NR</code> (<code>-6.2</code> / <code>-10.5 pp</code> vs <code>SR</code>); 12-call <code>MR</code> ties <code>SR</code>.</li>
-          <li><strong>Bigger <code>top-k</code> lifts EM:</strong> Growing <code>k</code> <code>10 → 50</code> boosts recall <code>+25 pp</code>, but EM stays flat (<code>~11–12%</code>).</li>
-          <li><strong><code>HybridMem</code> improves RAG:</strong> Crashes out-of-the-box (<code>BlockSFT</code> bug) and averages <code>+0.2 pp</code> in Paper Table 3.</li>
+          <li><strong><code>MR</code>’s <code>2.4×</code> tree adds gain over <code>SR</code>:</strong> Ties 5-step <code>SR</code> (<code>+1.0</code> / <code>−0.7 pp</code>, CIs straddle <code>0</code>); <code>74.5%</code> stop at depth 1–2 with <code>32.3%</code> duplicate sibling pairs.</li>
+          <li><strong><code>DR</code> keeps its edge over <code>NR</code>:</strong> Even Paper Table 3’s modest <code>DR &gt; NR</code> lift (<code>+2.7</code> to <code>+4.2 pp</code>) vanishes on 4-bit 7B (<code>+1.6</code> / <code>−1.0 pp</code>, <code>p &gt; 0.50</code>).</li>
+          <li><strong>Bigger <code>top-k</code> or <code>HybridMem</code> help:</strong> Raising <code>k</code> <code>10 → 50</code> leaves EM flat (<code>~11–12%</code>); <code>HybridMem</code> crashes out-of-the-box and adds <code>+0.2 pp</code> in Table 3.</li>
         </ul>
       </div>
     </div>
@@ -750,7 +750,7 @@
           <!-- Lane 2: DR (S6 Complete) -->
           <rect x="12" y="90" width="876" height="78" rx="12" fill="#6d28d9" fill-opacity="0.05" stroke="#6d28d9" stroke-width="1.4"/>
           <text x="26" y="119" font-size="13.5" font-weight="800" fill="var(--purple)">2. DR · Decompose</text>
-          <text x="26" y="138" font-size="11.5" font-weight="700" fill="currentColor">~5.9 calls · S6 Done</text>
+          <text x="26" y="138" font-size="11.5" font-weight="700" fill="currentColor">~5.9 calls · S6 Audited</text>
           <text x="26" y="154" font-size="11" fill="var(--muted)">34.2m (612 rows)</text>
 
           <rect x="180" y="102" width="165" height="54" rx="9" fill="#be123c" fill-opacity="0.11" stroke="#be123c" stroke-width="1.3"/>
@@ -794,8 +794,8 @@
           <!-- Lane 4: MR (S5 Complete) -->
           <rect x="12" y="272" width="876" height="192" rx="12" fill="#d97706" fill-opacity="0.05" stroke="#d97706" stroke-width="1.5"/>
           <text x="26" y="304" font-size="13.5" font-weight="800" fill="var(--amber)">4. MR · Tree Buffer</text>
-          <text x="26" y="323" font-size="11.5" font-weight="700" fill="currentColor">12 calls · S5 Done</text>
-          <text x="26" y="340" font-size="11" fill="var(--muted)">75.2m (612 rows)</text>
+          <text x="26" y="323" font-size="11.5" font-weight="700" fill="currentColor">12 calls · S5 Audited</text>
+          <text x="26" y="340" font-size="11" fill="var(--muted)">81.5m (all 612)</text>
 
           <rect x="180" y="286" width="122" height="58" rx="9" fill="#2563eb" fill-opacity="0.12" stroke="#2563eb" stroke-width="1.3"/>
           <text x="241" y="310" text-anchor="middle" font-size="12" font-weight="700" fill="currentColor">Call 1: Root</text>
@@ -835,25 +835,25 @@
       </div>
 
       <ul class="punch-list">
-        <li><strong>Blind decomposition (<code>DR</code>):</strong> Splitting before retrieval guesses ~3.9 sub-questions that miss private bridge entities, matching 1-call <code>NR</code>.</li>
-        <li><strong>Unpruned buffer (<code>MR line 45</code>):</strong> <code>path_buffer[:pid] + path_buffer[pid:] + new_path_list</code> keeps old shallow paths alive every round.</li>
-        <li><strong>Blind selector (<code>MR lines 34, 48</code>):</strong> All 4 selection calls run without retrieved facts, favoring short paths (<code>99.7%</code> genuine choices).</li>
+        <li><strong>Blind <code>Divide</code> &amp; broken chaining (<code>DR</code>):</strong> Splits with <code>0</code> context; <code>Solve</code> drops prior answers from queries and <code>Merge</code> re-retrieves with noisy Q/A text—pulling gold recall <em>below</em> 1-shot <code>NR</code> (<code>0.353</code>/<code>0.369</code> vs <code>0.466</code>/<code>0.497</code>).</li>
+        <li><strong>Non-CoT <code>Solve</code> math collapse (<code>DR</code>):</strong> <code>“as concise as possible”</code> cuts completion tokens (<code>31k</code> vs <code>SR</code>’s <code>83k–84k</code>), causing single-line math errors even with 100% gold docs (<code>DR_union</code> EM <code>0.242</code>/<code>0.212</code> vs <code>MR_union</code> <code>0.375</code>/<code>0.330</code>).</li>
+        <li><strong>Unpruned buffer &amp; blind selector (<code>MR</code>):</strong> <code>path_buffer</code> never prunes Path 0 (<code>line 45</code>) and all 4 selections run without retrieval (<code>lines 34, 48</code>), stopping <code>74.5%</code> at depth 1–2 with <code>32.3%</code> duplicate branch pairs.</li>
       </ul>
     </div>
 
     <details class="deep-dive">
       <summary>
         <span class="sum-left"><span class="sum-icon"></span> Inspect exact S5 MR &amp; S6 DR trace counts, call budgets &amp; wall times</span>
-        <span class="sum-meta">612/612 rows each · vLLM 0.11.2</span>
+        <span class="sum-meta">612/612 audited rows each · vLLM 0.11.2</span>
       </summary>
       <div class="dive-body">
         <p>
-          <strong>S6 <code>DecompositionReason</code> (<code>DR</code>, <code>results/kaggle/dr/summary_dr.md</code>):</strong>
-          <code>Divide</code> (1 call, 0 retrieval, cap 5 sub-Qs) → sequential <code>Solve</code> (1 retrieval + 1 call per sub-Q) → <code>Merge</code> (1 retrieval + 1 call). Across 306 questions per retriever, DR averaged <code>3.89</code> sub-questions on BM25 (<code>1,802</code> calls, <code>~5.89</code> calls/Q, <code>1.10M</code> prompt tokens) and <code>3.88</code> on e5 (<code>1,800</code> calls, <code>~5.88</code> calls/Q, <code>1.14M</code> prompt tokens), with <code>0</code> failures and <code>0</code> parser fallbacks in <code>34.2 min</code> evaluation wall (<code>45.3 min</code> total kernel).
+          <strong>S6 <code>DecompositionReason</code> (<code>DR</code>, <code>results/t4/s6_dr/summary_dr.md</code>):</strong>
+          <code>Divide</code> (1 call, 0 retrieval, cap 5 sub-Qs) → sequential <code>Solve</code> (1 retrieval + 1 call per sub-Q) → <code>Merge</code> (1 retrieval + 1 call). Across 306 questions per retriever, DR averaged <code>3.89</code> sub-questions on BM25 (<code>1,802</code> calls, <code>~5.89</code> calls/Q, <code>1.10M</code> prompt / <code>30,995</code> completion tokens) and <code>3.88</code> on e5 (<code>1,800</code> calls, <code>~5.88</code> calls/Q, <code>1.14M</code> prompt / <code>31,019</code> completion tokens), with <code>0</code> failures and <code>0</code> parser fallbacks in <code>34.2 min</code> evaluation wall (<code>45.3 min</code> kernel). Trace audit: <code>Merge</code> gold recall is <code>0.353</code>/<code>0.369</code> vs <code>NR</code> <code>0.466</code>/<code>0.497</code>; conditional all-gold EM is <code>0.242</code>/<code>0.212</code> (<code>DR_union</code>) vs <code>0.375</code>/<code>0.330</code> (<code>MR_union</code>).
         </p>
         <p>
-          <strong>S5 <code>StructuredReason</code> (<code>MR</code>, <code>results/kaggle/mr/summary_mr.md</code>):</strong>
-          Final path depths (<code>n = 306</code> each): <code>BM25</code> Depth 1: <code>122</code> (39.9%), Depth 2: <code>107</code> (35.0%), Depth 3: <code>71</code> (23.2%), Depth 4: <code>6</code> (2.0%), Depth 5: <code>0</code>; <code>e5</code> Depth 1: <code>106</code> (34.6%), Depth 2: <code>121</code> (39.5%), Depth 3: <code>74</code> (24.2%), Depth 4: <code>5</code> (1.6%), Depth 5: <code>0</code>. Identical middle-round branch pairs: <code>296 / 918</code> (32.2%) BM25, <code>297 / 918</code> (32.4%) e5. Total full-stage budget: <code>7,272</code> calls, <code>5.15M</code> prompt tokens, <code>75.2 min</code> (vs. 5-step <code>SR</code>’s <code>3,060</code> calls, <code>2.27M</code> tokens, <code>39.8 min</code>).
+          <strong>S5 <code>StructuredReason</code> (<code>MR</code>, <code>results/t4/s5_mr/summary_mr.md</code>):</strong>
+          Final path depths (<code>n = 306</code> each): <code>BM25</code> Depth 1: <code>122</code> (39.9%), Depth 2: <code>107</code> (35.0%), Depth 3: <code>71</code> (23.2%), Depth 4: <code>6</code> (2.0%), Depth 5: <code>0</code>; <code>e5</code> Depth 1: <code>106</code> (34.6%), Depth 2: <code>121</code> (39.5%), Depth 3: <code>74</code> (24.2%), Depth 4: <code>5</code> (1.6%), Depth 5: <code>0</code>. Identical middle-round branch pairs: <code>296 / 918</code> (32.2%) BM25, <code>297 / 918</code> (32.4%) e5. <strong>606 full-stage rows</strong> (<code>workers=64</code>): <code>7,272</code> calls, <code>5.10M</code> (<code>5,104,852</code>) prompt / <code>235k</code> (<code>235,488</code>) completion tokens in <code>75.2 min</code>; <strong>all-612-row total</strong> (incl. 6 smoke rows): <code>7,344</code> calls, <code>5.15M</code> (<code>5,154,655</code>) prompt / <code>238k</code> (<code>238,178</code>) completion tokens in <code>81.5 min</code> (<code>2.05×</code> 5-step <code>SR</code>’s <code>39.8 min</code>, <code>3,060</code> calls, <code>2.27M</code> tokens).
         </p>
       </div>
     </details>
@@ -865,7 +865,7 @@
       <div class="sec-kicker">3 · Paper Claims vs. Our Reproduction</div>
       <h2>SR &amp; MR Tower +8–10 pp Over NR—While Blind DR Drops Back to Baseline</h2>
       <p class="lead">
-        On 306 matched questions (<code>Qwen2.5-7B-Instruct-AWQ</code>, single T4, <code>k = 20</code>), <code>DR</code> ties 1-shot <code>NR</code> (<code>+1.6</code> / <code>−1.0 pp</code>) and loses by <code>6.2–10.5 pp</code> to 5-step <code>SR</code>, while 12-call <code>MR</code> ties <code>SR</code> within <code>±1 pp</code>. Even in the paper’s own Table 3 (8× A800), <code>SR</code> beats both <code>MR</code> and <code>DR</code> across nearly every explicit-memory cell.
+        On 306 matched questions (<code>Qwen2.5-7B-Instruct-AWQ</code>, single T4, <code>k = 20</code>), <code>DR</code> ties 1-shot <code>NR</code> (<code>+1.6</code> / <code>−1.0 pp</code>, <code>p &gt; 0.50</code>) and trails 5-step <code>SR</code> by <code>6.2–10.5 pp</code>, while 12-call <code>MR</code> ties <code>SR</code> within <code>±1 pp</code>. That preserves Paper Table 3’s <code>SR &gt;&gt; DR</code> ordering (<code>+8.0</code> to <code>+12.3 pp</code> in every explicit cell), while even <code>DR</code>’s small edge over <code>NR</code> vanishes.
       </p>
     </div>
 
@@ -1021,7 +1021,7 @@
           <text x="134" y="272" text-anchor="middle" font-size="11.2" font-weight="700" fill="currentColor">1 (NR)</text>
           <text x="198" y="272" text-anchor="middle" font-size="11.2" fill="var(--muted)">2</text>
           <text x="262" y="272" text-anchor="middle" font-size="11.2" font-weight="800" fill="var(--teal)">3 (SR Peak)</text>
-          <text x="382" y="272" text-anchor="middle" font-size="11.2" font-weight="700" fill="currentColor">5 (SR)</text>
+          <text x="390" y="272" text-anchor="middle" font-size="11.2" font-weight="700" fill="currentColor">5 (SR)</text>
           <text x="458" y="272" text-anchor="middle" font-size="11.2" font-weight="800" fill="var(--purple)">~5.9 (DR)</text>
           <text x="582" y="272" text-anchor="middle" font-size="11.2" fill="var(--muted)">8 (SR)</text>
           <text x="838" y="272" text-anchor="middle" font-size="11.2" font-weight="800" fill="var(--amber)">12 (MR)</text>
@@ -1115,7 +1115,7 @@
               </tr>
               <tr data-cat="headline" class="highlight-row">
                 <td><strong>s306 · All</strong></td><td>Oracle (Gold)</td><td>NR / <strong>SR-5</strong></td><td class="num">1 / 5</td><td class="num">306</td>
-                <td class="num">0.255 [0.206, 0.307] / <strong>0.513</strong> [0.454, 0.569]</td><td class="num">0.307 / 0.542</td>
+                <td class="num">0.255 (s306) [0.206, 0.307] / <strong>0.513</strong> [0.454, 0.569]</td><td class="num">0.307 / 0.542</td>
               </tr>
               <tr data-cat="headline">
                 <td><strong>s306 · All</strong></td><td>SparseRAG (BM25)</td><td>NR (1-call, S1)</td><td class="num">1</td><td class="num">306</td>
@@ -1179,7 +1179,7 @@
               </tr>
               <tr data-cat="sweeps">
                 <td><strong>s900 · S1 Grid</strong></td><td>Ig / BM25 / e5 / Or</td><td>NR (1-call)</td><td class="num">1</td><td class="num">900</td>
-                <td class="num">All: 0.041 / 0.114 / 0.109 / 0.257</td><td class="num">Clean (421): 0.014 / 0.128 / 0.121 / 0.290</td>
+                <td class="num">All (S1 n=900): 0.041 / 0.114 / 0.109 / 0.257</td><td class="num">Clean (421): 0.014 / 0.128 / 0.121 / 0.290</td>
               </tr>
               <tr data-cat="sweeps">
                 <td><strong>S3a · Top-k (10/20/30/50)</strong></td><td>BM25 &amp; Dense e5</td><td>NR (1-call)</td><td class="num">1</td><td class="num">900</td>
@@ -1211,7 +1211,7 @@
       </summary>
       <div class="dive-body">
         <p>
-          <strong>Setup differences:</strong> Paper ran <code>Qwen2.5-7B</code> (precision/decoding unstated; repo API client hard-codes <code>T=0.9</code>; no scorer shipped) on <code>8× A800-80G</code> over an unspecified 2,700-Q subset. We ran 4-bit <code>Qwen2.5-7B-Instruct-AWQ</code> on <code>1× Colab T4 (16 GB)</code> with greedy <code>T=0</code> (<code>T=0.7</code> on MR branch pairs; vLLM 0.32.0 on S1–S3, 0.11.2 on S5–S6 with 5/6–6/6 NR sanity gates) and SQuAD-normalized EM across all 12 users. Quantized 4-bit date math explains our <code>~5–14 pp</code> lower raw EM—yet in <strong>both</strong> setups, <code>SR</code> leads and <code>DR</code>/<code>MR</code> fail to beat <code>SR</code>:
+          <strong>Setup &amp; methodological caveats:</strong> Paper ran <code>Qwen2.5-7B</code> (precision/decoding unstated; repo API client hard-codes <code>T=0.9</code>; no scorer shipped) on <code>8× A800-80G</code> over an unspecified 2,700-Q subset. We ran 4-bit <code>Qwen2.5-7B-Instruct-AWQ</code> on <code>1× Colab T4 (16 GB)</code> with greedy <code>T=0.0</code> for <code>NR</code>, <code>SR</code>, and <code>DR</code>, while <code>MR</code> uses <code>T=0.7</code> middle-branch sampling (6 calls/Q; confounding structure with decoding). S1–S3 ran on <code>vLLM 0.32.0</code> and S5–S6 on <code>vLLM 0.11.2</code> (passing 5/6–6/6 NR sanity gates). In S5 <code>MR</code>, a post-fallback CPU <code>fp32</code> query vs. CUDA <code>fp16</code> doc embedding split caused zero SparseRAG drift (<code>306/306</code> exact <code>first_retrieved</code> match) and minor DenseRAG drift (<code>177/306</code> exact order, <code>295/306</code> top-20 set match, <code>0/11</code> gold-fact changes).
         </p>
         <div class="table-wrap">
           <table>
@@ -1245,7 +1245,7 @@
           </table>
         </div>
         <p style="margin-top:8px">
-          On <code>s306</code> overall, our method ranking is <code>SR (0.193 / 0.222) ≈ MR (0.203 / 0.216) &gt;&gt; DR (0.131 / 0.118) ≈ NR (0.114 / 0.127)</code> on BM25 / e5 respectively.
+          On <code>s306</code> overall, our ranking <code>SR (0.193 / 0.222) ≈ MR (0.203 / 0.216) &gt;&gt; DR (0.131 / 0.118) ≈ NR (0.114 / 0.127)</code> preserves Paper Table 3’s <code>SR &gt;&gt; DR</code> hierarchy (<code>+8.0</code> to <code>+12.3 pp</code> in every explicit cell), while <code>DR</code>’s modest paper lift over <code>NR</code> (<code>+2.7</code> to <code>+4.2 pp</code>) vanishes on 4-bit 7B (<code>+1.6</code> / <code>−1.0 pp</code>, <code>p &gt; 0.50</code>).
         </p>
       </div>
     </details>
@@ -1430,7 +1430,7 @@
 
     <footer>
       <p style="margin:0 0 8px">
-        <strong>All planned reproduction sessions complete (<code>S1–S6</code>):</strong> One-call <code>NR</code> (900 Qs), 5-step <code>SR</code> (306 Qs), <code>top-k</code> &amp; step sweeps, laptop <code>LoRA</code>/<code>HybridMem</code>, S5 <code>MR</code> (<code>612/612</code>), and S6 <code>DR</code> (<code>612/612</code>).
+        <strong>All six reproduction sessions complete and independently audited (<code>S1–S6</code>):</strong> One-call <code>NR</code> (900 Qs), 5-step <code>SR</code> (306 Qs), <code>top-k</code> &amp; step sweeps, laptop <code>LoRA</code>/<code>HybridMem</code>, S5 <code>MR</code> (<code>612/612</code>), and S6 <code>DR</code> (<code>612/612</code>).
       </p>
       <details class="deep-dive">
         <summary>
@@ -1439,10 +1439,10 @@
         </summary>
         <div class="dive-body">
           <p>
-            All metrics trace directly to committed artifacts in this repository (2026-11-14):
+            All metrics trace directly to committed Colab T4 / laptop artifacts in this repository (2026-11-14):
             <code>results/t4/summary_s1.md</code>, <code>summary_s2.md</code>, <code>summary_s2_vs_s1.md</code>, <code>summary_s3_topk_sweep.md</code>, <code>summary_s3_steps_sweep.md</code>, <code>summary_retrieval.md</code>, <code>results/probes/leak_check.md</code>, <code>results/laptop/sft/summary.md</code>, <code>docs/verification/regroup_short_long.md</code>, <code>docs/upstream-notes.md</code>,
-            S5 MR: <code>results/kaggle/mr/summary_mr.md</code> &amp; <code>experiments/s5_kaggle_mr/report.md</code> (612/612 validated rows, 6/6 NR sanity gate), and
-            S6 DR: <code>results/kaggle/dr/summary_dr.md</code>, <code>results/kaggle/dr/summary_mr_vs_dr.md</code> &amp; <code>experiments/s6_kaggle_dr/report.md</code> (commit <code>eeda20c</code> / <code>7e19ef6</code>, 612/612 validated rows, 5/6 byte-identical NR sanity gate &amp; 6/6 identical top-20 retrievals). Paper: Zhang et al., KDD ’26 (<code>papers/2508.13250v1.pdf</code>); upstream repo <code>nuster1128/MPR @ a24953c</code>.
+            S5 MR: <code>results/t4/s5_mr/summary_mr.md</code> &amp; <code>experiments/s5_t4_mr/report.md</code> (612/612 validated rows, 6/6 NR sanity gate, independently audited), and
+            S6 DR: <code>results/t4/s6_dr/summary_dr.md</code>, <code>results/t4/s6_dr/summary_mr_vs_dr.md</code> &amp; <code>experiments/s6_t4_dr/report.md</code> (612/612 validated rows, 5/6 byte-identical NR sanity gate &amp; 6/6 identical top-20 retrievals, independently audited). Paper: Zhang et al., KDD ’26 (<code>papers/2508.13250v1.pdf</code>); upstream repo <code>nuster1128/MPR @ a24953c</code>.
           </p>
         </div>
       </details>
