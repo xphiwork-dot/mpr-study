@@ -13,6 +13,8 @@
 #   GPU_LOCK_WAIT_S   seconds to wait for the shared lock (default 21600)
 set -euo pipefail
 
+export PATH="$HOME/.local/bin:$PATH"
+
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT="$(cd "$HERE/../.." && pwd)"
 LOCK="${KAGGLE_GPU_LOCK:-/home/xphi/.local/state/mpr-study/kaggle-gpu.lock}"
@@ -110,9 +112,19 @@ echo "[run] kernel launched $(date -u +%FT%TZ)"
 
 poll() {
   timeout 150 colab exec -s "$S" <<'PY'
-import os
+import glob, os
 e, log = '/content/mr_kernel.exit', '/content/mr_kernel.log'
 print('EXIT=' + open(e).read().strip() if os.path.exists(e) else 'EXIT=running')
+counts = {}
+for p in glob.glob('/kaggle/working/results/kaggle/mr/*.jsonl'):
+    name = os.path.basename(p).rsplit('.jsonl', 1)[0]
+    try:
+        counts[name] = sum(1 for line in open(p, encoding='utf-8') if line.strip())
+    except OSError:
+        counts[name] = -1
+sparse = counts.get('StructuredReason_SparseRAG_k20_s5', 0)
+dense = counts.get('StructuredReason_DenseRAG_k20_s5', 0)
+print(f'ROWS sparse={sparse}/306 dense={dense}/306')
 if os.path.exists(log):
     print(''.join(open(log).readlines()[-3:])[-600:])
 else:
@@ -136,13 +148,31 @@ done
 
 # ---------------------------------------------------------------- download
 pull() {
-  timeout 200 colab exec -s "$S" <<'PY' >/dev/null 2>&1 || true
+  timeout 240 colab exec -s "$S" <<'PY' >/dev/null 2>&1 || true
 import subprocess
-subprocess.run("cd /kaggle/working && (tar czf /content/mr_results.tgz results mpr-mr-*.json 2>/dev/null "
-               "|| tar czf /content/mr_results.tgz results)", shell=True)
+script = r'''
+set -e
+rm -rf /content/mr_out && mkdir -p /content/mr_out
+if [ -d /kaggle/working/results/kaggle/mr ]; then
+  cp -a /kaggle/working/results/kaggle/mr/. /content/mr_out/
+fi
+# top-level copies written by kernel.py (status/manifest/gates/package note)
+cp /kaggle/working/mpr-mr-* /content/mr_out/ 2>/dev/null || true
+# kernel log (gates, vLLM setup, timings), embeddings manifest, packaged tarball
+if [ -d /kaggle/working/mr_run/logs ]; then
+  mkdir -p /content/mr_out/logs && cp -a /kaggle/working/mr_run/logs/. /content/mr_out/logs/
+fi
+cp /kaggle/working/mr_run/cache/embeddings_manifest.json /content/mr_out/ 2>/dev/null || true
+cp /kaggle/working/mpr-mr-results.tar.gz /content/mr_out/ 2>/dev/null || true
+tar czf /content/mr_results.tgz -C /content/mr_out .
+'''
+r = subprocess.run(['bash', '-c', script], capture_output=True, text=True, timeout=180)
+print((r.stdout or '') + (r.stderr or ''))
+raise SystemExit(r.returncode)
 PY
   colab download -s "$S" /content/mr_results.tgz "$OUT/mr_results.tgz" >/dev/null 2>&1 || return 1
   tar xzf "$OUT/mr_results.tgz" -C "$OUT"
 }
 pull || echo "[pull] no results downloaded" >&2
+echo "[pull] jsonl files: $(find "$OUT" -maxdepth 1 -name '*.jsonl' | wc -l), status: $(test -f "$OUT/status.json" && echo yes || echo no)"
 echo "[done] $(date -u +%FT%TZ) outputs in $OUT"
