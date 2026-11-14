@@ -1,0 +1,178 @@
+{
+  "elapsed_s": 5802.5,
+  "gates": {
+    "coverage": {
+      "expected": 306,
+      "memories": {
+        "dense": {
+          "complete": true,
+          "expected": 306,
+          "extra": [],
+          "extra_count": 0,
+          "memory": "DenseRAG",
+          "missing": [],
+          "missing_count": 0,
+          "rows": 306,
+          "wrong_call_count": [],
+          "wrong_call_count_n": 0,
+          "wrong_ground_truth": [],
+          "wrong_ground_truth_n": 0,
+          "wrong_hop_n": 0
+        },
+        "sparse": {
+          "complete": true,
+          "expected": 306,
+          "extra": [],
+          "extra_count": 0,
+          "memory": "SparseRAG",
+          "missing": [],
+          "missing_count": 0,
+          "rows": 306,
+          "wrong_call_count": [],
+          "wrong_call_count_n": 0,
+          "wrong_ground_truth": [],
+          "wrong_ground_truth_n": 0,
+          "wrong_hop_n": 0
+        }
+      }
+    },
+    "full_complete": true,
+    "full_run_rc": 0,
+    "sanity": {
+      "cases": [
+        {
+          "baseline": "500",
+          "em_baseline": false,
+          "em_ours": false,
+          "exact_normalized_match": true,
+          "key": "0:RC000018#02",
+          "memory": "SparseRAG",
+          "ours": "500"
+        },
+        {
+          "baseline": "105.05(kg)",
+          "em_baseline": false,
+          "em_ours": false,
+          "exact_normalized_match": true,
+          "key": "1:RC000012#06",
+          "memory": "SparseRAG",
+          "ours": "105.05(kg)"
+        },
+        {
+          "baseline": "2015-01-01",
+          "em_baseline": false,
+          "em_ours": false,
+          "exact_normalized_match": true,
+          "key": "2:RC000080#10",
+          "memory": "SparseRAG",
+          "ours": "2015-01-01"
+        },
+        {
+          "baseline": "500",
+          "em_baseline": false,
+          "em_ours": false,
+          "exact_normalized_match": true,
+          "key": "0:RC000018#02",
+          "memory": "DenseRAG",
+          "ours": "500"
+        },
+        {
+          "baseline": "105.05(kg)",
+          "em_baseline": false,
+          "em_ours": false,
+          "exact_normalized_match": true,
+          "key": "1:RC000012#06",
+          "memory": "DenseRAG",
+          "ours": "105.05(kg)"
+        },
+        {
+          "baseline": "2014",
+          "em_baseline": false,
+          "em_ours": false,
+          "exact_normalized_match": true,
+          "key": "2:RC000080#10",
+          "memory": "DenseRAG",
+          "ours": "2014"
+        }
+      ],
+      "memories": {
+        "dense": {
+          "em_baseline": 0,
+          "em_ours": 0,
+          "empty": 0,
+          "exact_normalized_match": 3,
+          "mean_answer_chars_baseline": 5.666666666666667,
+          "mean_answer_chars_ours": 5.666666666666667,
+          "n": 3
+        },
+        "sparse": {
+          "em_baseline": 0,
+          "em_ours": 0,
+          "empty": 0,
+          "exact_normalized_match": 3,
+          "mean_answer_chars_baseline": 7.666666666666667,
+          "mean_answer_chars_ours": 7.666666666666667,
+          "n": 3
+        }
+      },
+      "pass": true,
+      "reasons": [],
+      "run_rc": 0
+    },
+    "smoke": {
+      "coverage": {
+        "expected": 3,
+        "memories": {
+          "dense": {
+            "complete": true,
+            "expected": 3,
+            "extra": [],
+            "extra_count": 0,
+            "memory": "DenseRAG",
+            "missing": [],
+            "missing_count": 0,
+            "rows": 3,
+            "wrong_call_count": [],
+            "wrong_call_count_n": 0,
+            "wrong_ground_truth": [],
+            "wrong_ground_truth_n": 0,
+            "wrong_hop_n": 0
+          },
+          "sparse": {
+            "complete": true,
+            "expected": 3,
+            "extra": [],
+            "extra_count": 0,
+            "memory": "SparseRAG",
+            "missing": [],
+            "missing_count": 0,
+            "rows": 3,
+            "wrong_call_count": [],
+            "wrong_call_count_n": 0,
+            "wrong_ground_truth": [],
+            "wrong_ground_truth_n": 0,
+            "wrong_hop_n": 0
+          }
+        }
+      },
+      "pass": true,
+      "reasons": [],
+      "run_rc": 0,
+      "stats": {
+        "calls": 72,
+        "candidate_pairs": 18,
+        "duplicate_pairs": 3,
+        "empty_responses": 0,
+        "retrieval_calls": 48,
+        "retrieval_empty": 0,
+        "rows": 6,
+        "selection_fallbacks": 0,
+        "selections": 24
+      }
+    }
+  },
+  "reserve_s": 1800,
+  "session_timeout_s": 14400,
+  "started_utc": "2026-11-14T09:30:44.164969+00:00",
+  "status": "complete"
+}

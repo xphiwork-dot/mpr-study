@@ -1,0 +1,40 @@
+{
+  "generated_from": "/home/xphi/Desktop/project/mpr-study-mr/results/kaggle/mr",
+  "validation": {
+    "complete": true,
+    "expected": 306,
+    "failures": 0,
+    "memories": {
+      "DenseRAG": {
+        "bad_calls_n": 0,
+        "bad_ground_truth": [],
+        "bad_ground_truth_n": 0,
+        "bad_hop_n": 0,
+        "complete": true,
+        "expected": 306,
+        "extra": [],
+        "extra_n": 0,
+        "missing": [],
+        "missing_n": 0,
+        "unique_rows": 306
+      },
+      "SparseRAG": {
+        "bad_calls_n": 0,
+        "bad_ground_truth": [],
+        "bad_ground_truth_n": 0,
+        "bad_hop_n": 0,
+        "complete": true,
+        "expected": 306,
+        "extra": [],
+        "extra_n": 0,
+        "missing": [],
+        "missing_n": 0,
+        "unique_rows": 306
+      }
+    },
+    "raw_lines": {
+      "DenseRAG": 306,
+      "SparseRAG": 306
+    }
+  }
+}

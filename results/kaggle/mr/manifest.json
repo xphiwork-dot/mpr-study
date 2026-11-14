@@ -1,0 +1,542 @@
+{
+  "artifacts": {
+    "StructuredReason_DenseRAG_k20_s5.jsonl": {
+      "bytes": 4473305,
+      "sha256": "52cf140471972b7d5b64313b6a472b6db9d3b1e2fb8df848597ff418a0235002"
+    },
+    "StructuredReason_SparseRAG_k20_s5.jsonl": {
+      "bytes": 4462275,
+      "sha256": "7c69703a5bb24ffb9a56a30a64320788f7216dbaa4ba17400744e615e3e097ba"
+    },
+    "coverage_report.json": {
+      "bytes": 754,
+      "sha256": "3b4667f8b2ef67f1ded06bcf02bafa89c911ed54a049d58c1460ed65b29e1926"
+    },
+    "embeddings_manifest.json": {
+      "bytes": 2283,
+      "sha256": "395ff5f5a6921be43d54cf0ac825f082d41675df5d5ec9c3d92150d270d59ef0"
+    },
+    "sanity_report.json": {
+      "bytes": 1848,
+      "sha256": "f7bd34e13a847afe4d08f1dd71a108a045270965d604bbe38011d1c7a7150f8e"
+    },
+    "smoke_report.json": {
+      "bytes": 1111,
+      "sha256": "4ea4a927642130cafa888cc7ea1a7bd2488a9e9aabe41ad0c01c6c48f02e61ff"
+    },
+    "timing.jsonl": {
+      "bytes": 2006,
+      "sha256": "11c68157ade418197f541396d5f0945b12a153afe51333e0e2cbec6d236919d0"
+    }
+  },
+  "branch": "experiments/mr-kaggle",
+  "elapsed_s": 5802.6,
+  "embedding": {
+    "batch_size": 256,
+    "device": "cuda",
+    "dtype": "float16",
+    "model": "intfloat/e5-base-v2",
+    "normalize_embeddings": true,
+    "prefixes": null,
+    "revision": "f52bf8ec8c7124536f0efb74aca902b2995e5bcd",
+    "users": {
+      "0": {
+        "dim": 768,
+        "path": "emb_user0.npy",
+        "rows": 13100,
+        "sha256": "f3749d41eb2bbf12a060510079e435fe9a825690e7f0c369f928f80c28066776"
+      },
+      "1": {
+        "dim": 768,
+        "path": "emb_user1.npy",
+        "rows": 13084,
+        "sha256": "6f5ad912725d59afec52631d06d7747c568e0fb408241623b714af6553558d67"
+      },
+      "10": {
+        "dim": 768,
+        "path": "emb_user10.npy",
+        "rows": 13100,
+        "sha256": "7f6174ec2fd02a353ced2b36f99ab26bdd018bdf943287746f5896339accd31d"
+      },
+      "11": {
+        "dim": 768,
+        "path": "emb_user11.npy",
+        "rows": 13100,
+        "sha256": "1c1c6fe3e54df53cefaeeb65780d1594fb1c67c3a6838e45ff0905094fc7a5b8"
+      },
+      "2": {
+        "dim": 768,
+        "path": "emb_user2.npy",
+        "rows": 13100,
+        "sha256": "fafd13545c9c5efefa8b648903ed8324b11383455ea8c323276ccdc1d69cf4f2"
+      },
+      "3": {
+        "dim": 768,
+        "path": "emb_user3.npy",
+        "rows": 13100,
+        "sha256": "37008dab059ad85b510c7138e8e5edba643df684823acbae16ccd262e29d617a"
+      },
+      "4": {
+        "dim": 768,
+        "path": "emb_user4.npy",
+        "rows": 13100,
+        "sha256": "6f5d7fd0379f9a60beb8ea3392cced897c5910bf1e625b38c1aa487077ae680f"
+      },
+      "5": {
+        "dim": 768,
+        "path": "emb_user5.npy",
+        "rows": 13100,
+        "sha256": "7fe552395676a17f0fa7e1d95e71e20610de9bc4e270e1c9a9afe14c15f202d5"
+      },
+      "6": {
+        "dim": 768,
+        "path": "emb_user6.npy",
+        "rows": 13100,
+        "sha256": "3c58a6a342e25e4ff3401f101ffd0c9282506cc8f250a2fc2c4fc826e6f30b3c"
+      },
+      "7": {
+        "dim": 768,
+        "path": "emb_user7.npy",
+        "rows": 13100,
+        "sha256": "78138dc9137a510489c4d6bc2f79cbe1c56517d4d1d7cb5654bfdfb23e5369ee"
+      },
+      "8": {
+        "dim": 768,
+        "path": "emb_user8.npy",
+        "rows": 13100,
+        "sha256": "78cf46eb4cdf8a82773f52e437a883b7353cc13c262ae1874aabb63c191bae72"
+      },
+      "9": {
+        "dim": 768,
+        "path": "emb_user9.npy",
+        "rows": 13082,
+        "sha256": "2aea8ca2310e81f4719d970da427a5a15e7234c1df818ac1c056f9f00dc1cf5a"
+      }
+    }
+  },
+  "environment": {
+    "allocation": {
+      "main_gpu": "cpu",
+      "vllm_gpu": "0"
+    },
+    "cuda": {
+      "available": true,
+      "caps": [
+        [
+          7,
+          5
+        ]
+      ],
+      "cuda": "12.8",
+      "devices": 1,
+      "torch": "2.9.0+cu128"
+    },
+    "driver_major": 580,
+    "gpu": {
+      "count": 1,
+      "nvidia_smi": "0, Tesla T4, 15360 MiB, 580.82.07",
+      "rows": [
+        "0, Tesla T4, 15360 MiB, 580.82.07"
+      ]
+    },
+    "packages": {
+      "accelerate": "1.15.0",
+      "bm25s": "0.2.9",
+      "huggingface-hub": "1.33.0",
+      "numpy": "2.4.6",
+      "safetensors": "0.8.0",
+      "sentence-transformers": "6.3.0",
+      "tokenizers": "0.23.3",
+      "torch": "2.13.0",
+      "transformers": "5.19.0",
+      "vllm": "0.32.0"
+    },
+    "python": "3.13.16 (main, Oct  1 2026, 15:40:24) [GCC 13.3.0]",
+    "vllm_pin": "0.11.2"
+  },
+  "experiment": "s5_kaggle_mr StructuredReason (MR)",
+  "finished_utc": "2026-11-14T11:07:26.727510+00:00",
+  "gates": {
+    "coverage": {
+      "expected": 306,
+      "memories": {
+        "dense": {
+          "complete": true,
+          "expected": 306,
+          "extra": [],
+          "extra_count": 0,
+          "memory": "DenseRAG",
+          "missing": [],
+          "missing_count": 0,
+          "rows": 306,
+          "wrong_call_count": [],
+          "wrong_call_count_n": 0,
+          "wrong_ground_truth": [],
+          "wrong_ground_truth_n": 0,
+          "wrong_hop_n": 0
+        },
+        "sparse": {
+          "complete": true,
+          "expected": 306,
+          "extra": [],
+          "extra_count": 0,
+          "memory": "SparseRAG",
+          "missing": [],
+          "missing_count": 0,
+          "rows": 306,
+          "wrong_call_count": [],
+          "wrong_call_count_n": 0,
+          "wrong_ground_truth": [],
+          "wrong_ground_truth_n": 0,
+          "wrong_hop_n": 0
+        }
+      }
+    },
+    "full_complete": true,
+    "full_run_rc": 0,
+    "sanity": {
+      "cases": [
+        {
+          "baseline": "500",
+          "em_baseline": false,
+          "em_ours": false,
+          "exact_normalized_match": true,
+          "key": "0:RC000018#02",
+          "memory": "SparseRAG",
+          "ours": "500"
+        },
+        {
+          "baseline": "105.05(kg)",
+          "em_baseline": false,
+          "em_ours": false,
+          "exact_normalized_match": true,
+          "key": "1:RC000012#06",
+          "memory": "SparseRAG",
+          "ours": "105.05(kg)"
+        },
+        {
+          "baseline": "2015-01-01",
+          "em_baseline": false,
+          "em_ours": false,
+          "exact_normalized_match": true,
+          "key": "2:RC000080#10",
+          "memory": "SparseRAG",
+          "ours": "2015-01-01"
+        },
+        {
+          "baseline": "500",
+          "em_baseline": false,
+          "em_ours": false,
+          "exact_normalized_match": true,
+          "key": "0:RC000018#02",
+          "memory": "DenseRAG",
+          "ours": "500"
+        },
+        {
+          "baseline": "105.05(kg)",
+          "em_baseline": false,
+          "em_ours": false,
+          "exact_normalized_match": true,
+          "key": "1:RC000012#06",
+          "memory": "DenseRAG",
+          "ours": "105.05(kg)"
+        },
+        {
+          "baseline": "2014",
+          "em_baseline": false,
+          "em_ours": false,
+          "exact_normalized_match": true,
+          "key": "2:RC000080#10",
+          "memory": "DenseRAG",
+          "ours": "2014"
+        }
+      ],
+      "memories": {
+        "dense": {
+          "em_baseline": 0,
+          "em_ours": 0,
+          "empty": 0,
+          "exact_normalized_match": 3,
+          "mean_answer_chars_baseline": 5.666666666666667,
+          "mean_answer_chars_ours": 5.666666666666667,
+          "n": 3
+        },
+        "sparse": {
+          "em_baseline": 0,
+          "em_ours": 0,
+          "empty": 0,
+          "exact_normalized_match": 3,
+          "mean_answer_chars_baseline": 7.666666666666667,
+          "mean_answer_chars_ours": 7.666666666666667,
+          "n": 3
+        }
+      },
+      "pass": true,
+      "reasons": [],
+      "run_rc": 0
+    },
+    "smoke": {
+      "coverage": {
+        "expected": 3,
+        "memories": {
+          "dense": {
+            "complete": true,
+            "expected": 3,
+            "extra": [],
+            "extra_count": 0,
+            "memory": "DenseRAG",
+            "missing": [],
+            "missing_count": 0,
+            "rows": 3,
+            "wrong_call_count": [],
+            "wrong_call_count_n": 0,
+            "wrong_ground_truth": [],
+            "wrong_ground_truth_n": 0,
+            "wrong_hop_n": 0
+          },
+          "sparse": {
+            "complete": true,
+            "expected": 3,
+            "extra": [],
+            "extra_count": 0,
+            "memory": "SparseRAG",
+            "missing": [],
+            "missing_count": 0,
+            "rows": 3,
+            "wrong_call_count": [],
+            "wrong_call_count_n": 0,
+            "wrong_ground_truth": [],
+            "wrong_ground_truth_n": 0,
+            "wrong_hop_n": 0
+          }
+        }
+      },
+      "pass": true,
+      "reasons": [],
+      "run_rc": 0,
+      "stats": {
+        "calls": 72,
+        "candidate_pairs": 18,
+        "duplicate_pairs": 3,
+        "empty_responses": 0,
+        "retrieval_calls": 48,
+        "retrieval_empty": 0,
+        "rows": 6,
+        "selection_fallbacks": 0,
+        "selections": 24
+      }
+    }
+  },
+  "inputs": {
+    "created_utc": "2026-11-14T09:30:25.402094+00:00",
+    "embedding_model": "intfloat/e5-base-v2",
+    "embedding_revision": "f52bf8ec8c7124536f0efb74aca902b2995e5bcd",
+    "experiment": "s5_kaggle_mr",
+    "files": {
+      "kernel.py": {
+        "bytes": 26827,
+        "sha256": "c3ed0382f08aae32aa027ff53d3f026db398ac87641917d47d74d1e53f014870"
+      },
+      "lib.py": {
+        "bytes": 6079,
+        "sha256": "f86bffe869bc4820e923365e2597d18a44a1d490fc3670c9639681d309e930f2"
+      },
+      "mr.py": {
+        "bytes": 42215,
+        "sha256": "b1221b9eea44ee5c1db3837d7d26b5e0a6a31367ee49fefc9fd50b4435f41938"
+      },
+      "question_answer_0.json": {
+        "bytes": 3383324,
+        "sha256": "811eb54b391cb50c2514f38d8e0344bba2df9a4524119e5c3535d1fa4824c705"
+      },
+      "question_answer_1.json": {
+        "bytes": 3392018,
+        "sha256": "2ba2d371fa70971b899038d51a068fa69f3ecb8d6d9594f9265402f144b5d1c3"
+      },
+      "question_answer_10.json": {
+        "bytes": 3404950,
+        "sha256": "4daf51e00e88d9dca3a0582865a406c018e3c8539e94e54741e30e8cb8fa4470"
+      },
+      "question_answer_11.json": {
+        "bytes": 3410563,
+        "sha256": "bd7258d6e2c7b6bfe95093ceac792eaa3bfaaefd36a3cd2f7dda4ae203839f1c"
+      },
+      "question_answer_2.json": {
+        "bytes": 3405203,
+        "sha256": "6fb0d84841374f323417b90cdf85e75e750edcb8b8905e13659fcad12239c2b6"
+      },
+      "question_answer_3.json": {
+        "bytes": 3398775,
+        "sha256": "fe3bc30be62f402672304405aafa3d3aad6eca7824235f357154c1c9434f6cea"
+      },
+      "question_answer_4.json": {
+        "bytes": 3401183,
+        "sha256": "f64ea20e054dfd5b086f3b0f424120a98f31469487e487b89a00af2001ca76bb"
+      },
+      "question_answer_5.json": {
+        "bytes": 3399991,
+        "sha256": "a4d23c7b13e08f4173afffcebb42f4e314720fb3ab483de8a350d91101218367"
+      },
+      "question_answer_6.json": {
+        "bytes": 3404869,
+        "sha256": "f01325dfcbc102762c42e285457b4473801d9fe93766d9d15fb83be8344829a5"
+      },
+      "question_answer_7.json": {
+        "bytes": 3399078,
+        "sha256": "d6e84563f95ba57f13c25931c9d300e9504d24232d513976e7ccdb977063081e"
+      },
+      "question_answer_8.json": {
+        "bytes": 3389996,
+        "sha256": "083d3adf1b705f210e096d0fe212af7b1dce3c61202db00e9ed656fc610d2d24"
+      },
+      "question_answer_9.json": {
+        "bytes": 3398929,
+        "sha256": "76dca2a625cb7e3f2ecbcbe1b9fcc61ef2f04eea35ce27cfcdc3be8cbfa5fa13"
+      },
+      "s1_NaiveReason_DenseRAG_k20.jsonl": {
+        "bytes": 422576,
+        "sha256": "3687e2d5326cd28c114d18c12fc9d950c8182d44cb6e6446853e5447fa69a24a"
+      },
+      "s1_NaiveReason_Ignoramus_k20.jsonl": {
+        "bytes": 212016,
+        "sha256": "2f4236e23b91f0b0565346fdd209f218b647821160356e9581a58c57c26eecc8"
+      },
+      "s1_NaiveReason_Oracle_k20.jsonl": {
+        "bytes": 246982,
+        "sha256": "156da3f132fde42f538b130e4c3c1b2254ca7df34684af4759a5bb90c31fbab5"
+      },
+      "s1_NaiveReason_SparseRAG_k20.jsonl": {
+        "bytes": 423263,
+        "sha256": "f7f86c3411d1024b3c8bf87757719657bcce2412baa8e385126aae8fca4a174b"
+      },
+      "s2_SequentialReason_DenseRAG_k20_s5.jsonl": {
+        "bytes": 413969,
+        "sha256": "03c4d050ef9bbc81e5416a1c8b1162afaf8da076b5af9881cdda7a498337f970"
+      },
+      "s2_SequentialReason_Ignoramus_k20_s5.jsonl": {
+        "bytes": 371329,
+        "sha256": "bd9e4d496f67930077712ef491b4e1f1613322de4c3c857bba8b90467f564088"
+      },
+      "s2_SequentialReason_Oracle_k20_s5.jsonl": {
+        "bytes": 295143,
+        "sha256": "2ef606f2556c4713fc99625f2146c10e22f125312ebe537e63719d6c8060690b"
+      },
+      "s2_SequentialReason_SparseRAG_k20_s5.jsonl": {
+        "bytes": 407486,
+        "sha256": "aea44c2a8f992dd15fab8b03cf11602676a255445898482582c82fbf04109e17"
+      },
+      "s306.json": {
+        "bytes": 30414,
+        "sha256": "2e7b307bdcef4298b885305e0d56c837298de3136a3253f9c5d1941da3f8e831"
+      },
+      "score.py": {
+        "bytes": 2465,
+        "sha256": "f74bf8e65429a849a50862c566799c16e487fafbbdb65690d8551687a74090f5"
+      }
+    },
+    "git_branch": "experiments/mr-kaggle",
+    "git_commit": "44f1e3a897ac9012cd430aa471580152a11ed0bf",
+    "git_dirty": false,
+    "model": "Qwen/Qwen2.5-7B-Instruct-AWQ",
+    "model_revision": "b25037543e9394b818fdfca67ab2a00ecc7dd641",
+    "slice": "s306.json",
+    "upstream_commit": "a24953c8f342c9f3b2064e562ead49d477d49138",
+    "upstream_repo": "https://github.com/nuster1128/MPR"
+  },
+  "model": {
+    "dtype": "float16",
+    "gpu_memory_utilization": 0.8,
+    "max_model_len": 8192,
+    "max_num_seqs": 64,
+    "quantization": "awq",
+    "repo": "Qwen/Qwen2.5-7B-Instruct-AWQ",
+    "revision": "b25037543e9394b818fdfca67ab2a00ecc7dd641",
+    "served_name": "qwen",
+    "tensor_parallel_size": 1,
+    "vllm": "0.11.2"
+  },
+  "prompts": {
+    "Naive_RAG_Prompt_Template": {
+      "chars": 525,
+      "lines": 13,
+      "sha256": "2e7e92e46e1a8edf2a4f8a3694a7b4b1c55a4bd90bd0a09853e6291aa73515d3"
+    },
+    "Structured_Final_RAG_Prompt_Template": {
+      "chars": 666,
+      "lines": 18,
+      "sha256": "90ed4520285786ce44179b24b403b6da08e6a5ce1cd380d0ce9d3b4ea929d749"
+    },
+    "Structured_Middle_RAG_Prompt_Template": {
+      "chars": 424,
+      "lines": 15,
+      "sha256": "6950636fcfbc7f6cdbc099d1c032930fa94dca4479477b8d6716851390b4392e"
+    },
+    "Structured_Selection_RAG_Prompt_Template": {
+      "chars": 361,
+      "lines": 11,
+      "sha256": "af22de06c70eb5d92c4d9a82e7505efe3d3e93c661878830cbf6c886b124df48"
+    },
+    "Structured_Start_RAG_Prompt_Template": {
+      "chars": 356,
+      "lines": 12,
+      "sha256": "42bf1ac5b7007313521091b932bd1a922c83dc0547218fc3322ba286020f581c"
+    }
+  },
+  "settings": {
+    "branch_decoding": "seeded sampling T=0.7, top_p=1.0",
+    "branch_size": 2,
+    "branch_temperature": 0.7,
+    "branch_top_p": 1.0,
+    "empty_retries": 2,
+    "expected_calls_per_question": 12,
+    "expected_rows": 612,
+    "expected_rows_per_retriever": 306,
+    "experiment_seed": 0,
+    "greedy_decoding": "start, selections, final answer; T=0",
+    "greedy_temperature": 0.0,
+    "max_answer_tokens": 64,
+    "max_step": 5,
+    "max_thought_tokens": 200,
+    "memories": [
+      "SparseRAG",
+      "DenseRAG"
+    ],
+    "reserve_s": 1800,
+    "session_timeout_s": 14400,
+    "topk": 20,
+    "workers": 64
+  },
+  "slice": {
+    "meta": {
+      "leak_any": 166,
+      "leak_big": 126,
+      "n": 306,
+      "per_hop": 34,
+      "per_user": {
+        "0": 39,
+        "1": 22,
+        "10": 26,
+        "11": 23,
+        "2": 24,
+        "3": 11,
+        "4": 26,
+        "5": 22,
+        "6": 24,
+        "7": 34,
+        "8": 33,
+        "9": 22
+      },
+      "rule": "per hop: sort by (uid, rc_id), shuffle with random.Random(f'{seed}-{hop}'), keep first per_hop",
+      "seed": 0
+    },
+    "path": "s306.json",
+    "sha256": "2e7b307bdcef4298b885305e0d56c837298de3136a3253f9c5d1941da3f8e831"
+  },
+  "started_utc": "2026-11-14T09:30:44.164969+00:00",
+  "status": "complete",
+  "upstream": {
+    "clone_head": "a24953c8f342c9f3b2064e562ead49d477d49138",
+    "commit": "a24953c8f342c9f3b2064e562ead49d477d49138",
+    "repo": "https://github.com/nuster1128/MPR"
+  }
+}

@@ -10,6 +10,9 @@ results/*
 !results/laptop/
 !results/kaggle/
 !results/kaggle/mr/
+# local download/pull staging dirs for the MR driver
+results/kaggle/mr/_colab_out/
+results/kaggle/mr/_kaggle_out/
 results/**/*.log
 __pycache__/
 # T4 runs: keep raw jsonl, summaries and slices; drop the resume tarball, VM logs, adapters and per-user partials

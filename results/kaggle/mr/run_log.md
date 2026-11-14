@@ -154,3 +154,54 @@ sys.exit(subprocess.call([sys.executable, '-u', '/kaggle/working/kernel.py']))
 ```
 
 This is code delivery only; no session was started.
+
+## 8. 2026-11-14 end-to-end attempt: Kaggle queued, Colab T4 completed
+
+Diagnostics for the run that produced the committed rows. All times UTC.
+
+### Kaggle (no output)
+
+- Local tests: 21/21 pass at commit `44f1e3a`.
+- Private dataset `xunphi/mpr-mr-inputs` created (25 allowlisted flat files,
+  43,689,643 bytes); `kaggle datasets status` reported `ready` before push.
+- `xunphi/mpr-mr-reasoning` v1 pushed 08:08:24Z with `--accelerator NvidiaH100`
+  (metadata: `machine_shape=NvidiaH100`, AIMO competition source,
+  `--timeout 14400`); still `QUEUED` at 08:18:51Z when the user cancelled it
+  (`CANCEL_ACKNOWLEDGED`, no output, no quota charged).
+- v2 pushed 08:20:17Z; `QUEUED` at every poll through 09:25:26Z. The wrapper was
+  stopped at 09:26:23Z and the job abandoned in favour of Colab.
+  `results/kaggle/mr/_kaggle_out` is empty; the kernel was later no longer
+  retrievable through the API.
+- Kaggle GPU quota at the end: **0.20 h used, 29.80 h remaining** (0.01 h before
+  this work), i.e. the aborted attempt consumed GPU allocation but produced no
+  result.
+
+### Colab T4 (reported run)
+
+- Session `mpr-mr`: `0, Tesla T4, 15360 MiB, 580.82.07`; torch `2.14.1+cu130`
+  preinstalled. The driver held `/home/xphi/.local/state/mpr-study/kaggle-gpu.lock`
+  for the whole job and ran with `MR_COLAB_KEEP=1`.
+- First launch 09:27:58Z exited 2: the launcher path was under `/kaggle/input`,
+  which Colab mounts **read-only**, so the nested dataset symlink could not be
+  created. Fixed by launching `/content/mr_inputs/kernel.py` with
+  `MPR_INPUT_ROOT=/content/mr_inputs`; VM prep now asserts the staged copy.
+- Relaunch 09:30:44Z. `vllm==0.32.0` (torch 2.13.0) exited rc=2 immediately at
+  startup, so the kernel's one bounded fallback installed `vllm==0.11.2`
+  (torch `2.9.0+cu128`, CUDA 12.8, transformers 4.57.6); vLLM healthy after
+  350 s serving `qwen`. `manifest.json` `model.vllm=0.11.2` is the serving pin;
+  its `environment.packages` block was captured before the fallback and is
+  stale, transcribed in `deployment.json`.
+- Embeddings for all 12 users (157,166 statements) were prepared at 09:33-09:35
+  with the pre-fallback stack (torch 2.13.0+cu130, transformers 5.19.0); query
+  encoding later used the post-fallback stack. Same pinned e5 revision and
+  normalization; the NR sanity gate matched the committed s1 responses exactly.
+- NR sanity: 6/6 cases, exact normalized match 6/6 for both retrievers -> pass.
+- MR smoke 09:45-09:52: 6 rows, 72 calls, 24 selections, 0 fallbacks, 3/18
+  duplicate branch pairs -> pass.
+- Full run 09:52-11:07: SparseRAG 303 rows in 2,238 s, DenseRAG 303 rows in
+  2,276 s (64 workers), 0 failures, no deadline hit; 7,272 full calls plus 72
+  smoke calls = 7,344 (nominal). Coverage 306/306 for both retrievers;
+  `status.json` `complete`; package 1,075,515 bytes.
+- Job end 11:07:26Z, elapsed 5,802.5 s (96.7 min). Outputs pulled flat into
+  `results/kaggle/mr/`; kernel/vLLM logs are in `results/kaggle/mr/logs/`
+  (gitignored, kept on disk).

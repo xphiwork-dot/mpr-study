@@ -1,0 +1,51 @@
+{
+  "coverage": {
+    "expected": 3,
+    "memories": {
+      "dense": {
+        "complete": true,
+        "expected": 3,
+        "extra": [],
+        "extra_count": 0,
+        "memory": "DenseRAG",
+        "missing": [],
+        "missing_count": 0,
+        "rows": 3,
+        "wrong_call_count": [],
+        "wrong_call_count_n": 0,
+        "wrong_ground_truth": [],
+        "wrong_ground_truth_n": 0,
+        "wrong_hop_n": 0
+      },
+      "sparse": {
+        "complete": true,
+        "expected": 3,
+        "extra": [],
+        "extra_count": 0,
+        "memory": "SparseRAG",
+        "missing": [],
+        "missing_count": 0,
+        "rows": 3,
+        "wrong_call_count": [],
+        "wrong_call_count_n": 0,
+        "wrong_ground_truth": [],
+        "wrong_ground_truth_n": 0,
+        "wrong_hop_n": 0
+      }
+    }
+  },
+  "pass": true,
+  "reasons": [],
+  "run_rc": 0,
+  "stats": {
+    "calls": 72,
+    "candidate_pairs": 18,
+    "duplicate_pairs": 3,
+    "empty_responses": 0,
+    "retrieval_calls": 48,
+    "retrieval_empty": 0,
+    "rows": 6,
+    "selection_fallbacks": 0,
+    "selections": 24
+  }
+}

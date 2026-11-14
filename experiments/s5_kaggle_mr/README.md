@@ -1,4 +1,4 @@
-# S5 - MR (StructuredReason) on a private Kaggle T4
+# S5 - MR (StructuredReason) on a private T4
 
 This experiment runs the paper's **multi-branch reasoning** structure (MR,
 upstream class `StructuredReason`) with the two retrieval baselines the other
@@ -10,6 +10,23 @@ modified.
 Settings were frozen and written down here **before** any scored run. Results
 and the final status are in [`report.md`](report.md); raw rows are under
 `results/kaggle/mr/`.
+
+## Results (2026-11-14)
+
+**Complete: 612/612 rows** (306 questions x 2 retrievers), all gates passed.
+The run executed on a **Colab free-tier Tesla T4** through `colab_mr.sh` after
+the Kaggle GPU request stayed `QUEUED` for over an hour (section (b)).
+
+| run | EM [95% CI] | contains [95% CI] |
+|---|---|---|
+| MR SparseRAG | 0.203 [0.160, 0.248] | 0.209 [0.167, 0.255] |
+| MR DenseRAG | 0.216 [0.170, 0.261] | 0.225 [0.176, 0.271] |
+
+MR minus NR (s1) is +0.088 EM for both retrievers (intervals exclude 0). MR
+minus SR (s2) is not detectable (BM25 +0.010 [-0.026, +0.049], e5 -0.007
+[-0.046, +0.033]), i.e. MR matches 5-step SR at 12 calls/question instead of 5.
+Full tables, trace diagnostics and caveats: [`report.md`](report.md) and
+[`../../results/kaggle/mr/summary_mr.md`](../../results/kaggle/mr/summary_mr.md).
 
 ## (a) Reference audit (pinned upstream, no code copied)
 
@@ -60,8 +77,8 @@ Consequences for the reference-faithful primary run:
 | Selection parser | strip surrounding whitespace, ASCII digits only, safe `int`, out-of-range/non-digit -> path 0; no `eval` |
 | Other | no gold answer is passed to the runner; ground truth is attached after the answer returns |
 | Seeds | experiment seed 0; per-question seeds are derived from `uid`, `rc_id`, round and branch, not from scheduling order. No accuracy-driven tuning or unbounded retry-until-distinct. |
-| Hardware budget | exactly one **private** Kaggle GPU job on account `xunphi`, CLI timeout 14,400 s (4 h, the approved cap; the account has a 30 h/week GPU allowance) with a 30 min in-job reserve; embedded smoke + full run in that one job; serialized with the peer through `/home/xphi/.local/state/mpr-study/kaggle-gpu.lock`. 64 workers match `--max-num-seqs 64`. A `check_cuda()` gate fails fast if the allocated torch cannot see a GPU. |
-| Software | vLLM pinned `0.32.0` (CUDA 13 wheels, matching the prior T4 session) when the node reports driver >= 580, otherwise `0.11.2` (CUDA 12 wheels) for 525 <= driver < 580, and the kernel refuses to run below 525 (`choose_vllm_pin`, tested); if the chosen pin installs but vLLM cannot serve, the kernel makes one bounded retry with the other family (`fallback_vllm_pin`). `bm25s==0.2.9`, `sentence-transformers==6.3.0`; actual resolved versions are recorded in the run manifest and `environment.json` |
+| Hardware budget | exactly one capped job: 4 h CLI/session cap (the approved cap) with a 30 min in-job reserve; embedded smoke + full run in that one job; serialized with the peer through `/home/xphi/.local/state/mpr-study/kaggle-gpu.lock`. **Executed on one Colab free-tier Tesla T4 (15,360 MiB, driver 580.82.07) via `colab_mr.sh`**; the private Kaggle job stayed `QUEUED` >60 min and was abandoned (Kaggle quota 0.20 h used, no output). 64 workers match `--max-num-seqs 64`. A `check_cuda()` gate fails fast if the allocated torch cannot see a GPU. |
+| Software | vLLM pinned `0.32.0` (CUDA 13 wheels) when the node reports driver >= 580, otherwise `0.11.2` (CUDA 12 wheels) for 525 <= driver < 580, and the kernel refuses to run below 525 (`choose_vllm_pin`, tested); if the chosen pin installs but vLLM cannot serve, the kernel makes one bounded retry with the other family (`fallback_vllm_pin`). **In the reported run `0.32.0` exited rc=2 at startup and the fallback served `vllm==0.11.2` (torch `2.9.0+cu128`, transformers `4.57.6`) on the T4;** `bm25s==0.2.9`, `sentence-transformers==6.3.0`. The run manifest records the serving pin (`model.vllm=0.11.2`) and `deployment.json` transcribes the actual stack and the stale pre-fallback `environment.packages` block |
 | Expected rows | 306 unique successful rows per retriever = **612** total; any less is partial/blocked |
 
 ### Accelerator routing on `xunphi`
@@ -72,14 +89,20 @@ account. `enable_gpu: true` + `machine_shape: NvidiaTeslaT4` (and the matching
 verified instant-allocation recipe is `machine_shape: "NvidiaH100"` in
 `kernel-metadata.json` **plus**
 `"competition_sources": ["ai-mathematical-olympiad-progress-prize-3"]` and
-`kaggle kernels push --accelerator NvidiaH100`: the session starts immediately
-as **2x NVIDIA Tesla T4 (15,360 MiB each)**, driver `580.178.04` (CUDA 13,
-`vllm==0.32.0` wheels), preinstalled `torch 2.11.0+cu130` with
-`torch.cuda.is_available() == True` and outbound internet. Despite the
-requested shape, the actual device is a T4, so vLLM keeps one replica on one
-card (`--tensor-parallel-size 1`) and the query encoder uses GPU 1 when it is
+`kaggle kernels push --accelerator NvidiaH100`: it was verified to start as
+**2x NVIDIA Tesla T4 (15,360 MiB each)**, driver `580.178.04` (CUDA 13),
+preinstalled `torch 2.11.0+cu130` and outbound internet. Despite the requested
+shape, the actual device is a T4, so vLLM keeps one replica on one card
+(`--tensor-parallel-size 1`) and the query encoder uses GPU 1 when it is
 visible. `kernel.py` still gates on `torch.cuda` and on the driver major, so a
 surprise allocation fails fast instead of burning the session.
+
+**Actual outcome (2026-11-14):** after the verified probe, the same recipes
+queued for 11 min (v1, then user-cancelled) and >60 min (v2) without ever
+entering `RUNNING`; the orchestrator switched the run to a Colab free-tier T4
+and the Kaggle job was abandoned. The routing metadata above is kept because it
+is the tested configuration for a future attempt, not because it allocated a
+session for this result.
 
 ### Why branch calls are sampled
 
@@ -122,11 +145,11 @@ Before scoring, the following are fixed:
 | File | Role |
 |---|---|
 | `mr.py` | ADAPTED reference flow, safe selector, retrieval wiring, resumable runner, smoke/sanity/coverage gates |
-| `kernel.py` | ORIGINAL TO THIS REPO private Kaggle entrypoint: input verification, pinned clone, driver-aware vLLM install, CUDA gate, embedding cache, vLLM, sanity, smoke, full run, manifest/package. Also shipped inside the private dataset so a UI-started notebook can exec the same code |
+| `kernel.py` | ORIGINAL TO THIS REPO entrypoint: input verification, pinned clone, driver-aware vLLM install, CUDA gate, embedding cache, vLLM, sanity, smoke, full run, manifest/package. Ships inside the private dataset and is the exact file `colab_mr.sh` runs on the Colab VM (and a UI-started Kaggle notebook can exec it) |
 | `pack_mr.py` | ORIGINAL TO THIS REPO explicit-allowlist private dataset staging (flat: Kaggle CLI default dir-mode=skip drops directories) |
 | `run_remote.sh` | ORIGINAL TO THIS REPO push/monitor/download wrapper that holds the shared GPU flock (fd 9) until terminal status and output download finish |
 | `monitor_remote.sh` | ORIGINAL TO THIS REPO same lock/poll/download wrapper without a push, for a version started from the Kaggle UI |
-| `colab_mr.sh` | ORIGINAL TO THIS REPO Colab T4 fallback driver: holds the shared lock, stages the same private dataset at the path `kernel.py` resolves, runs the exact entrypoint, downloads outputs and stops the session |
+| `colab_mr.sh` | ORIGINAL TO THIS REPO Colab T4 driver **used for the reported run**: holds the shared lock, stages the same private dataset, runs the exact `kernel.py` with `MPR_INPUT_ROOT`, polls row counts, downloads rows/logs/manifest, and stops the session unless `MR_COLAB_KEEP=1` |
 | `kernel-metadata.json` | private kernel metadata (`xunphi/mpr-mr-reasoning`), private dataset `xunphi/mpr-mr-inputs` |
 | `analyze_mr.py` | ORIGINAL TO THIS REPO scoring/comparison report from raw rows |
 | `../../tests/test_mr.py` | stdlib tests: upstream mock parity, buffer semantics, parsing, seeds, duplicates, no gold leak, cut-tail resume, reused grid regression |
@@ -162,7 +185,16 @@ python -m unittest tests.test_mr -v
 python experiments/s5_kaggle_mr/pack_mr.py --out /tmp/mpr-mr-kaggle/dataset --clean
 ```
 
-Private Kaggle resources (only after local tests pass):
+One Colab T4 session (the path used for the reported run; holds the shared
+lock for the whole job and resumes from downloaded jsonl rows):
+
+```bash
+export PATH="$HOME/.local/bin:$PATH"
+MR_COLAB_KEEP=1 experiments/s5_kaggle_mr/colab_mr.sh results/kaggle/mr/_colab_out
+```
+
+Kaggle route (kept for when the account can allocate a GPU; only after local
+tests pass):
 
 ```bash
 # 1. create/update the private input dataset (allowlisted files only)
@@ -179,17 +211,12 @@ experiments/s5_kaggle_mr/run_remote.sh results/kaggle/mr/_kaggle_out
 # alternative when only the Kaggle UI can allocate a GPU: open the saved
 # version, select Accelerator = GPU T4 x2 and start it, then monitor/download
 experiments/s5_kaggle_mr/monitor_remote.sh xunphi/mpr-mr-reasoning results/kaggle/mr/_kaggle_out
+```
 
-# fallback if Kaggle cannot allocate an accelerator: same entrypoint on a
-# Colab T4, serialized on the same lock; requires the shared `colab` auth
-experiments/s5_kaggle_mr/colab_mr.sh results/kaggle/mr/_colab_out
+Score locally (numpy required; the repo `.venv` has it):
 
-# 3. inspect later if needed
-~/.local/bin/kaggle kernels status xunphi/mpr-mr-reasoning
-~/.local/bin/kaggle kernels logs xunphi/mpr-mr-reasoning
-
-# 4. score locally (numpy required)
-python experiments/s5_kaggle_mr/analyze_mr.py \
+```bash
+.venv/bin/python experiments/s5_kaggle_mr/analyze_mr.py \
   --results-dir results/kaggle/mr --slice results/t4/slices/s306.json \
   --data-dir ../mpr-study/data/mpr_dataset/question_answer
 ```

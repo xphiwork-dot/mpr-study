@@ -16,3 +16,12 @@ these requests (no device, no driver, CPU-only torch, quota used 0.00 h,
 `hasEverRun=false`). It does not establish why (account entitlement,
 propagation delay and a platform fault remain possible). A UI-started GPU
 notebook with a working `nvidia-smi` is the missing confirmation.
+
+## Update 2026-11-14 (superseded path)
+
+This probe evidence is historical. On 2026-11-14 the account `xunphi` was used
+instead: the verified recipe (`machine_shape=NvidiaH100` + the AIMO competition
+source + `--accelerator NvidiaH100`) was pushed twice but stayed `QUEUED` for
+11 min (v1, user-cancelled) and >60 min (v2), so the orchestrator switched the
+experiment to a Colab free-tier T4. The Colab run completed 612/612 rows; see
+`../report.md`. Kaggle GPU quota ended at 0.20 h used with no experiment output.

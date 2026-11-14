@@ -1,0 +1,49 @@
+{
+  "note": "Derived from the run manifest, status.json and results/kaggle/mr/logs/kernel.log (log is gitignored but was downloaded with the run). manifest.environment.packages was captured before the one bounded vLLM fallback, so it lists the planned 0.32.0/torch 2.13.0 stack; the serving stack below is the one that actually produced the rows.",
+  "runner": "colab_mr.sh on a Colab free-tier session named mpr-mr",
+  "gpu": {
+    "nvidia_smi": "0, Tesla T4, 15360 MiB, 580.82.07",
+    "count": 1,
+    "driver_major": 580,
+    "capability": [7, 5],
+    "vllm_gpu": "0",
+    "query_encoder_device": "cpu"
+  },
+  "vllm": {
+    "requested_pin": "0.32.0",
+    "requested_pin_result": "vLLM exited early rc=2 during startup (kernel.log line 578); the first attempt's vllm.log was overwritten by the retry",
+    "served_pin": "0.11.2",
+    "served_stack": {
+      "torch": "2.9.0+cu128",
+      "cuda": "12.8",
+      "transformers": "4.57.6",
+      "huggingface-hub": "0.36.2"
+    },
+    "healthy_after_s": 350,
+    "max_model_len": 8192,
+    "max_num_seqs": 64,
+    "gpu_memory_utilization": 0.8,
+    "tensor_parallel_size": 1
+  },
+  "retrieval": {
+    "bm25s": "0.2.9",
+    "sentence_transformers": "6.3.0",
+    "e5_model": "intfloat/e5-base-v2",
+    "e5_revision": "f52bf8ec8c7124536f0efb74aca902b2995e5bcd",
+    "e5_embeddings_prepared_with": {
+      "torch": "2.13.0+cu130",
+      "transformers": "5.19.0"
+    },
+    "e5_query_encoding_after_fallback_with": {
+      "torch": "2.9.0+cu128",
+      "transformers": "4.57.6"
+    },
+    "prefixes": null,
+    "normalize_embeddings": true
+  },
+  "sanity_gate": {
+    "pass": true,
+    "exact_normalized_match": "6/6 smoke cases against the committed s1 NR rows"
+  },
+  "kaggle_quota_used_h": 0.2
+}
