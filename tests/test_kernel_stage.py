@@ -16,7 +16,7 @@ import unittest
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(HERE)
-EXP = os.path.join(REPO, "experiments", "s6_kaggle_dr")
+EXP = os.path.join(REPO, "experiments", "s6_t4_dr")
 
 
 def sha256(path):
@@ -73,7 +73,7 @@ def point_at(km, tmp, inp):
     km.CACHE = os.path.join(km.ROOT, "cache")
     km.QA_DIR = os.path.join(km.ROOT, "data", "mpr_dataset", "question_answer")
     km.SLICE = os.path.join(km.ROOT, "results", "slices", "s306.json")
-    km.OUT = os.path.join(km.WORK, "results", "kaggle", "dr")
+    km.OUT = os.path.join(km.WORK, "results", "t4", "s6_dr")
     km.RUNS = os.path.join(km.OUT, "runs")
     km.STATUS_PATH = os.path.join(km.WORK, "status.json")
     os.makedirs(km.WORK, exist_ok=True)

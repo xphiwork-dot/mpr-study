@@ -1,0 +1,73 @@
+{
+  "gpu": {
+    "capability": [
+      7,
+      5
+    ],
+    "count": 1,
+    "driver_major": 580,
+    "nvidia_smi": "0, Tesla T4, 15360 MiB, 580.82.07",
+    "query_encoder_device": "cpu",
+    "vllm_gpu": "0"
+  },
+  "kaggle_quota_used_h": 0.2,
+  "note": "Derived from the run manifest, coverage/gate reports and the kernel log that was downloaded with the run (the log itself is gitignored). The manifest environment.packages block was refreshed to the serving stack recorded below; the pre-fallback snapshot is preserved under environment.packages_captured_before_fallback.",
+  "retrieval": {
+    "bm25s": "0.2.9",
+    "e5_embeddings_prepared_with": {
+      "torch": "2.13.0+cu130",
+      "transformers": "5.19.0"
+    },
+    "e5_model": "intfloat/e5-base-v2",
+    "e5_query_encoding_after_fallback_with": {
+      "torch": "2.9.0+cu128",
+      "transformers": "4.57.6"
+    },
+    "e5_revision": "f52bf8ec8c7124536f0efb74aca902b2995e5bcd",
+    "normalize_embeddings": true,
+    "prefixes": null,
+    "sentence_transformers": "6.3.0"
+  },
+  "retrieval_drift": {
+    "DenseRAG": {
+      "exact_order_vs_s1": "177/306",
+      "exact_order_vs_s2": "177/306",
+      "gold_fact_presence_changes": "0/11",
+      "order_only_differences": 118,
+      "rank20_set_vs_s1": "295/306",
+      "rank20_set_vs_s2": "295/306",
+      "set_difference_overlap": "19/20 in each differing set",
+      "set_differences": 11
+    },
+    "SparseRAG": {
+      "exact_order_vs_s1": "306/306",
+      "exact_order_vs_s2": "306/306",
+      "gold_fact_presence_changes": 0,
+      "rank20_set_vs_s1": "306/306"
+    },
+    "cause": "e5 statement embeddings were built on CUDA fp16 with torch 2.13.0+cu130 / transformers 5.19.0 before the vLLM 0.32.0 -> 0.11.2 fallback; query encoding then ran on CPU fp32 with torch 2.9.0+cu128 / transformers 4.57.6. S1 NR and S2 SR encoded both sides on one stack.",
+    "comparison": "first_retrieved rankings for the 306 slice questions, MR vs archived S1 NR and S2 SR rows",
+    "mitigation": "the 3 fixed smoke questions passed 6/6 exact normalized NR response matches and no differing rank-20 set changed gold-fact presence (0/11), so the drift affects ordering, not evidence availability; a rerun should build embeddings and encode queries on the same post-fallback stack."
+  },
+  "runner": "colab_mr.sh on a Colab free-tier session named mpr-mr",
+  "sanity_gate": {
+    "exact_normalized_match": "6/6 smoke cases against the committed s1 NR rows",
+    "pass": true
+  },
+  "vllm": {
+    "gpu_memory_utilization": 0.8,
+    "healthy_after_s": 350,
+    "max_model_len": 8192,
+    "max_num_seqs": 64,
+    "requested_pin": "0.32.0",
+    "requested_pin_result": "vLLM exited early rc=2 during startup (kernel.log line 578); the first attempt's vllm.log was overwritten by the retry",
+    "served_pin": "0.11.2",
+    "served_stack": {
+      "cuda": "12.8",
+      "huggingface-hub": "0.36.2",
+      "torch": "2.9.0+cu128",
+      "transformers": "4.57.6"
+    },
+    "tensor_parallel_size": 1
+  }
+}

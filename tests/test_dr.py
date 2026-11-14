@@ -20,7 +20,7 @@ import unittest
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(HERE)
-EXP = os.path.join(REPO, "experiments", "s6_kaggle_dr")
+EXP = os.path.join(REPO, "experiments", "s6_t4_dr")
 sys.path.insert(0, EXP)
 
 import dr  # noqa: E402
@@ -580,6 +580,26 @@ class RunTests(unittest.TestCase):
             failures = lib.read_jsonl(os.path.join(tmp, "failures_SparseRAG.jsonl"))
             self.assertGreaterEqual(len(failures), 20)
             self.assertTrue(all(f["stage"].startswith(("divide", "solve", "merge")) for f in failures))
+
+    def test_circuit_breaker_stops_before_the_second_memory(self):
+        # Regression: the breaker stores "circuit_breaker after N consecutive
+        # failures", so exact-string equality in the outer loop never matched and
+        # DenseRAG would start even after SparseRAG had tripped the breaker.
+        def broken(prompt, max_tokens, retries=5, temperature=0):
+            raise RuntimeError("connection refused")
+
+        items = [item(rc_id=f"RC{i:06d}#02", hop=2) for i in range(40)]
+        data = data_for_items(items)
+        runner = dr.Runner(SETTINGS, chat=broken, user_loader=lambda uid: data,
+                           index_factory=lambda uid, d, need_dense, enc: FakeIndex(d))
+        with tempfile.TemporaryDirectory() as tmp:
+            summary = runner.run(items, ["sparse", "dense"], tmp, workers=2,
+                                 max_consecutive_failures=5)
+            sparse = summary["memories"]["DecompositionReason_SparseRAG_k20"]
+            self.assertTrue(sparse["stopped"].startswith("circuit_breaker"))
+            self.assertEqual(sparse["rows"], 0)
+            self.assertNotIn("DecompositionReason_DenseRAG_k20", summary["memories"])
+            self.assertFalse(lib.read_jsonl(os.path.join(tmp, "failures_DenseRAG.jsonl")))
 
     def test_failure_recorded_without_row_and_without_naive_fallback(self):
         calls = {"n": 0}
