@@ -1,0 +1,1445 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MPR Independent Reproduction Report — 4-Minute Visual Summary</title>
+<style>
+  :root {
+    --bg: #f7f6f2;
+    --bg-alt: #eeece4;
+    --surface: #ffffff;
+    --surface-2: #f8fafc;
+    --ink: #152033;
+    --ink-soft: #42526b;
+    --muted: #68778d;
+    --line: #dfe4ec;
+    --line-strong: #c5cfdc;
+    --hero-bg: #10233d;
+    --hero-ink: #f8fafc;
+    --hero-muted: #c2d4e8;
+    --teal: #0b7a75;
+    --teal-soft: #dff4f1;
+    --blue: #2563eb;
+    --blue-soft: #e8f0fe;
+    --amber: #b45309;
+    --amber-soft: #fef3c7;
+    --rose: #be123c;
+    --rose-soft: #ffe4e6;
+    --purple: #6d28d9;
+    --purple-soft: #ede9fe;
+    --shadow: 0 8px 28px rgba(16, 35, 61, 0.055);
+    --radius: 16px;
+    --chart-grid: #e6ebf2;
+    --chart-axis: #94a3b8;
+    --code-bg: #f1f5f9;
+  }
+
+  [data-theme="dark"] {
+    --bg: #0b1220;
+    --bg-alt: #121c2e;
+    --surface: #152033;
+    --surface-2: #1b2942;
+    --ink: #eaf0f8;
+    --ink-soft: #c0cde0;
+    --muted: #8ea2be;
+    --line: #263650;
+    --line-strong: #395075;
+    --hero-bg: #0f1e36;
+    --hero-ink: #f8fafc;
+    --hero-muted: #a8c0dc;
+    --teal: #2dd4bf;
+    --teal-soft: rgba(45, 212, 191, 0.14);
+    --blue: #60a5fa;
+    --blue-soft: rgba(96, 165, 250, 0.15);
+    --amber: #fbbf24;
+    --amber-soft: rgba(251, 191, 36, 0.14);
+    --rose: #fb7185;
+    --rose-soft: rgba(251, 113, 133, 0.15);
+    --purple: #c084fc;
+    --purple-soft: rgba(192, 132, 252, 0.15);
+    --shadow: 0 10px 32px rgba(0, 0, 0, 0.35);
+    --chart-grid: #24344d;
+    --chart-axis: #64748b;
+    --code-bg: #0f172a;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: 16px/1.65 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--blue); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.86em;
+    background: var(--code-bg);
+    padding: 2px 6px;
+    border-radius: 5px;
+    color: var(--ink);
+  }
+
+  /* Sticky Topbar */
+  .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: color-mix(in srgb, var(--surface) 88%, transparent);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+  .topbar-inner {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 10px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .brand {
+    font-weight: 800;
+    font-size: 13.5px;
+    letter-spacing: -0.01em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .brand-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--teal);
+  }
+  .read-pill {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--teal);
+    background: var(--teal-soft);
+    padding: 2px 8px;
+    border-radius: 999px;
+  }
+  .nav-links {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .nav-links a {
+    color: var(--ink-soft);
+    font-size: 12.5px;
+    font-weight: 600;
+    padding: 5px 10px;
+    border-radius: 999px;
+    transition: background 0.15s, color 0.15s;
+  }
+  .nav-links a:hover {
+    background: var(--bg-alt);
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .theme-btn {
+    border: 1px solid var(--line-strong);
+    background: var(--surface-2);
+    color: var(--ink);
+    border-radius: 999px;
+    padding: 5px 12px;
+    font-size: 12.5px;
+    font-weight: 650;
+    cursor: pointer;
+  }
+  .theme-btn:hover { border-color: var(--blue); }
+
+  /* Main Container */
+  .wrap {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 32px 24px 96px;
+  }
+
+  /* Hero */
+  .hero {
+    background: var(--hero-bg);
+    color: var(--hero-ink);
+    border-radius: 22px;
+    padding: 38px 40px 32px;
+    box-shadow: var(--shadow);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-size: 11.5px;
+    font-weight: 800;
+    color: #7ee7dc;
+  }
+  .hero h1 {
+    font-size: clamp(26px, 3.6vw, 38px);
+    line-height: 1.15;
+    letter-spacing: -0.03em;
+    margin: 10px 0 14px;
+  }
+  .hero-sub {
+    color: var(--hero-muted);
+    font-size: 16.5px;
+    line-height: 1.6;
+    max-width: 820px;
+    margin: 0;
+  }
+  .status-strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+  }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 11.5px;
+    font-weight: 750;
+    line-height: 1.3;
+  }
+  .badge-ok { background: var(--teal-soft); color: var(--teal); }
+  .badge-warn { background: var(--amber-soft); color: var(--amber); }
+  .badge-no { background: var(--rose-soft); color: var(--rose); }
+  .badge-info { background: var(--blue-soft); color: var(--blue); }
+  .badge-flight { background: var(--purple-soft); color: var(--purple); }
+  .hero .badge-ok { background: rgba(45, 212, 191, 0.18); color: #99f6e4; }
+  .hero .badge-flight { background: rgba(192, 132, 252, 0.22); color: #e9d5ff; }
+
+  /* KPI Strip */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-top: 18px;
+  }
+  .kpi {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 20px;
+    box-shadow: var(--shadow);
+  }
+  .kpi .num {
+    font-size: 26px;
+    font-weight: 850;
+    letter-spacing: -0.03em;
+    line-height: 1.15;
+    margin-bottom: 6px;
+  }
+  .kpi .lbl {
+    font-size: 13.5px;
+    font-weight: 750;
+    color: var(--ink);
+    margin-bottom: 4px;
+  }
+  .kpi .sub {
+    font-size: 12.5px;
+    color: var(--muted);
+    line-height: 1.45;
+  }
+
+  /* Sections */
+  section {
+    margin-top: 60px;
+    scroll-margin-top: 72px;
+  }
+  .sec-head {
+    margin-bottom: 22px;
+  }
+  .sec-kicker {
+    font-size: 11.5px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.11em;
+    color: var(--teal);
+  }
+  .sec-head h2 {
+    font-size: clamp(22px, 2.6vw, 28px);
+    letter-spacing: -0.025em;
+    margin: 4px 0 10px;
+    line-height: 1.22;
+  }
+  .lead {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 16.5px;
+    line-height: 1.65;
+  }
+  .lead strong { color: var(--ink); }
+
+  /* Cards & Grids */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 26px 28px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .card h3 {
+    margin: 0 0 6px;
+    font-size: 17.5px;
+    letter-spacing: -0.015em;
+  }
+  .card-sub {
+    margin: 0 0 14px;
+    font-size: 14px;
+    color: var(--muted);
+  }
+
+  .grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+  .grid-2 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  /* Crisp Bullet Lists */
+  .punch-list {
+    margin: 14px 0 0;
+    padding-left: 18px;
+    color: var(--ink-soft);
+    font-size: 15px;
+  }
+  .punch-list li {
+    margin-bottom: 8px;
+    line-height: 1.55;
+  }
+  .punch-list li:last-child { margin-bottom: 0; }
+  .punch-list strong { color: var(--ink); }
+
+  /* Verdict Columns */
+  .verdict-col {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-top: 4px solid var(--teal);
+    border-radius: var(--radius);
+    padding: 22px;
+    box-shadow: var(--shadow);
+  }
+  .verdict-col.warn { border-top-color: var(--amber); }
+  .verdict-col.no { border-top-color: var(--rose); }
+  .verdict-col h3 {
+    margin: 8px 0 10px;
+    font-size: 16.5px;
+  }
+  .verdict-col ul {
+    margin: 0;
+    padding-left: 17px;
+    color: var(--ink-soft);
+    font-size: 14.2px;
+  }
+  .verdict-col li {
+    margin-bottom: 9px;
+    line-height: 1.5;
+  }
+  .verdict-col li:last-child { margin-bottom: 0; }
+  .verdict-col strong { color: var(--ink); }
+
+  /* Visual SVG Containers */
+  .svg-wrap {
+    width: 100%;
+    overflow-x: auto;
+    margin: 10px 0 6px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--surface-2);
+    padding: 16px;
+  }
+  svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  }
+  .chart-note {
+    font-size: 12.5px;
+    color: var(--muted);
+    margin-top: 8px;
+  }
+
+  /* Surprise Cards & Takeaway Cards */
+  .mini-card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 20px 22px;
+    box-shadow: var(--shadow);
+  }
+  .mini-card h3 {
+    margin: 6px 0 6px;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .mini-card p {
+    margin: 0;
+    font-size: 14.5px;
+    color: var(--ink-soft);
+    line-height: 1.55;
+  }
+  .step-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 8px;
+    background: var(--teal-soft);
+    color: var(--teal);
+    font-weight: 800;
+    font-size: 13px;
+    margin-bottom: 6px;
+  }
+
+  /* Progressive Disclosure Accordions */
+  details.deep-dive {
+    margin-top: 14px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(16, 35, 61, 0.03);
+  }
+  details.deep-dive summary {
+    list-style: none;
+    cursor: pointer;
+    padding: 14px 20px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--ink);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    background: var(--surface-2);
+    user-select: none;
+    transition: background 0.15s;
+  }
+  details.deep-dive summary::-webkit-details-marker { display: none; }
+  details.deep-dive summary:hover {
+    background: color-mix(in srgb, var(--blue-soft) 45%, var(--surface-2));
+  }
+  .sum-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .sum-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    background: var(--surface);
+    border: 1px solid var(--line-strong);
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--blue);
+    line-height: 1;
+    flex-shrink: 0;
+  }
+  details.deep-dive[open] .sum-icon::before { content: "−"; }
+  details.deep-dive:not([open]) .sum-icon::before { content: "+"; }
+  .sum-meta {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+  }
+  .dive-body {
+    padding: 20px 22px;
+    border-top: 1px solid var(--line);
+    font-size: 14px;
+    color: var(--ink-soft);
+  }
+  .dive-body p { margin: 0 0 12px; }
+  .dive-body p:last-child { margin-bottom: 0; }
+
+  /* Accordion Tables */
+  .filter-bar {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+  .tab-btn {
+    border: 1px solid var(--line-strong);
+    background: var(--surface-2);
+    color: var(--ink-soft);
+    padding: 5px 12px;
+    border-radius: 999px;
+    font-size: 12.5px;
+    font-weight: 650;
+    cursor: pointer;
+  }
+  .tab-btn.active {
+    background: var(--ink);
+    color: var(--surface);
+    border-color: var(--ink);
+  }
+  .table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--surface);
+    margin: 10px 0;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    min-width: 620px;
+  }
+  th {
+    background: var(--surface-2);
+    color: var(--ink-soft);
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    text-align: left;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--line);
+  }
+  td {
+    padding: 9px 12px;
+    border-bottom: 1px solid var(--line);
+    color: var(--ink-soft);
+    vertical-align: top;
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  td strong { color: var(--ink); }
+  tr.highlight-row { background: color-mix(in srgb, var(--teal-soft) 50%, transparent); }
+
+  .example-box {
+    background: var(--surface-2);
+    border-left: 4px solid var(--rose);
+    padding: 12px 16px;
+    border-radius: 0 10px 10px 0;
+    margin-bottom: 16px;
+  }
+  .q-quote {
+    font-style: italic;
+    color: var(--ink);
+    display: block;
+    margin: 6px 0;
+  }
+  .audit-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  .audit-item {
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 13px 15px;
+  }
+  .audit-item h4 {
+    margin: 0 0 5px;
+    font-size: 13.8px;
+    color: var(--ink);
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .audit-item p {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.48;
+  }
+
+  footer {
+    margin-top: 56px;
+    padding-top: 20px;
+    border-top: 1px solid var(--line);
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  @media (max-width: 860px) {
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    .grid-3, .grid-2, .audit-grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 560px) {
+    .wrap { padding: 18px 14px 64px; }
+    .hero { padding: 26px 22px; }
+    .kpi-grid { grid-template-columns: 1fr; }
+    .nav-links { display: none; }
+  }
+  @media print {
+    .topbar { display: none; }
+    details.deep-dive { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <span class="brand-dot"></span>
+      <span>MPR Reproduction</span>
+      <span class="read-pill">4 min read</span>
+    </div>
+    <nav class="nav-links" aria-label="Sections">
+      <a href="#verdict">1. Verdict</a>
+      <a href="#methods">2. How They Work</a>
+      <a href="#results">3. Claims vs. Results</a>
+      <a href="#surprises">4. Surprises</a>
+      <a href="#takeaways">5. Takeaway</a>
+    </nav>
+    <button class="theme-btn" id="themeToggle" type="button" aria-label="Toggle color theme">◐ Dark / Light</button>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="eyebrow">Independent Reproduction · KDD ’26 (arXiv:2508.13250v1)</div>
+    <h1>Multi-Hop Personal Memory: What Actually Works?</h1>
+    <p class="hero-sub">
+      When an AI assistant stores <strong>13,100 private facts</strong> about a person, how should it remember them and chain clues together? We reproduced Zhang et al.’s MPR repo (<code>nuster1128/MPR @ a24953c</code>) on a Tesla T4—including all 612 rows of <strong>Multi-path Reasoning (MR)</strong>—to separate real gains from wasted compute.
+    </p>
+    <div class="status-strip">
+      <span class="badge badge-ok">✓ NR 1-Shot (900 Qs)</span>
+      <span class="badge badge-ok">✓ SR 5-Step (306 Qs)</span>
+      <span class="badge badge-ok">✓ Top-k &amp; Step Sweeps</span>
+      <span class="badge badge-ok">✓ MR 12-Call Tree (612/612 rows)</span>
+      <span class="badge badge-ok">✓ 32,399-Q Data Audit</span>
+      <span class="badge badge-flight">⏳ DR Decomposition In Flight</span>
+    </div>
+  </div>
+
+  <!-- 4 HEADLINE KPIs -->
+  <div class="kpi-grid">
+    <div class="kpi">
+      <div class="num" style="color:var(--teal)">~2× EM</div>
+      <div class="lbl">3–5 Step SR Beats 1-Shot NR</div>
+      <div class="sub">5 steps lifts BM25 <code>11.4%→19.3%</code> &amp; e5 <code>12.7%→22.2%</code>; 3 steps hits <code>24.5%</code>.</div>
+    </div>
+    <div class="kpi">
+      <div class="num" style="color:var(--amber)">2.4× Cost, 0 Gain</div>
+      <div class="lbl">12-Call MR Ties 5-Step SR</div>
+      <div class="sub">MR scores <code>20.3%</code> BM25 / <code>21.6%</code> e5 at <code>1.9×</code> wall time (<code>75.2m</code> vs <code>39.8m</code>).</div>
+    </div>
+    <div class="kpi">
+      <div class="num" style="color:var(--purple)">74.5% Depth ≤ 2</div>
+      <div class="lbl">MR Stays Shallow</div>
+      <div class="sub"><code>456 / 612</code> tree-search runs pick depth 1–2 paths from an unpruned buffer.</div>
+    </div>
+    <div class="kpi">
+      <div class="num" style="color:var(--rose)">53% Leak Numbers</div>
+      <div class="lbl">Hidden Math Shortcut</div>
+      <div class="sub"><code>82%</code> of 10-hop prompts copy gold numbers while full fact recall hits <code>≤1.6%</code>.</div>
+    </div>
+  </div>
+
+  <!-- SECTION 1: VERDICT IN 60 SECONDS -->
+  <section id="verdict">
+    <div class="sec-head">
+      <div class="sec-kicker">1 · Verdict in 60 Seconds</div>
+      <h2>Simple 3–5 Step Search Wins; Tree Search &amp; LoRA Don’t Pay Off</h2>
+      <p class="lead">
+        Simple 3–5 step search-and-think (<code>SR</code>) nearly doubles 1-shot RAG accuracy, while 12-call tree search (<code>MR</code>) wastes <code>2.4×</code> compute for the same score. Store personal facts as searchable text—not LoRA weights—and filter out leaked numbers when scoring high hops.
+      </p>
+    </div>
+
+    <div class="grid-3">
+      <div class="verdict-col">
+        <span class="badge badge-ok">✓ Holds Up</span>
+        <h3>Confirmed in Reproduction</h3>
+        <ul>
+          <li><strong>Explicit text beats closed-book:</strong> RAG beats no-memory guessing across all 900 tested questions.</li>
+          <li><strong>Iterative loops double EM:</strong> <code>SR</code> adds <code>+7.8</code> to <code>+11.8 pp</code> on RAG and lifts <code>Oracle</code> <code>25.5% → 51.3%</code>.</li>
+          <li><strong>3 steps is the sweet spot:</strong> Accuracy peaks at 3 steps (<code>22.9%</code> BM25, <code>24.5%</code> e5) then plateaus.</li>
+          <li><strong>LoRA can’t store 13k facts:</strong> Closed-book SFT recalls almost nothing and hurts multi-hop reasoning.</li>
+        </ul>
+      </div>
+
+      <div class="verdict-col warn">
+        <span class="badge badge-warn">⚠ Caveats</span>
+        <h3>True Only in Part</h3>
+        <ul>
+          <li><strong>BM25 and e5 tie on answers:</strong> Raw recall crosses over by hop, but final answer EM is tied.</li>
+          <li><strong>Why SR beats NR:</strong> <code>Oracle</code> gains <code>+25.8 pp</code> without re-retrieval—multi-turn math drives half the lift.</li>
+          <li><strong>“No shortcuts” misses numbers:</strong> Names are hidden, yet <code>53%</code> of prompts leak private gold numbers.</li>
+        </ul>
+      </div>
+
+      <div class="verdict-col no">
+        <span class="badge badge-no">✕ Does Not Hold</span>
+        <h3>Refuted or Overstated</h3>
+        <ul>
+          <li><strong>12-call MR beats SR:</strong> Paired deltas are zero (<code>+1.0 pp</code> BM25, <code>-0.7 pp</code> e5; 95% CIs straddle 0).</li>
+          <li><strong>Bigger <code>top-k</code> lifts EM:</strong> Growing <code>k</code> <code>10 → 50</code> boosts recall <code>+25 pp</code>, but EM stays flat (<code>~11–12%</code>).</li>
+          <li><strong><code>HybridMem</code> improves RAG:</strong> Crashes out-of-the-box (<code>BlockSFT</code> bug) and averages <code>+0.2 pp</code> in Paper Table 3.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 2: HOW THE METHODS ACTUALLY WORK -->
+  <section id="methods">
+    <div class="sec-head">
+      <div class="sec-kicker">2 · How the Methods Actually Work</div>
+      <h2>Why 12-Call Tree Search Collapses to Shallow Depth 1–2 Paths</h2>
+      <p class="lead">
+        Paper diagrams show <code>MR</code> exploring a deep 5-step tree, but upstream <code>StructuredReason.py</code> never removes shallow parent paths and picks branches <strong>without retrieving user facts</strong>. Faced with unverified deeper chains, the model picks a depth 1 or 2 path <code>74.5%</code> of the time.
+      </p>
+    </div>
+
+    <div class="card">
+      <h3>Visual 1 · Control Flow &amp; Observed MR Depth (<code>n = 612</code> runs)</h3>
+      <p class="card-sub">1-shot RAG vs. 5-step entity chasing vs. 12-call append-only buffer</p>
+
+      <div class="svg-wrap">
+        <svg viewBox="0 0 900 395" role="img" aria-label="Flowchart comparing NR 1 call, SR 5-step loop, and MR 12-call append-only buffer, plus bar showing 74.5% of MR runs stop at depth 1-2">
+          <defs>
+            <marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+              <path d="M 0 1 L 9 5 L 0 9 z" fill="#64748b"/>
+            </marker>
+            <marker id="ar-t" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+              <path d="M 0 1 L 9 5 L 0 9 z" fill="#0b7a75"/>
+            </marker>
+            <marker id="ar-a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+              <path d="M 0 1 L 9 5 L 0 9 z" fill="#d97706"/>
+            </marker>
+          </defs>
+
+          <!-- Lane 1: NR -->
+          <rect x="12" y="10" width="876" height="72" rx="12" fill="none" stroke="var(--line-strong)" stroke-width="1.2"/>
+          <text x="28" y="39" font-size="14" font-weight="800" fill="currentColor">NR · 1-Shot</text>
+          <text x="28" y="59" font-size="12" fill="var(--muted)">1 call · ~0.5s/Q</text>
+
+          <rect x="180" y="22" width="165" height="48" rx="9" fill="#64748b" fill-opacity="0.12" stroke="#64748b" stroke-width="1.3"/>
+          <text x="262" y="43" text-anchor="middle" font-size="12.5" font-weight="700" fill="currentColor">Retrieve top-20(q)</text>
+          <text x="262" y="59" text-anchor="middle" font-size="11" fill="var(--muted)">Only sees initial query</text>
+
+          <line x1="345" y1="46" x2="395" y2="46" stroke="#64748b" stroke-width="1.8" marker-end="url(#ar)"/>
+
+          <rect x="400" y="22" width="175" height="48" rx="9" fill="#64748b" fill-opacity="0.12" stroke="#64748b" stroke-width="1.3"/>
+          <text x="487" y="43" text-anchor="middle" font-size="12.5" font-weight="700" fill="currentColor">1 LLM Answer Call</text>
+          <text x="487" y="59" text-anchor="middle" font-size="11" fill="var(--muted)">Misses hidden hops</text>
+
+          <line x1="575" y1="46" x2="625" y2="46" stroke="#64748b" stroke-width="1.8" marker-end="url(#ar)"/>
+
+          <rect x="630" y="22" width="242" height="48" rx="9" fill="#64748b" fill-opacity="0.1"/>
+          <text x="751" y="43" text-anchor="middle" font-size="13" font-weight="800" fill="currentColor">11.4% BM25 · 12.7% e5</text>
+          <text x="751" y="59" text-anchor="middle" font-size="11" fill="var(--muted)">Baseline Exact Match</text>
+
+          <!-- Lane 2: SR -->
+          <rect x="12" y="96" width="876" height="82" rx="12" fill="#0b7a75" fill-opacity="0.06" stroke="#0b7a75" stroke-width="1.6"/>
+          <text x="28" y="129" font-size="14" font-weight="800" fill="var(--teal)">SR · Iterative</text>
+          <text x="28" y="149" font-size="12" font-weight="700" fill="currentColor">3–5 calls · Winner</text>
+          <text x="28" y="165" font-size="11" fill="var(--muted)">39.8m (5-step)</text>
+
+          <rect x="180" y="112" width="140" height="50" rx="9" fill="#0b7a75" fill-opacity="0.14" stroke="#0b7a75" stroke-width="1.4"/>
+          <text x="250" y="134" text-anchor="middle" font-size="12.5" font-weight="700" fill="currentColor">Step 1: Think</text>
+          <text x="250" y="150" text-anchor="middle" font-size="11" fill="var(--muted)">RAG(q) → clue o₁</text>
+
+          <line x1="320" y1="137" x2="358" y2="137" stroke="#0b7a75" stroke-width="1.8" marker-end="url(#ar-t)"/>
+
+          <rect x="362" y="108" width="222" height="58" rx="9" fill="#0b7a75" fill-opacity="0.18" stroke="#0b7a75" stroke-width="1.5"/>
+          <text x="473" y="132" text-anchor="middle" font-size="12.5" font-weight="800" fill="currentColor">Loop: Re-Query Memory</text>
+          <text x="473" y="150" text-anchor="middle" font-size="11.2" fill="var(--teal)" font-weight="700">Chases new entities hop-by-hop</text>
+
+          <line x1="584" y1="137" x2="622" y2="137" stroke="#0b7a75" stroke-width="1.8" marker-end="url(#ar-t)"/>
+
+          <rect x="626" y="108" width="246" height="58" rx="9" fill="#0b7a75" fill-opacity="0.15"/>
+          <text x="749" y="131" text-anchor="middle" font-size="13" font-weight="800" fill="currentColor">19.3% BM25 · 22.2% e5</text>
+          <text x="749" y="150" text-anchor="middle" font-size="11.5" font-weight="700" fill="var(--teal)">Peaks at 3 steps: 22.9% / 24.5%</text>
+
+          <!-- Lane 3: MR -->
+          <rect x="12" y="192" width="876" height="192" rx="12" fill="#d97706" fill-opacity="0.05" stroke="#d97706" stroke-width="1.5"/>
+          <text x="28" y="224" font-size="14" font-weight="800" fill="var(--amber)">MR · Tree Buffer</text>
+          <text x="28" y="244" font-size="12" font-weight="700" fill="currentColor">12 calls (2.4× SR)</text>
+          <text x="28" y="261" font-size="11" fill="var(--muted)">75.2m · S5 Verified</text>
+
+          <rect x="180" y="206" width="122" height="58" rx="9" fill="#2563eb" fill-opacity="0.12" stroke="#2563eb" stroke-width="1.3"/>
+          <text x="241" y="230" text-anchor="middle" font-size="12" font-weight="700" fill="currentColor">Call 1: Root</text>
+          <text x="241" y="248" text-anchor="middle" font-size="11" fill="var(--muted)">Path 0 (depth 1)</text>
+
+          <line x1="302" y1="235" x2="332" y2="235" stroke="#d97706" stroke-width="1.8" marker-end="url(#ar-a)"/>
+
+          <rect x="336" y="202" width="268" height="66" rx="9" fill="#d97706" fill-opacity="0.12" stroke="#d97706" stroke-width="1.4" stroke-dasharray="5,3"/>
+          <text x="470" y="224" text-anchor="middle" font-size="12.2" font-weight="800" fill="currentColor">3 Rounds × (1 Blind Pick + 2 Branches)</text>
+          <text x="470" y="242" text-anchor="middle" font-size="11" fill="var(--rose)" font-weight="700">No RAG during selection · 32.3% clone pairs</text>
+          <text x="470" y="258" text-anchor="middle" font-size="11" fill="var(--muted)">Append-only: Path 0 stays in buffer forever</text>
+
+          <line x1="604" y1="235" x2="634" y2="235" stroke="#d97706" stroke-width="1.8" marker-end="url(#ar-a)"/>
+
+          <rect x="638" y="202" width="234" height="66" rx="9" fill="#d97706" fill-opacity="0.15"/>
+          <text x="755" y="225" text-anchor="middle" font-size="13" font-weight="800" fill="currentColor">20.3% BM25 · 21.6% e5</text>
+          <text x="755" y="244" text-anchor="middle" font-size="11.5" font-weight="700" fill="var(--amber)">Blind Call 11 + Answer Call 12</text>
+          <text x="755" y="259" text-anchor="middle" font-size="11" fill="var(--muted)">Zero gain over 5-step SR</text>
+
+          <!-- Embedded Proportional Bar: Observed MR Final Depth -->
+          <text x="180" y="296" font-size="12" font-weight="800" fill="currentColor">Where 612 MR Runs Actually Stop (despite max_step = 5):</text>
+          <!-- Total bar width = 692px (x=180 to 872) -->
+          <!-- Depth 1: 228/612 = 37.25% -> 258px -->
+          <rect x="180" y="306" width="258" height="34" rx="6" fill="#be123c" fill-opacity="0.82"/>
+          <text x="309" y="328" text-anchor="middle" font-size="12" font-weight="800" fill="#ffffff">Depth 1: 37.3% (228)</text>
+
+          <!-- Depth 2: 228/612 = 37.25% -> 258px -->
+          <rect x="440" y="306" width="256" height="34" rx="6" fill="#d97706" fill-opacity="0.88"/>
+          <text x="568" y="328" text-anchor="middle" font-size="12" font-weight="800" fill="#ffffff">Depth 2: 37.3% (228)</text>
+
+          <!-- Depth 3: 145/612 = 23.69% -> 160px -->
+          <rect x="698" y="306" width="158" height="34" rx="6" fill="#0b7a75" fill-opacity="0.85"/>
+          <text x="777" y="328" text-anchor="middle" font-size="11.5" font-weight="800" fill="#ffffff">Depth 3: 23.7%</text>
+
+          <!-- Depth 4: 11/612 = 1.8% -> 14px -->
+          <rect x="858" y="306" width="14" height="34" rx="4" fill="#2563eb"/>
+
+          <text x="180" y="362" font-size="12" fill="var(--ink-soft)">
+            <tspan font-weight="800" fill="var(--rose)">74.5% (456/612) stop at Depth 1–2</tspan> · Depth 4: 1.8% (11/612) · Depth 5: 0% (unreachable in code)
+          </text>
+        </svg>
+      </div>
+
+      <ul class="punch-list">
+        <li><strong>Unpruned buffer (<code>line 45</code>):</strong> <code>path_buffer[:pid] + path_buffer[pid:] + new_path_list</code> copies every old shallow path forward.</li>
+        <li><strong>Blind selector (<code>lines 34, 48</code>):</strong> All 4 selection calls run without retrieved facts, favoring short paths (<code>99.7%</code> genuine choices).</li>
+        <li><strong>Redundant branches:</strong> Both children receive the exact same prompt—producing <code>32.3%</code> word-for-word duplicates even at <code>T = 0.7</code>.</li>
+      </ul>
+    </div>
+
+    <details class="deep-dive">
+      <summary>
+        <span class="sum-left"><span class="sum-icon"></span> Inspect exact MR depth counts, token budgets &amp; in-flight S6 DR flow</span>
+        <span class="sum-meta">StructuredReason.py:7–53</span>
+      </summary>
+      <div class="dive-body">
+        <p>
+          <strong>Per-retriever final path depth (<code>n = 306</code> each, <code>mpr-study-mr/results/kaggle/mr/summary_mr.md</code>):</strong>
+          <code>SparseRAG (BM25)</code> selected Depth 1: <code>122</code> (39.9%), Depth 2: <code>107</code> (35.0%), Depth 3: <code>71</code> (23.2%), Depth 4: <code>6</code> (2.0%), Depth 5: <code>0</code> (74.8% ≤ depth 2).
+          <code>DenseRAG (e5)</code> selected Depth 1: <code>106</code> (34.6%), Depth 2: <code>121</code> (39.5%), Depth 3: <code>74</code> (24.2%), Depth 4: <code>5</code> (1.6%), Depth 5: <code>0</code> (74.2% ≤ depth 2).
+          Middle-round identical branch pairs: <code>296 / 918</code> (32.2%) on BM25 and <code>297 / 918</code> (32.4%) on e5; selector parser fallbacks occurred in just <code>0.25%–0.33%</code> of calls.
+        </p>
+        <p>
+          <strong>Compute footprint (612 rows on 1× Tesla T4):</strong> 5-step <code>SR</code> used <code>3,060</code> calls, <code>2.27M</code> prompt tokens, and <code>39.8 min</code>. 12-call <code>MR</code> used <code>7,272</code> full-stage calls, <code>5.15M</code> prompt tokens, and <code>75.2 min</code> (+ <code>6.2 min</code> smoke).
+        </p>
+        <p>
+          <strong>What about <code>DecompositionReason</code> (<code>DR</code>, 3–7 calls)?</strong> <code>DR</code> splits the question into ≤5 sub-questions <em>without</em> RAG, answers each sub-question with RAG, then merges. S6 <code>DR</code> is currently running in a separate worker on <code>s306</code>; the paper notes it trails <code>SR</code> due to “initial decomposition myopia.”
+        </p>
+      </div>
+    </details>
+  </section>
+
+  <!-- SECTION 3: PAPER CLAIMS VS OUR REPRODUCTION -->
+  <section id="results">
+    <div class="sec-head">
+      <div class="sec-kicker">3 · Paper Claims vs. Our Reproduction</div>
+      <h2>Iterative SR Jumps +8–10 pp; 12-Call MR Adds Nothing</h2>
+      <p class="lead">
+        On 306 matched questions (<code>Qwen2.5-7B-Instruct-AWQ</code>, single T4, <code>k = 20</code>), 5-step <code>SR</code> beats 1-shot <code>NR</code> by <code>+7.8</code> to <code>+9.5 pp</code>, while 12-call <code>MR</code> ties <code>SR</code> within <code>±1 pp</code>. Even in the paper’s own Table 3 (8× A800), <code>MR</code> trails <code>SR</code> on 7 of 8 explicit-memory cells.
+      </p>
+    </div>
+
+    <!-- VISUAL 2: Accuracy Comparison Bar Chart -->
+    <div class="card">
+      <h3>Visual 2 · Exact Match Accuracy: All Questions (<code>n = 306</code>) vs. Leak-Free (<code>n = 140</code>)</h3>
+      <p class="card-sub">Error bars show 95% bootstrap confidence intervals; every MR − SR difference straddles zero</p>
+
+      <div class="svg-wrap">
+        <svg viewBox="0 0 900 325" role="img" aria-label="Bar chart comparing NR, SR, and MR Exact Match on SparseRAG and DenseRAG across all 306 questions and 140 leak-free questions">
+          <!-- Y: 0% at y=255, 35% at y=27.5 (6.5px per 1%) -->
+          <line x1="58" y1="255" x2="875" y2="255" stroke="var(--chart-axis)" stroke-width="1.4"/>
+          <line x1="58" y1="190" x2="875" y2="190" stroke="var(--chart-grid)" stroke-width="1"/>
+          <line x1="58" y1="125" x2="875" y2="125" stroke="var(--chart-grid)" stroke-width="1"/>
+          <line x1="58" y1="60"  x2="875" y2="60"  stroke="var(--chart-grid)" stroke-width="1"/>
+
+          <text x="48" y="259" text-anchor="end" font-size="11.5" fill="var(--muted)">0%</text>
+          <text x="48" y="194" text-anchor="end" font-size="11.5" fill="var(--muted)">10%</text>
+          <text x="48" y="129" text-anchor="end" font-size="11.5" fill="var(--muted)">20%</text>
+          <text x="48" y="64"  text-anchor="end" font-size="11.5" fill="var(--muted)">30%</text>
+
+          <!-- Half divider -->
+          <line x1="468" y1="26" x2="468" y2="295" stroke="var(--line-strong)" stroke-width="1.4" stroke-dasharray="5,4"/>
+          <text x="262" y="22" text-anchor="middle" font-size="13" font-weight="800" fill="currentColor">All Matched Questions (n = 306)</text>
+          <text x="672" y="22" text-anchor="middle" font-size="13" font-weight="800" fill="currentColor">Leak-Free Only (n = 140, no shared numbers)</text>
+
+          <!-- Group 1: SparseRAG All (11.4%, 19.3%, 20.3%) -->
+          <!-- NR 11.4% [8.2, 15.0] -> y=180.9 h=74.1, CI 157.5..201.7 -->
+          <rect x="92" y="180.9" width="42" height="74.1" rx="5" fill="#64748b"/>
+          <line x1="113" y1="157.5" x2="113" y2="201.7" stroke="currentColor" stroke-width="1.6"/>
+          <text x="113" y="150" text-anchor="middle" font-size="11.5" font-weight="700" fill="currentColor">11.4%</text>
+
+          <!-- SR 19.3% [15.0, 24.2] -> y=129.6 h=125.5, CI 97.7..157.5 -->
+          <rect x="142" y="129.6" width="42" height="125.4" rx="5" fill="#0b7a75"/>
+          <line x1="163" y1="97.7" x2="163" y2="157.5" stroke="currentColor" stroke-width="1.6"/>
+          <text x="163" y="90" text-anchor="middle" font-size="11.5" font-weight="800" fill="var(--teal)">19.3%</text>
+
+          <!-- MR 20.3% [16.0, 24.8] -> y=123.1 h=131.9, CI 93.8..151.0 -->
+          <rect x="192" y="123.1" width="42" height="131.9" rx="5" fill="#d97706"/>
+          <line x1="213" y1="93.8" x2="213" y2="151.0" stroke="currentColor" stroke-width="1.6"/>
+          <text x="213" y="86" text-anchor="middle" font-size="11.5" font-weight="800" fill="var(--amber)">20.3%</text>
+
+          <text x="163" y="276" text-anchor="middle" font-size="12.5" font-weight="700" fill="currentColor">SparseRAG (BM25)</text>
+          <text x="163" y="292" text-anchor="middle" font-size="11" fill="var(--muted)">MR−SR: +1.0 pp (null)</text>
+
+          <!-- Group 2: DenseRAG All (12.7%, 22.2%, 21.6%) -->
+          <!-- NR 12.7% [9.2, 16.7] -> y=172.5 h=82.5, CI 146.5..195.2 -->
+          <rect x="290" y="172.5" width="42" height="82.5" rx="5" fill="#64748b"/>
+          <line x1="311" y1="146.5" x2="311" y2="195.2" stroke="currentColor" stroke-width="1.6"/>
+          <text x="311" y="139" text-anchor="middle" font-size="11.5" font-weight="700" fill="currentColor">12.7%</text>
+
+          <!-- SR 22.2% [17.3, 27.1] -> y=110.7 h=144.3, CI 78.9..142.6 -->
+          <rect x="340" y="110.7" width="42" height="144.3" rx="5" fill="#0b7a75"/>
+          <line x1="361" y1="78.9" x2="361" y2="142.6" stroke="currentColor" stroke-width="1.6"/>
+          <text x="361" y="71" text-anchor="middle" font-size="11.5" font-weight="800" fill="var(--teal)">22.2%</text>
+
+          <!-- MR 21.6% [17.0, 26.1] -> y=114.6 h=140.4, CI 85.4..144.5 -->
+          <rect x="390" y="114.6" width="42" height="140.4" rx="5" fill="#d97706"/>
+          <line x1="411" y1="85.4" x2="411" y2="144.5" stroke="currentColor" stroke-width="1.6"/>
+          <text x="411" y="78" text-anchor="middle" font-size="11.5" font-weight="800" fill="var(--amber)">21.6%</text>
+
+          <text x="361" y="276" text-anchor="middle" font-size="12.5" font-weight="700" fill="currentColor">DenseRAG (e5)</text>
+          <text x="361" y="292" text-anchor="middle" font-size="11" fill="var(--muted)">MR−SR: −0.7 pp (null)</text>
+
+          <!-- Group 3: SparseRAG Leak-Free (13.6%, 19.3%, 18.6%) -->
+          <!-- NR 13.6% [8.6, 19.3] -> y=166.6 h=88.4, CI 129.6..199.1 -->
+          <rect x="504" y="166.6" width="42" height="88.4" rx="5" fill="#64748b"/>
+          <line x1="525" y1="129.6" x2="525" y2="199.1" stroke="currentColor" stroke-width="1.6"/>
+          <text x="525" y="122" text-anchor="middle" font-size="11.5" font-weight="700" fill="currentColor">13.6%</text>
+
+          <!-- SR 19.3% [12.9, 26.4] -> y=129.6 h=125.4, CI 83.4..171.2 -->
+          <rect x="554" y="129.6" width="42" height="125.4" rx="5" fill="#0b7a75"/>
+          <line x1="575" y1="83.4" x2="575" y2="171.2" stroke="currentColor" stroke-width="1.6"/>
+          <text x="575" y="76" text-anchor="middle" font-size="11.5" font-weight="800" fill="var(--teal)">19.3%</text>
+
+          <!-- MR 18.6% [12.1, 25.7] -> y=134.1 h=120.9, CI 88.0..176.4 -->
+          <rect x="604" y="134.1" width="42" height="120.9" rx="5" fill="#d97706"/>
+          <line x1="625" y1="88.0" x2="625" y2="176.4" stroke="currentColor" stroke-width="1.6"/>
+          <text x="625" y="80" text-anchor="middle" font-size="11.5" font-weight="800" fill="var(--amber)">18.6%</text>
+
+          <text x="575" y="276" text-anchor="middle" font-size="12.5" font-weight="700" fill="currentColor">SparseRAG · Clean</text>
+          <text x="575" y="292" text-anchor="middle" font-size="11" fill="var(--muted)">MR−SR: −0.7 pp (null)</text>
+
+          <!-- Group 4: DenseRAG Leak-Free (14.3%, 23.6%, 23.6%) -->
+          <!-- NR 14.3% [8.6, 20.0] -> y=162.1 h=92.9, CI 125.0..199.1 -->
+          <rect x="702" y="162.1" width="42" height="92.9" rx="5" fill="#64748b"/>
+          <line x1="723" y1="125.0" x2="723" y2="199.1" stroke="currentColor" stroke-width="1.6"/>
+          <text x="723" y="117" text-anchor="middle" font-size="11.5" font-weight="700" fill="currentColor">14.3%</text>
+
+          <!-- SR 23.6% [17.1, 30.7] -> y=101.6 h=153.4, CI 55.5..143.9 -->
+          <rect x="752" y="101.6" width="42" height="153.4" rx="5" fill="#0b7a75"/>
+          <line x1="773" y1="55.5" x2="773" y2="143.9" stroke="currentColor" stroke-width="1.6"/>
+          <text x="773" y="48" text-anchor="middle" font-size="11.5" font-weight="800" fill="var(--teal)">23.6%</text>
+
+          <!-- MR 23.6% [16.4, 30.7] -> y=101.6 h=153.4, CI 55.5..148.4 -->
+          <rect x="802" y="101.6" width="42" height="153.4" rx="5" fill="#d97706"/>
+          <line x1="823" y1="55.5" x2="823" y2="148.4" stroke="currentColor" stroke-width="1.6"/>
+          <text x="823" y="48" text-anchor="middle" font-size="11.5" font-weight="800" fill="var(--amber)">23.6%</text>
+
+          <text x="773" y="276" text-anchor="middle" font-size="12.5" font-weight="700" fill="currentColor">DenseRAG · Clean</text>
+          <text x="773" y="292" text-anchor="middle" font-size="11" fill="var(--muted)">MR−SR: 0.0 pp (tie)</text>
+
+          <!-- Legend -->
+          <rect x="275" y="308" width="12" height="12" rx="3" fill="#64748b"/>
+          <text x="292" y="318" font-size="12" font-weight="700" fill="currentColor">NR (1 call)</text>
+          <rect x="405" y="308" width="12" height="12" rx="3" fill="#0b7a75"/>
+          <text x="422" y="318" font-size="12" font-weight="700" fill="currentColor">SR (5 steps)</text>
+          <rect x="540" y="308" width="12" height="12" rx="3" fill="#d97706"/>
+          <text x="557" y="318" font-size="12" font-weight="700" fill="currentColor">MR (12 calls, S5)</text>
+        </svg>
+      </div>
+    </div>
+
+    <!-- VISUAL 3: Cost vs Accuracy Sweet Spot -->
+    <div class="card">
+      <h3>Visual 3 · Cost vs. Accuracy Sweet Spot (<code>1 → 12</code> LLM Calls per Question)</h3>
+      <p class="card-sub">3-step SR hits peak accuracy at one-quarter the call budget of 12-call MR</p>
+
+      <div class="svg-wrap">
+        <svg viewBox="0 0 900 305" role="img" aria-label="Line chart of LLM calls per question (1, 2, 3, 5, 8, 12) versus Exact Match accuracy showing 3-5 step SR sweet spot">
+          <!-- X: calls 1..12 -> x = 70 + calls * 64 (1->134, 2->198, 3->262, 5->390, 8->582, 12->838) -->
+          <!-- Y: 8% at y=250, 28% at y=50 (10px per 1% EM) -->
+          <line x1="70" y1="250" x2="870" y2="250" stroke="var(--chart-axis)" stroke-width="1.4"/>
+          <line x1="70" y1="230" x2="870" y2="230" stroke="var(--chart-grid)" stroke-width="1"/>
+          <line x1="70" y1="180" x2="870" y2="180" stroke="var(--chart-grid)" stroke-width="1"/>
+          <line x1="70" y1="130" x2="870" y2="130" stroke="var(--chart-grid)" stroke-width="1"/>
+          <line x1="70" y1="80"  x2="870" y2="80"  stroke="var(--chart-grid)" stroke-width="1"/>
+
+          <!-- Highlight zones -->
+          <rect x="225" y="30" width="195" height="220" rx="8" fill="#0b7a75" fill-opacity="0.09"/>
+          <text x="322" y="47" text-anchor="middle" font-size="11.5" font-weight="800" fill="var(--teal)">SWEET SPOT (3–5 STEPS)</text>
+
+          <rect x="550" y="30" width="310" height="220" rx="8" fill="#d97706" fill-opacity="0.07"/>
+          <text x="705" y="47" text-anchor="middle" font-size="11.5" font-weight="800" fill="var(--amber)">PURE OVERHEAD (8–12 CALLS)</text>
+
+          <!-- Y ticks -->
+          <text x="60" y="234" text-anchor="end" font-size="11.5" fill="var(--muted)">10%</text>
+          <text x="60" y="184" text-anchor="end" font-size="11.5" fill="var(--muted)">15%</text>
+          <text x="60" y="134" text-anchor="end" font-size="11.5" fill="var(--muted)">20%</text>
+          <text x="60" y="84"  text-anchor="end" font-size="11.5" fill="var(--muted)">25%</text>
+
+          <!-- X ticks -->
+          <text x="134" y="272" text-anchor="middle" font-size="11.5" font-weight="700" fill="currentColor">1 (NR)</text>
+          <text x="198" y="272" text-anchor="middle" font-size="11.5" fill="var(--muted)">2</text>
+          <text x="262" y="272" text-anchor="middle" font-size="11.5" font-weight="800" fill="var(--teal)">3 (SR Peak)</text>
+          <text x="390" y="272" text-anchor="middle" font-size="11.5" font-weight="700" fill="currentColor">5 (SR)</text>
+          <text x="582" y="272" text-anchor="middle" font-size="11.5" fill="var(--muted)">8 (SR)</text>
+          <text x="838" y="272" text-anchor="middle" font-size="11.5" font-weight="800" fill="var(--amber)">12 (MR Tree)</text>
+          <text x="470" y="295" text-anchor="middle" font-size="12" font-weight="700" fill="var(--muted)">LLM Calls per Question (s306 Matched Slice)</text>
+
+          <!-- BM25: (1,11.4)->216, (2,19.9)->131, (3,22.9)->101, (5,19.3)->137, (8,20.3)->127, (12,20.3)->127 -->
+          <polyline fill="none" stroke="#0b7a75" stroke-width="2.8" points="134,216 198,131 262,101 390,137 582,127"/>
+          <line x1="582" y1="127" x2="838" y2="127" stroke="#0b7a75" stroke-width="2.4" stroke-dasharray="6,4"/>
+
+          <!-- e5: (1,12.7)->203, (2,19.9)->131, (3,24.5)->85, (5,22.2)->108, (8,22.5)->105, (12,21.6)->114 -->
+          <polyline fill="none" stroke="#2563eb" stroke-width="2.8" points="134,203 198,131 262,85 390,108 582,105"/>
+          <line x1="582" y1="105" x2="838" y2="114" stroke="#2563eb" stroke-width="2.4" stroke-dasharray="6,4"/>
+
+          <!-- Points & Labels -->
+          <circle cx="134" cy="216" r="5" fill="#0b7a75"/>
+          <text x="134" y="236" text-anchor="middle" font-size="11" font-weight="700" fill="var(--teal)">11.4%</text>
+          <circle cx="134" cy="203" r="5" fill="#2563eb"/>
+          <text x="134" y="192" text-anchor="middle" font-size="11" font-weight="700" fill="var(--blue)">12.7%</text>
+
+          <circle cx="198" cy="131" r="5" fill="#2563eb"/>
+          <text x="192" y="121" text-anchor="end" font-size="10.5" fill="var(--muted)">19.9%</text>
+
+          <circle cx="262" cy="85" r="6.5" fill="#2563eb"/>
+          <text x="262" y="73" text-anchor="middle" font-size="12" font-weight="800" fill="var(--blue)">24.5% e5</text>
+          <circle cx="262" cy="101" r="6.5" fill="#0b7a75"/>
+          <text x="262" y="120" text-anchor="middle" font-size="11.5" font-weight="800" fill="var(--teal)">22.9% BM25</text>
+
+          <circle cx="390" cy="108" r="5.5" fill="#2563eb"/>
+          <text x="390" y="96" text-anchor="middle" font-size="11" font-weight="700" fill="var(--blue)">22.2%</text>
+          <circle cx="390" cy="137" r="5.5" fill="#0b7a75"/>
+          <text x="390" y="156" text-anchor="middle" font-size="11" font-weight="700" fill="var(--teal)">19.3% (39.8m)</text>
+
+          <circle cx="582" cy="105" r="5" fill="#2563eb"/>
+          <text x="582" y="94" text-anchor="middle" font-size="11" fill="var(--blue)">22.5%</text>
+          <circle cx="582" cy="127" r="5" fill="#0b7a75"/>
+          <text x="582" y="145" text-anchor="middle" font-size="11" fill="var(--teal)">20.3%</text>
+
+          <rect x="831" y="107" width="14" height="14" rx="3" fill="#d97706" stroke="#2563eb" stroke-width="2"/>
+          <text x="822" y="111" text-anchor="end" font-size="11.5" font-weight="800" fill="var(--blue)">MR e5: 21.6%</text>
+          <rect x="831" y="120" width="14" height="14" rx="3" fill="#d97706" stroke="#0b7a75" stroke-width="2"/>
+          <text x="822" y="145" text-anchor="end" font-size="11.5" font-weight="800" fill="var(--amber)">MR BM25: 20.3% (75.2m)</text>
+        </svg>
+      </div>
+
+      <ul class="punch-list">
+        <li><strong>Fast saturation:</strong> Accuracy jumps on steps 2–3, then flattens across 5, 8, and 12 calls.</li>
+        <li><strong>Consistent across hops:</strong> In short (<code>2–4</code>), medium (<code>5–7</code>), and long (<code>8–10</code>) tiers, MR and SR stay within <code>1–2 pp</code>.</li>
+        <li><strong>Stuffing context fails (<code>S3a</code>):</strong> Raising <code>top-k</code> from <code>10 → 50</code> (900 Qs) leaves 1-shot EM flat at <code>10.8%–12.3%</code>.</li>
+      </ul>
+    </div>
+
+    <!-- Deep Dive 3A: Full Verified Score Ledger -->
+    <details class="deep-dive">
+      <summary>
+        <span class="sum-left"><span class="sum-icon"></span> View exact numbers, 95% bootstrap CIs &amp; paired differences</span>
+        <span class="sum-meta">22 verified rows · s306 &amp; s900</span>
+      </summary>
+      <div class="dive-body">
+        <div class="filter-bar" role="group" aria-label="Filter score table">
+          <button class="tab-btn active" data-group="all" type="button">All Rows</button>
+          <button class="tab-btn" data-group="headline" type="button">Headline (s306)</button>
+          <button class="tab-btn" data-group="leakfree" type="button">Leak-Free (n=140)</button>
+          <button class="tab-btn" data-group="hops" type="button">By Hop Tier</button>
+          <button class="tab-btn" data-group="sweeps" type="button">S1 (900q) &amp; Sweeps</button>
+        </div>
+        <div class="table-wrap">
+          <table id="scoreTable">
+            <thead>
+              <tr>
+                <th>Slice</th>
+                <th>Memory</th>
+                <th>Method</th>
+                <th class="num">Calls</th>
+                <th class="num">n</th>
+                <th class="num">EM [95% CI]</th>
+                <th class="num">Contains [95% CI]</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr data-cat="headline">
+                <td><strong>s306 · All</strong></td><td>Ignoramus</td><td>NR / SR-5</td><td class="num">1 / 5</td><td class="num">306</td>
+                <td class="num">0.042 [0.023, 0.065] / 0.056 [0.033, 0.082]</td><td class="num">0.042 / 0.062</td>
+              </tr>
+              <tr data-cat="headline" class="highlight-row">
+                <td><strong>s306 · All</strong></td><td>Oracle (Gold)</td><td>NR / <strong>SR-5</strong></td><td class="num">1 / 5</td><td class="num">306</td>
+                <td class="num">0.255 [0.206, 0.307] / <strong>0.513</strong> [0.454, 0.569]</td><td class="num">0.307 / 0.542</td>
+              </tr>
+              <tr data-cat="headline">
+                <td><strong>s306 · All</strong></td><td>SparseRAG (BM25)</td><td>NR (1-call)</td><td class="num">1</td><td class="num">306</td>
+                <td class="num">0.114 [0.082, 0.150]</td><td class="num">0.134 [0.098, 0.173]</td>
+              </tr>
+              <tr data-cat="headline" class="highlight-row">
+                <td><strong>s306 · All</strong></td><td>SparseRAG (BM25)</td><td><strong>SR (3-step, S3b)</strong></td><td class="num">3</td><td class="num">306</td>
+                <td class="num"><strong>0.229</strong> [0.183, 0.278]</td><td class="num">0.232 [0.186, 0.281]</td>
+              </tr>
+              <tr data-cat="headline">
+                <td><strong>s306 · All</strong></td><td>SparseRAG (BM25)</td><td>SR (5-step, S2)</td><td class="num">5</td><td class="num">306</td>
+                <td class="num">0.193 [0.150, 0.242]</td><td class="num">0.199 [0.154, 0.248]</td>
+              </tr>
+              <tr data-cat="headline">
+                <td><strong>s306 · All</strong></td><td>SparseRAG (BM25)</td><td><strong>MR (12-call, S5)</strong></td><td class="num">12</td><td class="num">306</td>
+                <td class="num"><strong>0.203</strong> [0.160, 0.248]</td><td class="num">0.209 [0.167, 0.255]</td>
+              </tr>
+              <tr data-cat="headline">
+                <td><strong>s306 · All</strong></td><td>DenseRAG (e5)</td><td>NR (1-call)</td><td class="num">1</td><td class="num">306</td>
+                <td class="num">0.127 [0.092, 0.167]</td><td class="num">0.154 [0.114, 0.193]</td>
+              </tr>
+              <tr data-cat="headline" class="highlight-row">
+                <td><strong>s306 · All</strong></td><td>DenseRAG (e5)</td><td><strong>SR (3-step, S3b)</strong></td><td class="num">3</td><td class="num">306</td>
+                <td class="num"><strong>0.245</strong> [0.196, 0.294]</td><td class="num">0.255 [0.206, 0.304]</td>
+              </tr>
+              <tr data-cat="headline">
+                <td><strong>s306 · All</strong></td><td>DenseRAG (e5)</td><td>SR (5-step, S2)</td><td class="num">5</td><td class="num">306</td>
+                <td class="num">0.222 [0.173, 0.271]</td><td class="num">0.239 [0.190, 0.288]</td>
+              </tr>
+              <tr data-cat="headline">
+                <td><strong>s306 · All</strong></td><td>DenseRAG (e5)</td><td><strong>MR (12-call, S5)</strong></td><td class="num">12</td><td class="num">306</td>
+                <td class="num"><strong>0.216</strong> [0.170, 0.261]</td><td class="num">0.225 [0.176, 0.271]</td>
+              </tr>
+              <tr data-cat="leakfree">
+                <td><strong>Leak-Free</strong></td><td>Ignoramus / Oracle</td><td>NR → SR-5</td><td class="num">1 / 5</td><td class="num">140</td>
+                <td class="num">Ig: 0.007→0.014 · Or: 0.293→<strong>0.493</strong></td><td class="num">Ig: 0.007→0.014 · Or: 0.350→0.536</td>
+              </tr>
+              <tr data-cat="leakfree">
+                <td><strong>Leak-Free</strong></td><td>SparseRAG (BM25)</td><td>NR / SR-5 / MR-12</td><td class="num">1/5/12</td><td class="num">140</td>
+                <td class="num">0.136 / 0.193 / <strong>0.186</strong></td><td class="num">0.150 / 0.193 / 0.193</td>
+              </tr>
+              <tr data-cat="leakfree">
+                <td><strong>Leak-Free</strong></td><td>DenseRAG (e5)</td><td>NR / SR-5 / MR-12</td><td class="num">1/5/12</td><td class="num">140</td>
+                <td class="num">0.143 / 0.236 / <strong>0.236</strong></td><td class="num">0.171 / 0.264 / 0.250</td>
+              </tr>
+              <tr data-cat="hops">
+                <td><strong>Hops 2–4 / 5–7 / 8–10</strong></td><td>SparseRAG (BM25)</td><td>NR / SR-5 / MR-12</td><td class="num">1/5/12</td><td class="num">102 ea</td>
+                <td class="num">2–4: .186/.255/.275 · 5–7: .069/.157/.147 · 8–10: .088/.167/.186</td><td class="num">Oracle SR: .569/.559/.412</td>
+              </tr>
+              <tr data-cat="hops">
+                <td><strong>Hops 2–4 / 5–7 / 8–10</strong></td><td>DenseRAG (e5)</td><td>NR / SR-5 / MR-12</td><td class="num">1/5/12</td><td class="num">102 ea</td>
+                <td class="num">2–4: .186/.314/.314 · 5–7: .088/.147/.137 · 8–10: .108/.206/.196</td><td class="num">Oracle NR: .382/.235/.147</td>
+              </tr>
+              <tr data-cat="sweeps">
+                <td><strong>s900 · S1 Grid</strong></td><td>Ig / BM25 / e5 / Or</td><td>NR (1-call)</td><td class="num">1</td><td class="num">900</td>
+                <td class="num">All: 0.041 / 0.114 / 0.109 / 0.257</td><td class="num">Clean (421): 0.014 / 0.128 / 0.121 / 0.290</td>
+              </tr>
+              <tr data-cat="sweeps">
+                <td><strong>S3a · Top-k (10/20/30/50)</strong></td><td>BM25 &amp; Dense e5</td><td>NR (1-call)</td><td class="num">1</td><td class="num">900</td>
+                <td class="num">BM25: .123/.114/.110/.116 · e5: .109/.109/.108/.117</td><td class="num">recall@k: .376→.595 / .387→.660</td>
+              </tr>
+              <tr data-cat="sweeps">
+                <td><strong>S3b · Steps (1/2/3/5/8)</strong></td><td>BM25 &amp; Dense e5</td><td>NR / SR</td><td class="num">1–8</td><td class="num">306</td>
+                <td class="num">BM25: .114/.199/<strong>.229</strong>/.193/.203 · e5: .127/.199/<strong>.245</strong>/.222/.225</td><td class="num">Peaks at 3 steps</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p style="margin-top:10px">
+          <strong>Paired question-level bootstrap <code>dEM</code> [95% CI]:</strong>
+          <code>SR − NR</code>: <code>+7.8 pp [+3.3, +12.4]</code> (BM25), <code>+9.5 pp [+4.9, +13.7]</code> (e5).
+          <code>MR − NR</code>: <code>+8.8 pp [+3.9, +13.7]</code> (BM25), <code>+8.8 pp [+4.6, +13.1]</code> (e5).
+          <code>MR − SR</code>: <code>+1.0 pp [−2.6, +4.9]</code> (BM25 all), <code>−0.7 pp [−4.6, +3.3]</code> (e5 all), <code>−0.7 pp [−5.7, +4.3]</code> (BM25 clean), <code>0.0 pp [−5.7, +5.7]</code> (e5 clean).
+        </p>
+      </div>
+    </details>
+
+    <!-- Deep Dive 3B: Setup Comparison & Paper Table 3 -->
+    <details class="deep-dive">
+      <summary>
+        <span class="sum-left"><span class="sum-icon"></span> Compare hardware/setup vs. Paper Table 3 (8× A800) cell-by-cell</span>
+        <span class="sum-meta">Why raw EM is ~5–14 pp lower</span>
+      </summary>
+      <div class="dive-body">
+        <p>
+          <strong>Setup differences:</strong> Paper ran <code>Qwen2.5-7B</code> (precision/decoding unstated; repo API client hard-codes <code>T=0.9</code>; no scorer shipped) on <code>8× A800-80G</code> over an unspecified 2,700-Q subset. We ran 4-bit <code>Qwen2.5-7B-Instruct-AWQ</code> on <code>1× Colab T4 (16 GB)</code> with greedy <code>T=0</code> (<code>T=0.7</code> on MR branch pairs) and SQuAD-normalized EM on frozen 900-Q / 306-Q slices across all 12 users. Quantized 4-bit calendar/date arithmetic explains our <code>~5–14 pp</code> lower raw scores—yet on 5-step SR RAG, the paper’s score falls inside our 95% CI in 3 of 4 cells, and <strong>MR trails SR in 7 of 8 explicit-memory cells of the paper’s own Table 3</strong>:
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Memory · Hop Group</th>
+                <th class="num">Paper NR</th>
+                <th class="num">Paper SR</th>
+                <th class="num">Paper MR</th>
+                <th class="num">Paper DR</th>
+                <th class="num">Ours NR / SR</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>DenseRAG · Hops 2–6 / 7–10</strong></td>
+                <td class="num">0.206 / 0.094</td><td class="num"><strong>0.324</strong> / 0.216</td><td class="num">0.309 / <strong>0.217</strong></td><td class="num">0.237 / 0.136</td>
+                <td class="num">0.153→0.271 / 0.096→0.162</td>
+              </tr>
+              <tr>
+                <td><strong>SparseRAG · Hops 2–6 / 7–10</strong></td>
+                <td class="num">0.204 / 0.084</td><td class="num"><strong>0.361 / 0.200</strong></td><td class="num">0.332 / 0.188</td><td class="num">0.238 / 0.111</td>
+                <td class="num">0.147→0.224 / 0.074→0.154</td>
+              </tr>
+              <tr>
+                <td><strong>Oracle · Hops 2–6 / 7–10</strong></td>
+                <td class="num">0.428 / 0.202</td><td class="num"><strong>0.703 / 0.566</strong></td><td class="num">0.661 / 0.510</td><td class="num">0.518 / 0.316</td>
+                <td class="num">0.324→0.571 / 0.169→0.441</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </details>
+  </section>
+
+  <!-- SECTION 4: HIDDEN CODE & BENCHMARK SURPRISES -->
+  <section id="surprises">
+    <div class="sec-head">
+      <div class="sec-kicker">4 · Hidden Code &amp; Benchmark Surprises</div>
+      <h2>Why High Hops Look Artificially Good—Plus 4 Upstream Bugs</h2>
+      <p class="lead">
+        At hop 10, top-20 pulls all required facts in ≤<code>1.6%</code> of queries—yet accuracy bounces <em>upward</em> on hops 8–10. That happens because LLM question rewrites leaked private numbers into <code>82%</code> of 10-hop prompts, letting models solve date math without memory.
+      </p>
+    </div>
+
+    <!-- VISUAL 4: Retrieval Collapse vs Number Leakage -->
+    <div class="card">
+      <h3>Visual 4 · Retrieval Collapse vs. Rising Prompt Number Leakage (<code>32,399</code> Qs)</h3>
+      <p class="card-sub">Full-chain retrieval falls below 6% on hops 7–10 while number leakage climbs to 82%</p>
+
+      <div class="svg-wrap">
+        <svg viewBox="0 0 900 285" role="img" aria-label="Line chart across hops 2 to 10 showing retrieval all-gold@20 dropping to 1.6% while number leakage rises to 82%, paired with no-memory shortcut bar chart">
+          <!-- Left Chart: x from 58 to 554 (62px per hop: 2->58, 3->120, 4->182, 5->244, 6->306, 7->368, 8->430, 9->492, 10->554) -->
+          <!-- Y: 0% at y=225, 100% at y=35 (1.9px per 1%) -->
+          <line x1="48" y1="225" x2="568" y2="225" stroke="var(--chart-axis)" stroke-width="1.3"/>
+          <line x1="48" y1="130" x2="568" y2="130" stroke="var(--chart-grid)" stroke-width="1"/>
+          <line x1="48" y1="35"  x2="568" y2="35"  stroke="var(--chart-grid)" stroke-width="1"/>
+
+          <text x="40" y="229" text-anchor="end" font-size="11" fill="var(--muted)">0%</text>
+          <text x="40" y="134" text-anchor="end" font-size="11" fill="var(--muted)">50%</text>
+          <text x="40" y="39"  text-anchor="end" font-size="11" fill="var(--muted)">100%</text>
+
+          <!-- Hop ticks -->
+          <text x="58"  y="244" text-anchor="middle" font-size="11" fill="var(--muted)">2</text>
+          <text x="120" y="244" text-anchor="middle" font-size="11" fill="var(--muted)">3</text>
+          <text x="182" y="244" text-anchor="middle" font-size="11" fill="var(--muted)">4</text>
+          <text x="244" y="244" text-anchor="middle" font-size="11" fill="var(--muted)">5</text>
+          <text x="306" y="244" text-anchor="middle" font-size="11" fill="var(--muted)">6</text>
+          <text x="368" y="244" text-anchor="middle" font-size="11" fill="var(--muted)">7</text>
+          <text x="430" y="244" text-anchor="middle" font-size="11" fill="var(--muted)">8</text>
+          <text x="492" y="244" text-anchor="middle" font-size="11" fill="var(--muted)">9</text>
+          <text x="554" y="244" text-anchor="middle" font-size="11" fill="var(--muted)">10</text>
+          <text x="306" y="264" text-anchor="middle" font-size="11.5" font-weight="700" fill="var(--muted)">Question Hop Count (All 12 Users)</text>
+
+          <!-- Number Leakage: 13%(200.3), 7%(211.7), 27%(173.7), 60%(111), 65%(101.5), 71%(90.1), 75%(82.5), 80%(73), 82%(69.2) -->
+          <polyline fill="none" stroke="#be123c" stroke-width="3" points="58,200.3 120,211.7 182,173.7 244,111.0 306,101.5 368,90.1 430,82.5 492,73.0 554,69.2"/>
+          <circle cx="554" cy="69.2" r="5" fill="#be123c"/>
+          <text x="548" y="57" text-anchor="end" font-size="12" font-weight="800" fill="var(--rose)">82% Leak Gold Numbers</text>
+
+          <!-- BM25 recall@20: 87.7%(58.4), 42.5%(144.3), 55.2%(120.1), 54.4%(121.6), 49.6%(130.8), 40.7%(147.7), 37.7%(153.4), 37.2%(154.3), 34.0%(160.4) -->
+          <polyline fill="none" stroke="#0b7a75" stroke-width="2.2" points="58,58.4 120,144.3 182,120.1 244,121.6 306,130.8 368,147.7 430,153.4 492,154.3 554,160.4"/>
+          <text x="554" y="152" text-anchor="end" font-size="11" font-weight="700" fill="var(--teal)">Single-fact recall@20: 34% BM25 / 28% e5</text>
+
+          <!-- e5 recall@20: 99.7%(35.6), 65.5%(100.6), 59.0%(112.9), 48.2%(133.4), 45.1%(139.3), 37.7%(153.4), 34.0%(160.4), 30.8%(166.5), 28.4%(171.0) -->
+          <polyline fill="none" stroke="#2563eb" stroke-width="2.2" points="58,35.6 120,100.6 182,112.9 244,133.4 306,139.3 368,153.4 430,160.4 492,166.5 554,171.0"/>
+
+          <!-- BM25 all-gold@20: 87.7%(58.4), 10.8%(204.5), 30.4%(167.2), 17.5%(191.8), 13.6%(199.2), 5.6%(214.4), 3.8%(217.8), 2.5%(220.3), 1.6%(222.0) -->
+          <polyline fill="none" stroke="#0b7a75" stroke-width="2" stroke-dasharray="5,3" points="58,58.4 120,204.5 182,167.2 244,191.8 306,199.2 368,214.4 430,217.8 492,220.3 554,222.0"/>
+          <circle cx="554" cy="222.0" r="4.5" fill="#0b7a75"/>
+          <text x="554" y="213" text-anchor="end" font-size="11.5" font-weight="800" fill="currentColor">All required facts @20: 1.6% BM25 / 0.5% e5</text>
+
+          <!-- Right Panel: Shortcut Proof Card -->
+          <rect x="602" y="24" width="282" height="236" rx="12" fill="var(--surface)" stroke="var(--line-strong)" stroke-width="1.3"/>
+          <text x="622" y="52" font-size="13" font-weight="800" fill="currentColor">No-Memory Shortcut Proof</text>
+          <text x="622" y="70" font-size="11.5" fill="var(--muted)">Ignoramus (0 user facts retrieved)</text>
+
+          <!-- Bar 1: 8-10 hop with leaks: 11.8% -->
+          <text x="622" y="106" font-size="12" font-weight="700" fill="var(--rose)">Hops 8–10 (Unfiltered)</text>
+          <rect x="622" y="114" width="212" height="26" rx="5" fill="#be123c" fill-opacity="0.85"/>
+          <text x="842" y="132" font-size="12.5" font-weight="800" fill="var(--rose)">11.8%</text>
+
+          <!-- Bar 2: Leak-free s306: 1.4% -->
+          <text x="622" y="168" font-size="12" font-weight="700" fill="var(--teal)">Leak-Free Subset (n = 140)</text>
+          <rect x="622" y="176" width="25" height="26" rx="5" fill="#0b7a75"/>
+          <text x="655" y="194" font-size="12.5" font-weight="800" fill="var(--teal)">1.4%</text>
+
+          <text x="622" y="226" font-size="11.3" fill="var(--ink-soft)">Removing leaked dates drops</text>
+          <text x="622" y="242" font-size="11.3" fill="var(--ink-soft)">closed-book guessing to ~zero.</text>
+        </svg>
+      </div>
+    </div>
+
+    <!-- 4 Crisp Highlight Cards for Code & Data Bugs -->
+    <div class="grid-2">
+      <div class="mini-card">
+        <h3><span>Dataset Count &amp; Hop Mismatch</span> <span class="badge badge-info">Data</span></h3>
+        <p>Paper claims <code>108,000</code> QAs (or <code>10,800</code> in text); actual release has <code>32,399</code> QAs, and 10-hop queries need ~<code>6.5</code> facts.</p>
+      </div>
+      <div class="mini-card">
+        <h3><span>Missing <code>e5</code> Query Prefixes</span> <span class="badge badge-warn">DenseRAG.py</span></h3>
+        <p><code>e5-base-v2</code> requires <code>"query: "</code> and <code>"passage: "</code> prefixes, but upstream embeds bare strings without either.</p>
+      </div>
+      <div class="mini-card">
+        <h3><span><code>HybridMem</code> Crashes on Load</span> <span class="badge badge-no">BlockSFT.py</span></h3>
+        <p>Saves LoRA adapters as <code>"default"</code>, then calls <code>set_adapter(str(cluster_id))</code>—raising an immediate <code>ValueError</code>.</p>
+      </div>
+      <div class="mini-card">
+        <h3><span>90× Wasted SFT Padding</span> <span class="badge badge-no">utils.py:159</span></h3>
+        <p>Pads ~45-token prompts out to <code>4,096</code> tokens during SFT, training answers at position 4096+ while testing at ~50.</p>
+      </div>
+    </div>
+
+    <details class="deep-dive">
+      <summary>
+        <span class="sum-left"><span class="sum-icon"></span> Read leaked question example &amp; all 8 upstream code audit findings</span>
+        <span class="sum-meta">Pinned commit a24953c</span>
+      </summary>
+      <div class="dive-body">
+        <div class="example-box">
+          <strong>Actual 7-hop Dataset Prompt (User 0, <code>RC000000#07</code>, leaked numbers <code>['13', '2024']</code>):</strong>
+          <span class="q-quote">“…This other expedition concludes on July 13, 2024. Calculating backwards, 244 days prior to this conclusion marks another important date. Adding 33 days to this earlier date… What is the end date obtained by adding 13 days to the date 33 days after 244 days before July 13, 2024?”</span>
+          Zero private memory is needed to compute <code>July 13, 2024 − 244 + 33 + 13 days</code>! On leaking S1 prompts, no-memory <code>Ignoramus</code> hits <code>6.5%</code> EM (<code>11.8%</code> on 8–10 hop S2), falling to <code>0.7%</code> NR / <code>1.4%</code> SR once filtered.
+        </div>
+
+        <div class="audit-grid">
+          <div class="audit-item">
+            <h4><span>1. QA Counts &amp; 6.5 Statements</span> <span class="badge badge-info">Dataset</span></h4>
+            <p>Public release has <code>32,400</code> rows (2,700 × 12 users, minus 1 null in User 8 hop 4 = <code>32,399</code>), vs. 108,000 in Tables 1–2 and 10,800 in §3.3.3. Value hops lack user statements, averaging ~6.5 unique statements at hop 10.</p>
+          </div>
+          <div class="audit-item">
+            <h4><span>2. Number Leakage (53% Overall)</span> <span class="badge badge-no">Benchmark</span></h4>
+            <p><code>53%</code> of 32,399 Qs share ≥1 number with gold facts (<code>82%</code> at hop 10; <code>38%</code> overall / <code>62%</code> at hop 10 for 3+ digit numbers).</p>
+          </div>
+          <div class="audit-item">
+            <h4><span>3. Identical MR Prompts &amp; <code>eval()</code></span> <span class="badge badge-warn">StructuredReason.py</span></h4>
+            <p>Lines 37–44 ignore <code>branch_id</code>, feeding identical prompts to both branches; lines 13–14 run raw Python <code>eval()</code> on LLM output.</p>
+          </div>
+          <div class="audit-item">
+            <h4><span>4. Missing <code>e5</code> Prefixes &amp; BM25 Label</span> <span class="badge badge-warn">DenseRAG.py:23</span></h4>
+            <p>Omits mandatory <code>query:/passage:</code> prefixes for <code>intfloat/e5-base-v2</code>. Also, §4.1 calls SparseRAG “TF-IDF” while code uses <code>bm25s</code>.</p>
+          </div>
+          <div class="audit-item">
+            <h4><span>5. 4,096-Token SFT Left/Right Pad</span> <span class="badge badge-no">utils.py:159</span></h4>
+            <p>Pads every ~45-token prompt to 4,096 tokens + 512-token answer (4,608 tokens/sample), wasting ~90× compute and shifting RoPE positions.</p>
+          </div>
+          <div class="audit-item">
+            <h4><span>6. <code>BlockSFT</code> Adapter Bug &amp; Epoch 0</span> <span class="badge badge-no">BlockSFT.py</span></h4>
+            <p>Saves adapters under <code>"default"</code> then calls <code>set_adapter(str(cluster_id))</code>; config loads <code>lora_load_index: 0</code> (epoch 1 vs. §6.5’s epoch 7).</p>
+          </div>
+          <div class="audit-item">
+            <h4><span>7. <code>AskSFT</code> Train/Test Mismatch</span> <span class="badge badge-warn">BaseMethod.py</span></h4>
+            <p>Trains on bare questions (with ~28% duplicate QA pairs) but tests with <code>Naive_Ignoramus</code> wrappers—dropping 0.5B probe recall from <code>7–11%</code> to <code>0–2%</code>.</p>
+          </div>
+          <div class="audit-item">
+            <h4><span>8. Missing Scorer, Server &amp; License</span> <span class="badge badge-info">Repo Hygiene</span></h4>
+            <p>No Exact Match scorer, no local Qwen server (hard-codes external HTTP endpoint), missing <code>scikit-learn</code>/<code>accelerate</code> in requirements, and no license.</p>
+          </div>
+        </div>
+      </div>
+    </details>
+  </section>
+
+  <!-- SECTION 5: PRACTICAL TAKEAWAY & CONCLUSION -->
+  <section id="takeaways">
+    <div class="sec-head">
+      <div class="sec-kicker">5 · Practical Takeaway &amp; Conclusion</div>
+      <h2>What to Build With Today</h2>
+      <p class="lead">
+        To answer multi-hop questions over personal data, pair a plain text index with a <strong>3–5 step search-and-think loop (<code>SR</code>)</strong>. You capture the paper’s full accuracy gain while avoiding <code>2.4×</code> tree-search overhead and brittle per-user LoRA training.
+      </p>
+    </div>
+
+    <div class="grid-2">
+      <div class="mini-card">
+        <div class="step-num">1</div>
+        <h3>Use 3–5 Step Iterative RAG (<code>SR</code>)</h3>
+        <p>Nearly doubles 1-shot accuracy (<code>22.9%–24.5%</code> at 3 steps) at one-quarter the call cost of 12-call <code>MR</code>.</p>
+      </div>
+      <div class="mini-card">
+        <div class="step-num">2</div>
+        <h3>Chase Entities, Don’t Bloat <code>top-k</code></h3>
+        <p>Rewriting queries at each hop works; stuffing 50 loosely matched facts into 1 call gives zero lift.</p>
+      </div>
+      <div class="mini-card">
+        <div class="step-num">3</div>
+        <h3>Keep Episodic Facts Out of LoRA</h3>
+        <p>Text indexes update instantly, whereas SFT forgets exact dates and degrades reasoning by <code>6.0–9.5 pp</code>.</p>
+      </div>
+      <div class="mini-card">
+        <div class="step-num">4</div>
+        <h3>Audit Benchmarks With a No-Memory Baseline</h3>
+        <p>If closed-book accuracy rises on harder hops, synthetic prompts are leaking answers—always report a clean slice.</p>
+      </div>
+    </div>
+
+    <footer>
+      <p style="margin:0 0 8px">
+        <strong>Next up:</strong> In-flight <strong>S6 <code>DecompositionReason</code> (<code>DR</code>)</strong> is running separately on the same 306-question slice and is excluded from scores above.
+      </p>
+      <details class="deep-dive">
+        <summary>
+          <span class="sum-left"><span class="sum-icon"></span> Artifact provenance &amp; verified source files</span>
+          <span class="sum-meta">Zero external CDNs</span>
+        </summary>
+        <div class="dive-body">
+          <p>
+            All metrics trace directly to verified artifacts on disk (2026-11-14):
+            <code>results/t4/summary_s1.md</code>, <code>summary_s2.md</code>, <code>summary_s2_vs_s1.md</code>, <code>summary_s3_topk_sweep.md</code>, <code>summary_s3_steps_sweep.md</code>, <code>summary_retrieval.md</code>, <code>results/probes/leak_check.md</code>, <code>results/laptop/sft/summary.md</code>, <code>docs/verification/regroup_short_long.md</code>, <code>docs/upstream-notes.md</code>, and <code>mpr-study-mr/results/kaggle/mr/summary_mr.md</code> + <code>experiments/s5_kaggle_mr/report.md</code> (commit <code>44f1e3a</code>, 612/612 validated rows, 6/6 NR sanity gate). Paper: Zhang et al., KDD ’26 (<code>papers/2508.13250v1.pdf</code>); upstream repo <code>nuster1128/MPR @ a24953c</code>.
+          </p>
+        </div>
+      </details>
+    </footer>
+  </section>
+
+</main>
+
+<script>
+  (function () {
+    const root = document.documentElement;
+    const btn = document.getElementById('themeToggle');
+    try {
+      const saved = localStorage.getItem('mpr-report-theme');
+      if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        root.setAttribute('data-theme', 'dark');
+      }
+    } catch (_) {}
+
+    btn.addEventListener('click', function () {
+      const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      try { localStorage.setItem('mpr-report-theme', next); } catch (_) {}
+    });
+
+    const tabs = document.querySelectorAll('.tab-btn');
+    const rows = document.querySelectorAll('#scoreTable tbody tr');
+    tabs.forEach(function (tab) {
+      tab.addEventListener('click', function () {
+        tabs.forEach(function (t) { t.classList.remove('active'); });
+        tab.classList.add('active');
+        const g = tab.getAttribute('data-group');
+        rows.forEach(function (r) {
+          r.style.display = (g === 'all' || r.getAttribute('data-cat') === g) ? '' : 'none';
+        });
+      });
+    });
+  })();
+</script>
+</body>
+</html>
