@@ -7,6 +7,7 @@ The upstream-reference test needs the read-only pinned clone at
 No GPU, model, network, numpy or vLLM is required.
 """
 
+import importlib.util
 import json
 import os
 import sys
@@ -21,9 +22,22 @@ PROMPTS = os.path.join(UPSTREAM, "baselines", "prompts.py")
 if os.path.exists(PROMPTS):
     os.environ.setdefault("MPR_PROMPTS", PROMPTS)
 
-sys.path.insert(0, os.path.join(ROOT, "experiments", "s5_kaggle_mr"))
+sys.path.insert(0, os.path.join(ROOT, "experiments", "s5_t4_mr"))
 import mr  # noqa: E402
 import lib  # noqa: E402
+
+try:
+    import numpy  # noqa: F401
+    HAVE_NUMPY = True
+except Exception:  # noqa: BLE001
+    HAVE_NUMPY = False
+
+
+def load_module(name, path):
+    spec = importlib.util.spec_from_file_location(name, path)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
 
 
 class FakeChat:
@@ -236,12 +250,50 @@ class DuplicateAndLeakTest(unittest.TestCase):
         self.assertEqual(tr2["duplicate_candidate_pairs"], 0)
 
     def test_gold_answer_never_enters_prompts(self):
-        cfg = mr.MRConfig()
-        chat = FakeChat(["0", "2", "4", "6"])
-        runner = mr.MRRunner(cfg, fake_prompts(), chat, fake_retrieve, memory="sparse")
-        runner.solve(0, "RC", "QUESTION_WITHOUT_GOLD")
-        for c in chat.calls:
-            self.assertNotIn("SECRET_GOLD_42", c["prompt"])
+        # Regression for the earlier tautological check: a sentinel that really is
+        # present in qa["answer"] must never appear in a prompt or retrieval key.
+        sentinel = "SECRET_GOLD_42_END_TO_END"
+        items = [{"uid": 0, "hop": 2, "rc_id": "RC1"}]
+        data = {"qa": {"2": {"RC1": {"question": "Q1", "answer": sentinel}}}}
+        retrieval_queries = []
+
+        class Store:
+            def __init__(self, *a, **k):
+                pass
+
+            def user(self, uid):
+                return data, types.SimpleNamespace(messages={})
+
+            def refs(self, uid, query):
+                retrieval_queries.append(query)
+                return ["m1"], "refs"
+
+        chat = FakeChat(["0", "2", "4", "6"] * 10)
+
+        def fake_vllm(prompt, max_tokens, **kwargs):
+            return chat(prompt, max_tokens, temperature=kwargs.get("temperature"),
+                        top_p=kwargs.get("top_p"), seed=kwargs.get("seed"))
+
+        old = (mr.MemoryStore, mr.vllm_chat, lib.load_prompts, lib.load_slice, lib.load_user)
+        mr.MemoryStore, mr.vllm_chat = Store, fake_vllm
+        lib.load_prompts, lib.load_slice, lib.load_user = fake_prompts, lambda path: {"items": items}, lambda uid: data
+        try:
+            with tempfile.TemporaryDirectory() as d:
+                args = types.SimpleNamespace(
+                    stage="full", slice="unused", data_dir="unused", cache_dir="unused",
+                    output_dir=d, memories="sparse", topk=20, max_step=5, branch_size=2,
+                    expected_calls=12, seed=0, workers=1, max_attempts=2, limit=0,
+                    deadline=0, vllm_url="unused", model="qwen", device=None,
+                    request_timeout=10)
+                self.assertEqual(mr.cmd_run(args), 0)
+                self.assertTrue(chat.calls, "cmd_run must actually call the model")
+                self.assertTrue(retrieval_queries, "cmd_run must actually retrieve")
+                for c in chat.calls:
+                    self.assertNotIn(sentinel, c["prompt"])
+                for q in retrieval_queries:
+                    self.assertNotIn(sentinel, q)
+        finally:
+            (mr.MemoryStore, mr.vllm_chat, lib.load_prompts, lib.load_slice, lib.load_user) = old
 
 
 class ResumeAndCoverageTest(unittest.TestCase):
@@ -354,9 +406,6 @@ class SharedGridRegressionTest(unittest.TestCase):
             lib.chat = old
 
 
-if __name__ == "__main__":
-    unittest.main()
-
 class VLLMClientTest(unittest.TestCase):
     def test_request_body_and_http_error(self):
         import http.server
@@ -411,7 +460,7 @@ class KernelMountTest(unittest.TestCase):
     def setUp(self):
         import importlib.util
 
-        path = os.path.join(ROOT, "experiments", "s5_kaggle_mr", "kernel.py")
+        path = os.path.join(ROOT, "experiments", "s5_t4_mr", "kernel.py")
         spec = importlib.util.spec_from_file_location("mr_kaggle_kernel", path)
         self.kernel = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(self.kernel)
@@ -467,13 +516,112 @@ class KernelMountTest(unittest.TestCase):
             os.walk = real_walk
 
 
+class EmptyRetryTest(unittest.TestCase):
+    def test_non_selection_raises_after_empty_retries_exhausted(self):
+        class EmptyChat:
+            def __init__(self):
+                self.calls = 0
+
+            def __call__(self, prompt, max_tokens, *, temperature, top_p=None, seed=None):
+                self.calls += 1
+                return {"text": "   ", "prompt_tokens": 1, "completion_tokens": 0,
+                        "finish_reason": "stop", "seconds": 0.0,
+                        "temperature": temperature, "top_p": top_p, "seed": seed}
+
+        cfg = mr.MRConfig(empty_retries=2)
+        chat = EmptyChat()
+        runner = mr.MRRunner(cfg, fake_prompts(), chat, fake_retrieve, memory="sparse")
+        with self.assertRaisesRegex(mr.MRFailure, "empty Structured_Start response after 3 attempts"):
+            runner.solve(0, "RC", "Q")
+        self.assertEqual(chat.calls, cfg.empty_retries + 1)
+
+    def test_selection_empty_retries_return_a_recorded_fallback(self):
+        class SelectEmptyChat(FakeChat):
+            def __call__(self, prompt, max_tokens, *, temperature, top_p=None, seed=None):
+                out = super().__call__(prompt, max_tokens, temperature=temperature,
+                                       top_p=top_p, seed=seed)
+                if out["text"] in ("", "   "):
+                    out["text"] = "   "
+                return out
+
+        cfg = mr.MRConfig(empty_retries=2)
+        chat = SelectEmptyChat(["", "", ""] * 4, middle_text=lambda n: f"T{n}")
+        runner = mr.MRRunner(cfg, fake_prompts(), chat, fake_retrieve, memory="sparse")
+        tr = runner.solve(0, "RC", "Q")["trace"]
+        self.assertEqual(tr["selections"][0]["status"], "fallback_non_digit")
+        self.assertEqual(tr["stats"]["selection_fallbacks"], 4)
+        self.assertEqual(tr["stats"]["calls"], 12)
+
+
+@unittest.skipUnless(HAVE_NUMPY, "analyze_mr.py bootstrap needs numpy")
+class AnalyzeMRTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.analyze = load_module("analyze_mr_under_test",
+                                  os.path.join(ROOT, "experiments", "s5_t4_mr", "analyze_mr.py"))
+
+    def test_boot_ci_is_seeded_and_brackets_the_mean(self):
+        vals = [0.0] * 50 + [1.0] * 50
+        a = self.analyze.boot_ci(vals, seed=0, b=500)
+        b = self.analyze.boot_ci(vals, seed=0, b=500)
+        self.assertEqual(a, b)
+        self.assertLessEqual(a[0], 0.5)
+        self.assertGreaterEqual(a[1], 0.5)
+        self.assertEqual(self.analyze.boot_ci([], seed=0), None)
+
+    def test_paired_uses_only_shared_keys_and_reports_the_delta(self):
+        rows_a = {
+            "0:A": {"response": "x", "ground_truth": "x"},
+            "0:B": {"response": "y", "ground_truth": "y"},
+        }
+        rows_b = {
+            "0:A": {"response": "wrong", "ground_truth": "x"},
+            "0:X": {"response": "x", "ground_truth": "x"},
+        }
+        n, delta, ci = self.analyze.paired(rows_a, rows_b, ["0:A", "0:B", "0:X"], 0)
+        self.assertEqual(n, 1)
+        self.assertAlmostEqual(delta, 1.0)
+        self.assertEqual(len(ci), 2)
+
+    def test_validate_detects_missing_rows_and_accepts_a_complete_fixture(self):
+        items = [
+            {"uid": 0, "hop": 2, "rc_id": "RC1"},
+            {"uid": 0, "hop": 3, "rc_id": "RC2"},
+        ]
+        data = {"qa": {"2": {"RC1": {"answer": "A1"}},
+                       "3": {"RC2": {"answer": "A2"}}}}
+
+        def row(hop, rc):
+            return {"uid": 0, "rc_id": rc, "k_hop": hop, "ground_truth": data["qa"][str(hop)][rc]["answer"],
+                    "response": "A1", "calls": 12}
+
+        old = lib.load_user
+        lib.load_user = lambda uid: data
+        try:
+            with tempfile.TemporaryDirectory() as d:
+                for mem in ("SparseRAG", "DenseRAG"):
+                    with open(os.path.join(d, f"StructuredReason_{mem}_k20_s5.jsonl"), "w") as f:
+                        f.write(json.dumps(row(2, "RC1")) + "\n")
+                rep = self.analyze.validate(d, items, "unused")
+                self.assertFalse(rep["complete"])
+                self.assertEqual(rep["memories"]["SparseRAG"]["missing"], ["0:RC2"])
+                for mem in ("SparseRAG", "DenseRAG"):
+                    with open(os.path.join(d, f"StructuredReason_{mem}_k20_s5.jsonl"), "a") as f:
+                        f.write(json.dumps(row(3, "RC2")) + "\n")
+                rep = self.analyze.validate(d, items, "unused")
+                self.assertTrue(rep["complete"])
+                self.assertEqual(rep["raw_lines"], {"SparseRAG": 2, "DenseRAG": 2})
+        finally:
+            lib.load_user = old
+
+
 class KernelDriverPinTest(unittest.TestCase):
     """vLLM wheels are CUDA 13 by default; older drivers need the CUDA 12 pin."""
 
     def setUp(self):
         import importlib.util
 
-        path = os.path.join(ROOT, "experiments", "s5_kaggle_mr", "kernel.py")
+        path = os.path.join(ROOT, "experiments", "s5_t4_mr", "kernel.py")
         spec = importlib.util.spec_from_file_location("mr_kaggle_kernel_pins", path)
         self.kernel = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(self.kernel)
@@ -497,3 +645,7 @@ class KernelDriverPinTest(unittest.TestCase):
     def test_fallback_pin_is_one_shot(self):
         self.assertEqual(self.kernel.fallback_vllm_pin("0.32.0"), "0.11.2")
         self.assertIsNone(self.kernel.fallback_vllm_pin("0.11.2"))
+
+
+if __name__ == "__main__":
+    unittest.main()

@@ -18,7 +18,7 @@ import unittest
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(HERE)
-EXP = os.path.join(REPO, "experiments", "s6_kaggle_dr")
+EXP = os.path.join(REPO, "experiments", "s6_t4_dr")
 SETTINGS_PATH = os.path.join(EXP, "settings.json")
 
 try:
@@ -152,6 +152,19 @@ class ReadRowsTests(unittest.TestCase):
         mod = load_summary()
         rows, dup = mod.read_rows("/nonexistent/none.jsonl")
         self.assertEqual((rows, dup), ({}, 0))
+
+    def test_failure_count_keeps_repeated_records_for_the_same_key(self):
+        # read_rows() keeps the last record per uid:rc_id; the failure count must
+        # not silently collapse retries, so summarize uses a raw line count.
+        mod = load_summary()
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "failures_SparseRAG.jsonl")
+            write_jsonl(path, [{"uid": 0, "rc_id": "RC1", "stage": "solve[0]"},
+                               {"uid": 0, "rc_id": "RC1", "stage": "solve[0]"},
+                               {"uid": 0, "rc_id": "RC2", "stage": "merge"}])
+            self.assertEqual(mod.count_jsonl_lines(path), 3)
+            self.assertEqual(len(mod.read_rows(path)[0]), 2)
+            self.assertEqual(mod.count_jsonl_lines("/nonexistent/none.jsonl"), 0)
 
 
 @unittest.skipUnless(HAVE_NUMPY, "summarize_dr.py bootstrap needs numpy (use the repo venv)")
