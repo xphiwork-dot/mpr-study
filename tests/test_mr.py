@@ -434,7 +434,7 @@ class KernelMountTest(unittest.TestCase):
 
     def test_both_known_mount_layouts_resolve(self):
         legacy = self._layout("input", "mpr-mr-inputs")
-        nested = self._layout("input", "datasets", "phinguynxun", "mpr-mr-inputs")
+        nested = self._layout("input", "datasets", "xunphi", "mpr-mr-inputs")
         for root in (legacy, nested):
             self.kernel.INPUT_CANDIDATES = [root]
             got, slice_path = self.kernel.find_input(wait_s=0)
@@ -442,13 +442,13 @@ class KernelMountTest(unittest.TestCase):
             self.assertEqual(slice_path, os.path.join(os.path.abspath(root), "s306.json"))
 
     def test_bounded_walk_fallback_and_clear_failure(self):
-        actual = self._layout("input", "datasets", "phinguynxun", "mpr-mr-inputs")
+        actual = self._layout("input", "datasets", "xunphi", "mpr-mr-inputs")
         self.kernel.INPUT_CANDIDATES = [os.path.join(self.tmp, "does-not-exist")]
         real_walk = os.walk
 
         def found_walk(top):
             yield os.path.join(self.tmp, "input"), ["datasets"], []
-            yield os.path.join(self.tmp, "input", "datasets"), ["phinguynxun"], []
+            yield os.path.join(self.tmp, "input", "datasets"), ["xunphi"], []
             yield os.path.dirname(actual), ["mpr-mr-inputs"], []
             yield actual, [], ["s306.json"]
 

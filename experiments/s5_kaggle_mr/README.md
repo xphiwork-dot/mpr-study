@@ -60,9 +60,26 @@ Consequences for the reference-faithful primary run:
 | Selection parser | strip surrounding whitespace, ASCII digits only, safe `int`, out-of-range/non-digit -> path 0; no `eval` |
 | Other | no gold answer is passed to the runner; ground truth is attached after the answer returns |
 | Seeds | experiment seed 0; per-question seeds are derived from `uid`, `rc_id`, round and branch, not from scheduling order. No accuracy-driven tuning or unbounded retry-until-distinct. |
-| Hardware budget | exactly one **private** Kaggle GPU job, `NvidiaTeslaT4` (T4 x2 shape), CLI timeout 14,400 s (4 h, the approved cap; the account has a 30 h/week GPU allowance) with a 30 min in-job reserve; embedded smoke + full run in that one job; serialized with the peer through `/home/xphi/.local/state/mpr-study/kaggle-gpu.lock`. 64 workers match `--max-num-seqs 64`. A `check_cuda()` gate fails fast if the allocated torch cannot see a GPU. |
+| Hardware budget | exactly one **private** Kaggle GPU job on account `xunphi`, CLI timeout 14,400 s (4 h, the approved cap; the account has a 30 h/week GPU allowance) with a 30 min in-job reserve; embedded smoke + full run in that one job; serialized with the peer through `/home/xphi/.local/state/mpr-study/kaggle-gpu.lock`. 64 workers match `--max-num-seqs 64`. A `check_cuda()` gate fails fast if the allocated torch cannot see a GPU. |
 | Software | vLLM pinned `0.32.0` (CUDA 13 wheels, matching the prior T4 session) when the node reports driver >= 580, otherwise `0.11.2` (CUDA 12 wheels) for 525 <= driver < 580, and the kernel refuses to run below 525 (`choose_vllm_pin`, tested); if the chosen pin installs but vLLM cannot serve, the kernel makes one bounded retry with the other family (`fallback_vllm_pin`). `bm25s==0.2.9`, `sentence-transformers==6.3.0`; actual resolved versions are recorded in the run manifest and `environment.json` |
 | Expected rows | 306 unique successful rows per retriever = **612** total; any less is partial/blocked |
+
+### Accelerator routing on `xunphi`
+
+Kaggle provisions a T4 x2 session only through a specific route on this
+account. `enable_gpu: true` + `machine_shape: NvidiaTeslaT4` (and the matching
+`--accelerator NvidiaTeslaT4`) was accepted but stayed `QUEUED` for >8 min. The
+verified instant-allocation recipe is `machine_shape: "NvidiaH100"` in
+`kernel-metadata.json` **plus**
+`"competition_sources": ["ai-mathematical-olympiad-progress-prize-3"]` and
+`kaggle kernels push --accelerator NvidiaH100`: the session starts immediately
+as **2x NVIDIA Tesla T4 (15,360 MiB each)**, driver `580.178.04` (CUDA 13,
+`vllm==0.32.0` wheels), preinstalled `torch 2.11.0+cu130` with
+`torch.cuda.is_available() == True` and outbound internet. Despite the
+requested shape, the actual device is a T4, so vLLM keeps one replica on one
+card (`--tensor-parallel-size 1`) and the query encoder uses GPU 1 when it is
+visible. `kernel.py` still gates on `torch.cuda` and on the driver major, so a
+surprise allocation fails fast instead of burning the session.
 
 ### Why branch calls are sampled
 
@@ -110,7 +127,7 @@ Before scoring, the following are fixed:
 | `run_remote.sh` | ORIGINAL TO THIS REPO push/monitor/download wrapper that holds the shared GPU flock (fd 9) until terminal status and output download finish |
 | `monitor_remote.sh` | ORIGINAL TO THIS REPO same lock/poll/download wrapper without a push, for a version started from the Kaggle UI |
 | `colab_mr.sh` | ORIGINAL TO THIS REPO Colab T4 fallback driver: holds the shared lock, stages the same private dataset at the path `kernel.py` resolves, runs the exact entrypoint, downloads outputs and stops the session |
-| `kernel-metadata.json` | private kernel metadata (`phinguynxun/mpr-mr-reasoning`), private dataset `phinguynxun/mpr-mr-inputs` |
+| `kernel-metadata.json` | private kernel metadata (`xunphi/mpr-mr-reasoning`), private dataset `xunphi/mpr-mr-inputs` |
 | `analyze_mr.py` | ORIGINAL TO THIS REPO scoring/comparison report from raw rows |
 | `../../tests/test_mr.py` | stdlib tests: upstream mock parity, buffer semantics, parsing, seeds, duplicates, no gold leak, cut-tail resume, reused grid regression |
 
@@ -161,15 +178,15 @@ experiments/s5_kaggle_mr/run_remote.sh results/kaggle/mr/_kaggle_out
 
 # alternative when only the Kaggle UI can allocate a GPU: open the saved
 # version, select Accelerator = GPU T4 x2 and start it, then monitor/download
-experiments/s5_kaggle_mr/monitor_remote.sh phinguynxun/mpr-mr-reasoning results/kaggle/mr/_kaggle_out
+experiments/s5_kaggle_mr/monitor_remote.sh xunphi/mpr-mr-reasoning results/kaggle/mr/_kaggle_out
 
 # fallback if Kaggle cannot allocate an accelerator: same entrypoint on a
 # Colab T4, serialized on the same lock; requires the shared `colab` auth
 experiments/s5_kaggle_mr/colab_mr.sh results/kaggle/mr/_colab_out
 
 # 3. inspect later if needed
-~/.local/bin/kaggle kernels status phinguynxun/mpr-mr-reasoning
-~/.local/bin/kaggle kernels logs phinguynxun/mpr-mr-reasoning
+~/.local/bin/kaggle kernels status xunphi/mpr-mr-reasoning
+~/.local/bin/kaggle kernels logs xunphi/mpr-mr-reasoning
 
 # 4. score locally (numpy required)
 python experiments/s5_kaggle_mr/analyze_mr.py \

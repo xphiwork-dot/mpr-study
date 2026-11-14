@@ -126,7 +126,7 @@ def run_stream(cmd, *, env=None, timeout=None, check=True, tag=None):
     return rc, "\n".join(lines)
 
 
-INPUT_SLUG = "phinguynxun/mpr-mr-inputs"
+INPUT_SLUG = "xunphi/mpr-mr-inputs"
 INPUT_CANDIDATES = [
     "/kaggle/input/mpr-mr-inputs",              # legacy flat mount
     "/kaggle/input/datasets/" + INPUT_SLUG,     # current mount layout
@@ -151,9 +151,10 @@ def log_input_tree(root="/kaggle/input", limit=200):
 def find_input(wait_s=90):
     """Resolve the private dataset root, tolerating both Kaggle mount layouts.
 
-    A CPU probe on this account showed the dataset is mounted at
-    ``/kaggle/input/datasets/<owner>/<slug>``; a failed earlier peer run assumed
-    the flat ``/kaggle/input/<slug>`` layout.  The 90 s window is insurance
+    A CPU probe on the previous account showed the dataset mounted at
+    ``/kaggle/input/datasets/<owner>/<slug>``; older runs assumed the flat
+    ``/kaggle/input/<slug>`` layout, and the mount varies by run type.  Both
+    candidates plus a bounded walk are kept.  The 90 s window is insurance
     against a slow mount at container start.
     """
     started = time.time()

@@ -38,7 +38,7 @@ metadata and serialized it with the installed SDK's `to_json()`:
 ```json
 {"id": 144700338, "slug": "mpr-mr-reasoning", "newTitle": "MPR MR reasoning",
  "text": "...", "language": "python", "kernelType": "script",
- "datasetDataSources": ["phinguynxun/mpr-mr-inputs"], "isPrivate": true,
+ "datasetDataSources": ["xunphi/mpr-mr-inputs"], "isPrivate": true,
  "enableGpu": true, "enableInternet": true, "enableTpu": false,
  "sessionTimeoutSeconds": 14400, "machineShape": "NvidiaTeslaT4"}
 ```

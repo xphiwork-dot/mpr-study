@@ -59,7 +59,7 @@ def main():
     ap.add_argument("--out", default="/tmp/mpr-mr-kaggle/dataset")
     ap.add_argument("--dataset-dir", default=os.environ.get("MPR_DATASET_DIR"))
     ap.add_argument("--clean", action="store_true")
-    ap.add_argument("--dataset-id", default="phinguynxun/mpr-mr-inputs")
+    ap.add_argument("--dataset-id", default="xunphi/mpr-mr-inputs")
     ap.add_argument("--title", default="MPR MR inputs")
     args = ap.parse_args()
 

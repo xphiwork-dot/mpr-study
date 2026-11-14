@@ -1,5 +1,5 @@
 {
-  "id": "phinguynxun/mpr-mr-reasoning",
+  "id": "xunphi/mpr-mr-reasoning",
   "title": "MPR MR reasoning",
   "code_file": "kernel.py",
   "language": "python",
@@ -8,11 +8,13 @@
   "enable_gpu": true,
   "enable_tpu": false,
   "enable_internet": true,
-  "machine_shape": "NvidiaTeslaT4",
+  "machine_shape": "NvidiaH100",
   "dataset_sources": [
-    "phinguynxun/mpr-mr-inputs"
+    "xunphi/mpr-mr-inputs"
   ],
-  "competition_sources": [],
+  "competition_sources": [
+    "ai-mathematical-olympiad-progress-prize-3"
+  ],
   "kernel_sources": [],
   "model_sources": []
 }

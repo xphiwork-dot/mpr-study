@@ -10,7 +10,7 @@ HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT="$(cd "$HERE/../.." && pwd)"
 KAGGLE="${KAGGLE_BIN:-$HOME/.local/bin/kaggle}"
 LOCK="${KAGGLE_GPU_LOCK:-/home/xphi/.local/state/mpr-study/kaggle-gpu.lock}"
-SLUG="${1:-phinguynxun/mpr-mr-reasoning}"
+SLUG="${1:-xunphi/mpr-mr-reasoning}"
 OUT="${2:-$ROOT/results/kaggle/mr/_kaggle_out}"
 WAIT_S="${GPU_LOCK_WAIT_S:-21600}"
 

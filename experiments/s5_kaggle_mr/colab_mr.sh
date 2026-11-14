@@ -78,8 +78,8 @@ rm -rf /content/mr_inputs/*
 tar xzf /content/mr_inputs.tgz -C /content/mr_inputs
 # kernel.py checks MPR_INPUT_ROOT first; the symlink is only belt-and-braces in
 # case Colab refuses to create /kaggle.
-mkdir -p /kaggle/input/datasets/phinguynxun /kaggle/working/results/kaggle/mr 2>/dev/null || true
-ln -sfn /content/mr_inputs /kaggle/input/datasets/phinguynxun/mpr-mr-inputs 2>/dev/null || true
+mkdir -p /kaggle/input/datasets/xunphi /kaggle/working/results/kaggle/mr 2>/dev/null || true
+ln -sfn /content/mr_inputs /kaggle/input/datasets/xunphi/mpr-mr-inputs 2>/dev/null || true
 mkdir -p /kaggle/working/results/kaggle/mr
 if [ -f /content/mr_resume.tgz ]; then tar xzf /content/mr_resume.tgz -C /kaggle/working/results/kaggle/mr; fi
 rm -f /content/mr_kernel.exit
@@ -101,7 +101,7 @@ timeout 180 colab exec -s "$S" <<'PY' >/dev/null
 import subprocess
 cmd = ("cd /kaggle/working && "
        "MPR_INPUT_ROOT=/content/mr_inputs "
-       "python -u /kaggle/input/datasets/phinguynxun/mpr-mr-inputs/kernel.py "
+       "python -u /kaggle/input/datasets/xunphi/mpr-mr-inputs/kernel.py "
        "> /content/mr_kernel.log 2>&1; echo $? > /content/mr_kernel.exit")
 subprocess.Popen(['bash', '-c', cmd], start_new_session=True)
 print('launched')
