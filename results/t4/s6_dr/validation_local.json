@@ -1,0 +1,64 @@
+{
+ "settings_sha256": "3ab140653fb77b4c318bf01da6687e1eca427027143f1d21de734d8add410f48",
+ "slice_keys": 306,
+ "memories": {
+  "SparseRAG": {
+   "rows_raw": 306,
+   "rows_unique": 306,
+   "duplicates": 0,
+   "cut_tail_lines": 0,
+   "missing": [],
+   "missing_count": 0,
+   "extra_count": 0,
+   "failures": 0,
+   "failure_cut_lines": 0,
+   "failure_stages": [],
+   "invalid_rows": 0,
+   "invalid_examples": [],
+   "call_histogram": {
+    "3": 4,
+    "4": 41,
+    "5": 80,
+    "6": 41,
+    "7": 140
+   },
+   "parser_fallback_rows": 0,
+   "rows_with_dropped_blank": 0,
+   "rows_with_over_limit": 21,
+   "empty_sub_answers": 0,
+   "archived_ground_truth_mismatches": 0,
+   "leak_free_rows": 140,
+   "ok": true
+  },
+  "DenseRAG": {
+   "rows_raw": 306,
+   "rows_unique": 306,
+   "duplicates": 0,
+   "cut_tail_lines": 0,
+   "missing": [],
+   "missing_count": 0,
+   "extra_count": 0,
+   "failures": 0,
+   "failure_cut_lines": 0,
+   "failure_stages": [],
+   "invalid_rows": 0,
+   "invalid_examples": [],
+   "call_histogram": {
+    "3": 4,
+    "4": 41,
+    "5": 81,
+    "6": 41,
+    "7": 139
+   },
+   "parser_fallback_rows": 0,
+   "rows_with_dropped_blank": 0,
+   "rows_with_over_limit": 21,
+   "empty_sub_answers": 0,
+   "archived_ground_truth_mismatches": 0,
+   "leak_free_rows": 140,
+   "ok": true
+  }
+ },
+ "ok": true,
+ "complete_612": true
+}

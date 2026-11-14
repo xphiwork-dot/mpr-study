@@ -1,0 +1,35 @@
+{
+  "expected": 306,
+  "memories": {
+    "dense": {
+      "complete": true,
+      "expected": 306,
+      "extra": [],
+      "extra_count": 0,
+      "memory": "DenseRAG",
+      "missing": [],
+      "missing_count": 0,
+      "rows": 306,
+      "wrong_call_count": [],
+      "wrong_call_count_n": 0,
+      "wrong_ground_truth": [],
+      "wrong_ground_truth_n": 0,
+      "wrong_hop_n": 0
+    },
+    "sparse": {
+      "complete": true,
+      "expected": 306,
+      "extra": [],
+      "extra_count": 0,
+      "memory": "SparseRAG",
+      "missing": [],
+      "missing_count": 0,
+      "rows": 306,
+      "wrong_call_count": [],
+      "wrong_call_count_n": 0,
+      "wrong_ground_truth": [],
+      "wrong_ground_truth_n": 0,
+      "wrong_hop_n": 0
+    }
+  }
+}

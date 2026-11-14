@@ -1,0 +1,33 @@
+{
+ "memories": {
+  "DecompositionReason_SparseRAG_k20": {
+   "name": "DecompositionReason_SparseRAG_k20",
+   "path": "/kaggle/working/results/t4/s6_dr/runs/DecompositionReason_SparseRAG_k20.jsonl",
+   "rows_before": 6,
+   "todo": 300,
+   "rows": 306,
+   "failures": 0,
+   "calls": 1762,
+   "prompt_tokens": 1072098,
+   "completion_tokens": 30237,
+   "wall_s": 1006.8,
+   "stopped": null
+  },
+  "DecompositionReason_DenseRAG_k20": {
+   "name": "DecompositionReason_DenseRAG_k20",
+   "path": "/kaggle/working/results/t4/s6_dr/runs/DecompositionReason_DenseRAG_k20.jsonl",
+   "rows_before": 6,
+   "todo": 300,
+   "rows": 306,
+   "failures": 0,
+   "calls": 1760,
+   "prompt_tokens": 1110169,
+   "completion_tokens": 30219,
+   "wall_s": 1043.8,
+   "stopped": null
+  }
+ },
+ "started": 1794656635.512345,
+ "deadline": 1794663766.823311,
+ "finished": 1794658686.0680513
+}

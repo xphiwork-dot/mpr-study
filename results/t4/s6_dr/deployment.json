@@ -1,0 +1,115 @@
+{
+ "note": "Observed deployment of the one S6 DR session, consolidated from manifest_out.json and the kernel run log. Diagnostic probe/preflight files (preflight.json, deps.json, server.json, status.json, run.log, setup_*.log) were removed from the repository in the Kaggle-artifact cleanup; the observed numbers they recorded are summarized here and in report.md section 2. The Kaggle block in the run manifest records the frozen resource IDs; no Kaggle kernel or dataset was pushed for this run (the account allocates no accelerator, see report.md section 2).",
+ "runner": "experiments/s6_t4_dr/colab_run.sh on a Colab free-tier session named mpr-dr (colab-cli, GPU T4)",
+ "gpu": {
+  "nvidia_smi": "GPU 0: Tesla T4 (UUID: GPU-a54bd981-f5e6-b578-2b42-b6f3c1660021)",
+  "name": "Tesla T4",
+  "memory_mib": 15360,
+  "driver": "580.82.07",
+  "count": 1,
+  "compute_capability": [
+   7,
+   5
+  ],
+  "cpu_count": 2,
+  "mem_total_kb": 13286932,
+  "python": "3.13.16",
+  "vllm_gpu": "0"
+ },
+ "session": {
+  "created_utc": "2026-11-14T11:25:52Z",
+  "kernel_started_utc": "2026-11-14T11:32:46Z",
+  "kernel_finished_utc": "2026-11-14T12:18:06Z",
+  "session_stopped_utc": "2026-11-14T12:19:09Z",
+  "kernel_wall_s": 2720.1,
+  "creation_to_stop_s": 3197,
+  "session_timeout_s": 9000,
+  "watchdog_exit_s": 8400,
+  "stop_submitting_s": 7800,
+  "deadline_hit": false
+ },
+ "vllm": {
+  "requested_pin": "0.11.2",
+  "install": "pre-installed by colab_run.sh before the kernel started (6 min), so the DR engine matches the pin that actually served the MR rows; the kernel's 0.32.0 first try was therefore not exercised",
+  "served_pin": "0.11.2",
+  "healthy_after_s": 380.1,
+  "attempt": "historical@0.11.2 (first attempt, no fallback needed)",
+  "launch": "vllm serve Qwen/Qwen2.5-7B-Instruct-AWQ --revision b25037543e9394b818fdfca67ab2a00ecc7dd641 --served-model-name qwen --dtype float16 --quantization awq --max-model-len 8192 --gpu-memory-utilization 0.8 --max-num-seqs 64 --port 8000 --host 127.0.0.1 --generation-config vllm",
+  "served_stack": {
+   "vllm": "0.11.2",
+   "torch": "2.9.0+cu128",
+   "cuda": "12.8",
+   "transformers": "4.57.6",
+   "sentence-transformers": "5.7.0",
+   "bm25s": "0.2.9",
+   "numpy": "2.2.6",
+   "scipy": "1.16.3",
+   "huggingface-hub": "0.36.2"
+  },
+  "in_job_installs": [
+   "bm25s==0.2.9 (2.8 s)"
+  ],
+  "in_job_uninstalls": [
+   "torchao 0.10.0 (historical T4 recipe)"
+  ],
+  "generation": "greedy, divide/solve/merge caps 200/200/64 tokens"
+ },
+ "retrieval": {
+  "systems": [
+   "SparseRAG (bm25s 0.2.9, stopwords en, k=20)",
+   "DenseRAG (e5-base-v2, normalized cosine, cached fp16, k=20)"
+  ],
+  "embeddings": {
+   "wall_s": 47.2,
+   "users": 12,
+   "statements_per_user_max": 13100,
+   "dim": 768,
+   "device": "cuda",
+   "gpu_mem_after_mib": 523
+  },
+  "retrieval_gate": "9/9 independent checks passed (BM25 and e5 top-20 identical to a fresh index for users 0/3/7, cached embedding cosines 0.9997-1.0003)"
+ },
+ "gates": {
+  "input_hash_verification": "19/19 input files matched manifest.json sha256 (MPR_INPUT_ROOT=/content/dr_inputs, strategy=explicit)",
+  "upstream": "a24953c8f342c9f3b2064e562ead49d477d49138, prompts.py sha256 daf087ed2dabb95be1e334efeffd85de2bed914742fe41131afda98878322405 verified",
+  "divide_gate": "passed (1 real Decomposition_Divide call, 3 sub-questions, no blank lines)",
+  "smoke_dr": "passed: 12 rows (6 questions x 2 memories), calls 3-7, sub-answers non-empty, every solve/merge retrieval top-20, prompts <= 8192",
+  "sanity_naive": "passed: 5/6 byte-identical NR responses per memory, 6/6 questions with 20/20 retrieved ids; engine_reference 0.32.0 != installed 0.11.2 so the pre-registered floor was 2/6",
+  "runtime_projection": "1034.6 s estimated vs 7131.3 s remaining (per-call latency x 4080 calls / 40 workers x 1.3)",
+  "validation": "complete_612 true, 306 unique rows per memory, 0 failures, 0 invalid rows"
+ },
+ "budget": {
+  "kaggle_gpu_hours_used": 0.0,
+  "colab": "one free-tier T4 session, 53 min wall (45 min from kernel start to finish)",
+  "calls": {
+   "SparseRAG": 1802,
+   "DenseRAG": 1800,
+   "total": 3602
+  },
+  "tokens": {
+   "prompt": 2234418,
+   "completion": 62014
+  },
+  "full_run_wall_s": {
+   "SparseRAG": 1006.8,
+   "DenseRAG": 1043.8,
+   "total": 2050.6
+  },
+  "engine_throughput_calls_per_s": {
+   "SparseRAG": 1.79,
+   "DenseRAG": 1.72
+  }
+ },
+ "kaggle": {
+  "kernel": "xunphi/mpr-dr-reasoning (frozen id only; not pushed for this run)",
+  "dataset": "xunphi/mpr-dr-inputs (frozen id only; the Colab run staged build/kaggle/dr_dataset directly)",
+  "accelerator_request": "NvidiaTeslaT4",
+  "timeout_s": 9000,
+  "observed": "every accelerator request on the account ran CPU-only (probe bundle removed in the cleanup; summarized in report.md section 9)"
+ },
+ "code": {
+  "commit": "eeda20c49c71827bec6aafd89741c6a3126d5813",
+  "branch": "experiments/dr-kaggle",
+  "settings_sha256": "3ab140653fb77b4c318bf01da6687e1eca427027143f1d21de734d8add410f48"
+ }
+}
