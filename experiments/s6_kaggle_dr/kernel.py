@@ -7,7 +7,7 @@ One session, one GPU job (design and gates: experiments/s6_kaggle_dr/README.md):
      against archived S1 rows) -> full 306x2 evaluation (resumable, deadline-aware)
   -> validation + EM/contains -> status.json/DONE + evidence files.
 
-Inputs are read-only from the private dataset phinguynxun/mpr-dr-inputs (the released question_answer
+Inputs are read-only from the private dataset xunphi/mpr-dr-inputs (the released question_answer
 JSONs, the s306 slice, dr.py/lib.py/score.py/settings.json, the archived S1 rows restricted to the slice,
 and manifest.json with every sha256). The mount directory is discovered, not assumed: Kaggle served
 `/kaggle/input/<slug>` to the failed 2026-11-12 run and `/kaggle/input/datasets/<owner>/<slug>` to the
@@ -55,8 +55,8 @@ UPSTREAM_COMMIT = "a24953c8f342c9f3b2064e562ead49d477d49138"
 UPSTREAM_URL = "https://github.com/nuster1128/MPR"
 HEALTH = "http://127.0.0.1:8000/health"
 MODELS_URL = "http://127.0.0.1:8000/v1/models"
-KERNEL_REF = "phinguynxun/mpr-dr-reasoning"
-DATASET_REF = "phinguynxun/mpr-dr-inputs"
+KERNEL_REF = "xunphi/mpr-dr-reasoning"
+DATASET_REF = "xunphi/mpr-dr-inputs"
 
 os.environ.update({
     "CUDA_VISIBLE_DEVICES": "0",          # one T4 like the historical Colab run; a second T4 is unused

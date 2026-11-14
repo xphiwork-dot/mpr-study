@@ -16,7 +16,7 @@
 set -uo pipefail
 cd "$(dirname "$0")/../.."
 K="${KAGGLE:-$HOME/.local/bin/kaggle}"
-REF=phinguynxun/mpr-dr-reasoning
+REF=xunphi/mpr-dr-reasoning
 LOCK="${MPR_KAGGLE_LOCK:-$HOME/.local/state/mpr-study/kaggle-gpu.lock}"
 OUT=results/kaggle/dr/raw
 LOG="${MPR_KAGGLE_RUN_LOG:-$HOME/.local/state/mpr-study/dr-kaggle-run.log}"

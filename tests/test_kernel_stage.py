@@ -104,7 +104,7 @@ class KernelStagingTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             inp, _manifest = make_input(tmp)
             base = os.path.join(tmp, "kaggle_input")
-            nested = os.path.join(base, "datasets", "phinguynxun", "mpr-dr-inputs")
+            nested = os.path.join(base, "datasets", "xunphi", "mpr-dr-inputs")
             os.makedirs(os.path.dirname(nested))
             os.rename(inp, nested)
             point_at(km, tmp, os.path.join(base, "mpr-dr-inputs"))  # the Pi-era assumption: absent
@@ -235,7 +235,7 @@ class KernelStagingTests(unittest.TestCase):
             with open(os.path.join(km.WORK, "manifest_out.json")) as f:
                 out = json.load(f)
             self.assertEqual(out["code_commit"], "test-commit")
-            self.assertEqual(out["kaggle"]["dataset"], "phinguynxun/mpr-dr-inputs")
+            self.assertEqual(out["kaggle"]["dataset"], km.DATASET_REF)
 
 
 if __name__ == "__main__":

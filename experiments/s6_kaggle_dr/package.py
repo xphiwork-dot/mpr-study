@@ -1,8 +1,8 @@
 """Build and (optionally) upload the private Kaggle resources for S6 (DR).
 
     python3 experiments/s6_kaggle_dr/package.py build          # stage dirs + manifest, no upload
-    python3 experiments/s6_kaggle_dr/package.py dataset        # create/version phinguynxun/mpr-dr-inputs
-    python3 experiments/s6_kaggle_dr/package.py kernel         # push phinguynxun/mpr-dr-reasoning (4h T4)
+    python3 experiments/s6_kaggle_dr/package.py dataset        # create/version xunphi/mpr-dr-inputs
+    python3 experiments/s6_kaggle_dr/package.py kernel         # push xunphi/mpr-dr-reasoning (4h T4)
     python3 experiments/s6_kaggle_dr/package.py status|output  # kernel status / download outputs
 
 Only an explicit allowlist is uploaded (no .git, no credentials, no upstream sources, no other agents'
@@ -34,8 +34,8 @@ REPO = os.path.dirname(os.path.dirname(HERE))
 BUILD = os.path.join(REPO, "build", "kaggle")
 DATASET_DIR = os.path.join(BUILD, "dr_dataset")
 KERNEL_DIR = os.path.join(BUILD, "dr_kernel")
-DATASET_REF = "phinguynxun/mpr-dr-inputs"
-KERNEL_REF = "phinguynxun/mpr-dr-reasoning"
+DATASET_REF = "xunphi/mpr-dr-inputs"
+KERNEL_REF = "xunphi/mpr-dr-reasoning"
 UPSTREAM_COMMIT = "a24953c8f342c9f3b2064e562ead49d477d49138"
 KAGGLE = os.environ.get("KAGGLE_BIN", os.path.expanduser("~/.local/bin/kaggle"))
 # Shared account: 6 GPU-hours per refresh and two serialized workers, so this job gets 2.5 h (MR takes 3 h).

@@ -102,8 +102,8 @@
     }
   },
   "kaggle": {
-    "kernel": "phinguynxun/mpr-dr-reasoning",
-    "dataset": "phinguynxun/mpr-dr-inputs",
+    "kernel": "xunphi/mpr-dr-reasoning",
+    "dataset": "xunphi/mpr-dr-inputs",
     "accelerator": "NvidiaTeslaT4",
     "timeout_s": 9000
   },
