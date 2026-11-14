@@ -1,0 +1,126 @@
+{
+ "memories": {
+  "SparseRAG": {
+   "keys": 6,
+   "exact_response": 5,
+   "retrieval_overlap_ge_18": 6,
+   "missing_archived": 0,
+   "details": [
+    {
+     "key": "0:RC000018#02",
+     "exact_response": true,
+     "retrieval_overlap": 20,
+     "response": "500",
+     "archived_response": "500",
+     "prompt_tokens": 496
+    },
+    {
+     "key": "2:RC000159#02",
+     "exact_response": false,
+     "retrieval_overlap": 20,
+     "response": "2023-04-21",
+     "archived_response": "2023-04-19",
+     "prompt_tokens": 658
+    },
+    {
+     "key": "1:RC000150#05",
+     "exact_response": true,
+     "retrieval_overlap": 20,
+     "response": "35 (days)",
+     "archived_response": "35 (days)",
+     "prompt_tokens": 571
+    },
+    {
+     "key": "6:RC000141#05",
+     "exact_response": true,
+     "retrieval_overlap": 20,
+     "response": "20000 (USD)",
+     "archived_response": "20000 (USD)",
+     "prompt_tokens": 600
+    },
+    {
+     "key": "7:RC000191#09",
+     "exact_response": true,
+     "retrieval_overlap": 20,
+     "response": "95 (miles per gallon)",
+     "archived_response": "95 (miles per gallon)",
+     "prompt_tokens": 752
+    },
+    {
+     "key": "5:RC000291#09",
+     "exact_response": true,
+     "retrieval_overlap": 20,
+     "response": "1.5 (kg)",
+     "archived_response": "1.5 (kg)",
+     "prompt_tokens": 538
+    }
+   ],
+   "ok": true
+  },
+  "DenseRAG": {
+   "keys": 6,
+   "exact_response": 5,
+   "retrieval_overlap_ge_18": 6,
+   "missing_archived": 0,
+   "details": [
+    {
+     "key": "0:RC000018#02",
+     "exact_response": true,
+     "retrieval_overlap": 20,
+     "response": "500",
+     "archived_response": "500",
+     "prompt_tokens": 516
+    },
+    {
+     "key": "2:RC000159#02",
+     "exact_response": true,
+     "retrieval_overlap": 20,
+     "response": "2023-08-08",
+     "archived_response": "2023-08-08",
+     "prompt_tokens": 446
+    },
+    {
+     "key": "1:RC000150#05",
+     "exact_response": false,
+     "retrieval_overlap": 20,
+     "response": "24",
+     "archived_response": "24 (days)",
+     "prompt_tokens": 733
+    },
+    {
+     "key": "6:RC000141#05",
+     "exact_response": true,
+     "retrieval_overlap": 20,
+     "response": "20500 (USD)",
+     "archived_response": "20500 (USD)",
+     "prompt_tokens": 685
+    },
+    {
+     "key": "7:RC000191#09",
+     "exact_response": true,
+     "retrieval_overlap": 20,
+     "response": "2024-11-28",
+     "archived_response": "2024-11-28",
+     "prompt_tokens": 789
+    },
+    {
+     "key": "5:RC000291#09",
+     "exact_response": true,
+     "retrieval_overlap": 20,
+     "response": "1.0 (kg)",
+     "archived_response": "1.0 (kg)",
+     "prompt_tokens": 543
+    }
+   ],
+   "ok": true
+  }
+ },
+ "gates": {
+  "engine_reference_version": "0.32.0",
+  "installed_vllm": "0.11.2",
+  "engine_matches_reference": false,
+  "min_exact_response_matches_of_6": 2,
+  "min_questions_with_retrieval_overlap_18_of_20": 5
+ },
+ "ok": true
+}

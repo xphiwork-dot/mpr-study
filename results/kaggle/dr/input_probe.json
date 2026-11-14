@@ -1,0 +1,121 @@
+{
+ "input_base": "/kaggle/input",
+ "dataset": "xunphi/mpr-dr-inputs",
+ "candidates": [
+  {
+   "path": "/content/dr_inputs",
+   "exists": true,
+   "has_manifest": true
+  },
+  {
+   "path": "/kaggle/input",
+   "exists": true,
+   "has_manifest": false
+  },
+  {
+   "path": "/kaggle/input/mpr-dr-inputs",
+   "exists": false,
+   "has_manifest": false
+  },
+  {
+   "path": "/kaggle/input/datasets/xunphi/mpr-dr-inputs",
+   "exists": false,
+   "has_manifest": false
+  }
+ ],
+ "attempts": 1,
+ "walked": false,
+ "resolved": "/content/dr_inputs",
+ "strategy": "explicit",
+ "waited_s": 0.0,
+ "files": [
+  {
+   "name": "baseline_nr_DenseRAG_k20.jsonl",
+   "bytes": 143600
+  },
+  {
+   "name": "baseline_nr_SparseRAG_k20.jsonl",
+   "bytes": 143881
+  },
+  {
+   "name": "dataset-metadata.json",
+   "bytes": 457
+  },
+  {
+   "name": "dr.py",
+   "bytes": 23105
+  },
+  {
+   "name": "kernel.py",
+   "bytes": 52234
+  },
+  {
+   "name": "lib.py",
+   "bytes": 6079
+  },
+  {
+   "name": "manifest.json",
+   "bytes": 5237
+  },
+  {
+   "name": "question_answer_0.json",
+   "bytes": 3383324
+  },
+  {
+   "name": "question_answer_1.json",
+   "bytes": 3392018
+  },
+  {
+   "name": "question_answer_10.json",
+   "bytes": 3404950
+  },
+  {
+   "name": "question_answer_11.json",
+   "bytes": 3410563
+  },
+  {
+   "name": "question_answer_2.json",
+   "bytes": 3405203
+  },
+  {
+   "name": "question_answer_3.json",
+   "bytes": 3398775
+  },
+  {
+   "name": "question_answer_4.json",
+   "bytes": 3401183
+  },
+  {
+   "name": "question_answer_5.json",
+   "bytes": 3399991
+  },
+  {
+   "name": "question_answer_6.json",
+   "bytes": 3404869
+  },
+  {
+   "name": "question_answer_7.json",
+   "bytes": 3399078
+  },
+  {
+   "name": "question_answer_8.json",
+   "bytes": 3389996
+  },
+  {
+   "name": "question_answer_9.json",
+   "bytes": 3398929
+  },
+  {
+   "name": "s306.json",
+   "bytes": 30414
+  },
+  {
+   "name": "score.py",
+   "bytes": 2465
+  },
+  {
+   "name": "settings.json",
+   "bytes": 5013
+  }
+ ]
+}

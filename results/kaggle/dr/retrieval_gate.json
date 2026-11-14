@@ -1,0 +1,56 @@
+{
+ "checks": [
+  {
+   "check": "bm25_user0",
+   "ok": true
+  },
+  {
+   "check": "e5_user0",
+   "ok": true
+  },
+  {
+   "check": "e5_cache_user0",
+   "cosines": [
+    1.0000008344650269,
+    1.0003403425216675,
+    1.000259518623352
+   ],
+   "ok": true
+  },
+  {
+   "check": "bm25_user3",
+   "ok": true
+  },
+  {
+   "check": "e5_user3",
+   "ok": true
+  },
+  {
+   "check": "e5_cache_user3",
+   "cosines": [
+    1.0001028776168823,
+    1.0002623796463013,
+    1.000234842300415
+   ],
+   "ok": true
+  },
+  {
+   "check": "bm25_user7",
+   "ok": true
+  },
+  {
+   "check": "e5_user7",
+   "ok": true
+  },
+  {
+   "check": "e5_cache_user7",
+   "cosines": [
+    0.9996581673622131,
+    1.0002918243408203,
+    0.9997696876525879
+   ],
+   "ok": true
+  }
+ ],
+ "ok": true
+}

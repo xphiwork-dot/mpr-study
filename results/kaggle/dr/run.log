@@ -1,0 +1,46 @@
+[     0.0s] inputs at /content/dr_inputs (strategy=explicit, waited=0.0s, 22 files)
+[     0.3s] preflight gpus=[['0', 'Tesla T4', '15360 MiB', '580.82.07']] cpu=2
+[    30.7s] deps versions={'vllm': '0.11.2', 'torch': '2.9.0+cu128', 'transformers': '4.57.6', 'sentence_transformers': '5.7.0', 'bm25s': '0.2.9', 'numpy': '2.2.6', 'scipy': '1.16.3', '_torch_cuda_build': '12.8', '_cuda_available': True, '_device_count': 1}
+[    31.9s] upstream a24953c8f342c9f3b2064e562ead49d477d49138: prompts.py sha256 verified
+modules.json:   0%|          | 0.00/387 [00:00<?, ?B/s]modules.json: 100%|##########| 387/387 [00:00<00:00, 1.24MB/s]
+README.md: 0.00B [00:00, ?B/s]README.md: 67.6kB [00:00, 142MB/s]
+sentence_bert_config.json:   0%|          | 0.00/57.0 [00:00<?, ?B/s]sentence_bert_config.json: 100%|##########| 57.0/57.0 [00:00<00:00, 353kB/s]
+config.json:   0%|          | 0.00/650 [00:00<?, ?B/s]config.json: 100%|##########| 650/650 [00:00<00:00, 5.49MB/s]
+model.safetensors:   0%|          | 0.00/438M [00:00<?, ?B/s]model.safetensors:   0%|          | 12.8k/438M [00:00<4:57:11, 24.6kB/s]model.safetensors:   2%|1         | 8.39M/438M [00:00<00:31, 13.5MB/s]  model.safetensors:  15%|#5        | 67.0M/438M [00:01<00:06, 54.6MB/s]model.safetensors: 100%|##########| 438M/438M [00:02<00:00, 248MB/s]  model.safetensors: 100%|##########| 438M/438M [00:02<00:00, 184MB/s]
+tokenizer_config.json:   0%|          | 0.00/314 [00:00<?, ?B/s]tokenizer_config.json: 100%|##########| 314/314 [00:00<00:00, 2.22MB/s]
+vocab.txt: 0.00B [00:00, ?B/s]vocab.txt: 232kB [00:00, 24.7MB/s]
+tokenizer.json: 0.00B [00:00, ?B/s]tokenizer.json: 711kB [00:00, 94.2MB/s]
+special_tokens_map.json:   0%|          | 0.00/125 [00:00<?, ?B/s]special_tokens_map.json: 100%|##########| 125/125 [00:00<00:00, 921kB/s]
+config.json:   0%|          | 0.00/200 [00:00<?, ?B/s]config.json: 100%|##########| 200/200 [00:00<00:00, 1.97MB/s]
+[    53.6s] embeddings user 0: 13100 statements in 4.6s
+[    57.1s] embeddings user 1: 13084 statements in 3.5s
+[    60.7s] embeddings user 2: 13100 statements in 3.5s
+[    65.1s] embeddings user 3: 13100 statements in 4.4s
+[    68.7s] embeddings user 4: 13100 statements in 3.5s
+[    72.4s] embeddings user 5: 13100 statements in 3.6s
+[    76.3s] embeddings user 6: 13100 statements in 3.9s
+[    80.2s] embeddings user 7: 13100 statements in 3.8s
+[    84.0s] embeddings user 8: 13100 statements in 3.7s
+[    87.8s] embeddings user 9: 13082 statements in 3.7s
+[    92.3s] embeddings user 10: 13100 statements in 4.5s
+[    96.1s] embeddings user 11: 13100 statements in 3.7s
+[    96.1s] embeddings done in 47.2s; gpu_mem_after=523 MiB
+[   101.1s] retrieval gate ok=True
+[   101.2s] vLLM attempt historical with 0.11.2 (wait up to 900s)
+[   481.3s] vLLM healthy via historical@0.11.2 after 380.1s
+[   491.4s] divide gate ok=True sub_questions=3
+[DecompositionReason_SparseRAG_k20] 0 done, 6 to do
+[DecompositionReason_SparseRAG_k20] finished: rows=6 failures=0 calls=40 wall=70.3s stopped=None
+[DecompositionReason_DenseRAG_k20] 0 done, 6 to do
+[DecompositionReason_DenseRAG_k20] finished: rows=6 failures=0 calls=40 wall=70.2s stopped=None
+[   631.9s] DR smoke rows sparse/dense=6/6 wall=140.5s ok=True
+[   650.2s] naive sanity SparseRAG: exact=5/6 overlap>=18=6/6 missing=0 ok=True
+[   668.7s] naive sanity DenseRAG: exact=5/6 overlap>=18=6/6 missing=0 ok=True
+[   668.7s] runtime estimate 1035s vs remaining 7131s -> start_full_run
+[DecompositionReason_SparseRAG_k20] 6 done, 300 to do
+[DecompositionReason_SparseRAG_k20] finished: rows=306 failures=0 calls=1762 wall=1006.8s stopped=None
+[DecompositionReason_DenseRAG_k20] 6 done, 300 to do
+[DecompositionReason_DenseRAG_k20] finished: rows=306 failures=0 calls=1760 wall=1043.8s stopped=None
+[  2720.1s] validation ok=True complete_612=True rows={'SparseRAG': 306, 'DenseRAG': 306}
+[  2720.1s] finish status=complete wall=2720.1s error=None
+[  2720.1s] evaluation complete

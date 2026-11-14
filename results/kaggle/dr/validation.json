@@ -1,0 +1,48 @@
+{
+ "slice": "s306.json",
+ "expected_keys": 306,
+ "memories": {
+  "SparseRAG": {
+   "rows": 306,
+   "duplicates_ignored": 0,
+   "missing": 0,
+   "extra": 0,
+   "failures": 0,
+   "invalid_rows": 0,
+   "missing_examples": [],
+   "extra_examples": [],
+   "invalid_examples": [],
+   "parser_fallback_rows": 0,
+   "rows_with_dropped_blank": 0,
+   "mean_sub_questions": 3.889,
+   "calls": 1802,
+   "prompt_tokens": 1097511,
+   "completion_tokens": 30995,
+   "engine_secs": 37865.3,
+   "max_prompt_plus_completion_tokens": 1152,
+   "ok": true
+  },
+  "DenseRAG": {
+   "rows": 306,
+   "duplicates_ignored": 0,
+   "missing": 0,
+   "extra": 0,
+   "failures": 0,
+   "invalid_rows": 0,
+   "missing_examples": [],
+   "extra_examples": [],
+   "invalid_examples": [],
+   "parser_fallback_rows": 0,
+   "rows_with_dropped_blank": 0,
+   "mean_sub_questions": 3.882,
+   "calls": 1800,
+   "prompt_tokens": 1136907,
+   "completion_tokens": 31019,
+   "engine_secs": 39348.9,
+   "max_prompt_plus_completion_tokens": 1202,
+   "ok": true
+  }
+ },
+ "ok": true,
+ "complete_612": true
+}
