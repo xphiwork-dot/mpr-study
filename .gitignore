@@ -9,7 +9,9 @@ results/*
 !results/t4/
 !results/laptop/
 !results/kaggle/
+results/kaggle/*
 !results/kaggle/mr/
+!results/kaggle/dr/
 # local download/pull staging dirs for the MR driver
 results/kaggle/mr/_colab_out/
 results/kaggle/mr/_kaggle_out/
@@ -21,3 +23,7 @@ results/t4/logs/
 results/t4/sft/**/lora_*/
 results/t4/sft/**/cluster.pkl
 results/t4/retrieval/recall_user*
+# S6 DR: keep curated evidence, not the raw download bundle, build dirs or large engine logs
+results/kaggle/dr/raw/
+results/kaggle/dr/vllm.log
+build/

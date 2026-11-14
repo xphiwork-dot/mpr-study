@@ -1,0 +1,20 @@
+{
+ "prompt_sha256": "5d3c1d426e274aedb42d58e15ed775fb9149f548463cb4b2fb7208b75789d7e3",
+ "response": "What is the attachment count of the Lunar Initiative Memo?\nHow many attachments are there in total?\nWhat does it mean to subtract 1 from the attachment count?",
+ "prompt_tokens": 122,
+ "completion_tokens": 33,
+ "secs": 10.020548820495605,
+ "sub_questions": [
+  "What is the attachment count of the Lunar Initiative Memo?",
+  "How many attachments are there in total?",
+  "What does it mean to subtract 1 from the attachment count?"
+ ],
+ "parser": {
+  "policy": "ref_faithful_drop_blank",
+  "raw_lines": 3,
+  "dropped_blank": 0,
+  "over_limit": 0,
+  "fallback": false
+ },
+ "ok": true
+}

@@ -1,0 +1,182 @@
+{
+ "slice": "s306.json",
+ "paired": {
+  "SparseRAG": {
+   "overall": {
+    "n": 306,
+    "dEM": 0.0718954248366013,
+    "dEM_ci": [
+     0.029411764705882353,
+     0.11764705882352941
+    ],
+    "dContains": 0.0784313725490196,
+    "dContains_ci": [
+     0.032679738562091505,
+     0.12418300653594772
+    ]
+   },
+   "leak_free": {
+    "n": 140,
+    "dEM": 0.04285714285714286,
+    "dEM_ci": [
+     -0.007142857142857143,
+     0.1
+    ],
+    "dContains": 0.05,
+    "dContains_ci": [
+     -0.007142857142857143,
+     0.10714285714285714
+    ]
+   },
+   "2-4": {
+    "n": 102,
+    "dEM": 0.058823529411764705,
+    "dEM_ci": [
+     -0.0196078431372549,
+     0.13725490196078433
+    ],
+    "dContains": 0.06862745098039216,
+    "dContains_ci": [
+     -0.0196078431372549,
+     0.14705882352941177
+    ]
+   },
+   "5-7": {
+    "n": 102,
+    "dEM": 0.0784313725490196,
+    "dEM_ci": [
+     0.0,
+     0.1568627450980392
+    ],
+    "dContains": 0.08823529411764706,
+    "dContains_ci": [
+     0.00980392156862745,
+     0.16666666666666666
+    ]
+   },
+   "8-10": {
+    "n": 102,
+    "dEM": 0.0784313725490196,
+    "dEM_ci": [
+     0.0,
+     0.1568627450980392
+    ],
+    "dContains": 0.0784313725490196,
+    "dContains_ci": [
+     0.0,
+     0.1568627450980392
+    ]
+   }
+  },
+  "DenseRAG": {
+   "overall": {
+    "n": 306,
+    "dEM": 0.09803921568627451,
+    "dEM_ci": [
+     0.05228758169934641,
+     0.14705882352941177
+    ],
+    "dContains": 0.10457516339869281,
+    "dContains_ci": [
+     0.05555555555555555,
+     0.15359477124183007
+    ]
+   },
+   "leak_free": {
+    "n": 140,
+    "dEM": 0.10714285714285714,
+    "dEM_ci": [
+     0.02857142857142857,
+     0.18571428571428572
+    ],
+    "dContains": 0.11428571428571428,
+    "dContains_ci": [
+     0.03571428571428571,
+     0.19285714285714287
+    ]
+   },
+   "2-4": {
+    "n": 102,
+    "dEM": 0.13725490196078433,
+    "dEM_ci": [
+     0.0392156862745098,
+     0.23529411764705882
+    ],
+    "dContains": 0.14705882352941177,
+    "dContains_ci": [
+     0.049019607843137254,
+     0.2549019607843137
+    ]
+   },
+   "5-7": {
+    "n": 102,
+    "dEM": 0.058823529411764705,
+    "dEM_ci": [
+     -0.0196078431372549,
+     0.13725490196078433
+    ],
+    "dContains": 0.06862745098039216,
+    "dContains_ci": [
+     -0.00980392156862745,
+     0.14705882352941177
+    ]
+   },
+   "8-10": {
+    "n": 102,
+    "dEM": 0.09803921568627451,
+    "dEM_ci": [
+     0.029411764705882353,
+     0.17647058823529413
+    ],
+    "dContains": 0.09803921568627451,
+    "dContains_ci": [
+     0.029411764705882353,
+     0.17647058823529413
+    ]
+   }
+  }
+ },
+ "coverage": {
+  "MR": {
+   "SparseRAG": {
+    "path": "/home/xphi/Desktop/project/mpr-study/results/kaggle/mr/StructuredReason_SparseRAG_k20_s5.jsonl",
+    "exists": true,
+    "rows": 306,
+    "missing": 0,
+    "extra": 0,
+    "duplicates_ignored": 0,
+    "missing_keys": []
+   },
+   "DenseRAG": {
+    "path": "/home/xphi/Desktop/project/mpr-study/results/kaggle/mr/StructuredReason_DenseRAG_k20_s5.jsonl",
+    "exists": true,
+    "rows": 306,
+    "missing": 0,
+    "extra": 0,
+    "duplicates_ignored": 0,
+    "missing_keys": []
+   }
+  },
+  "DR": {
+   "SparseRAG": {
+    "path": "results/kaggle/dr/runs/DecompositionReason_SparseRAG_k20.jsonl",
+    "exists": true,
+    "rows": 306,
+    "missing": 0,
+    "extra": 0,
+    "duplicates_ignored": 0,
+    "missing_keys": []
+   },
+   "DenseRAG": {
+    "path": "results/kaggle/dr/runs/DecompositionReason_DenseRAG_k20.jsonl",
+    "exists": true,
+    "rows": 306,
+    "missing": 0,
+    "extra": 0,
+    "duplicates_ignored": 0,
+    "missing_keys": []
+   }
+  }
+ },
+ "leak_free_n": 140
+}

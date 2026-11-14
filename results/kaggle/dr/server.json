@@ -1,0 +1,72 @@
+{
+ "gpu_free_mb_before": 14591,
+ "pins": [],
+ "attempts": [
+  {
+   "label": "historical@0.11.2",
+   "cmd": "vllm serve Qwen/Qwen2.5-7B-Instruct-AWQ --revision b25037543e9394b818fdfca67ab2a00ecc7dd641 --served-model-name qwen --dtype float16 --quantization awq --max-model-len 8192 --gpu-memory-utilization 0.8 --max-num-seqs 64 --port 8000 --host 127.0.0.1 --generation-config vllm",
+   "env": {},
+   "health_after_s": 380.1,
+   "models": [
+    {
+     "id": "qwen",
+     "object": "model",
+     "created": 1794656448,
+     "owned_by": "vllm",
+     "root": "Qwen/Qwen2.5-7B-Instruct-AWQ",
+     "parent": null,
+     "max_model_len": 8192,
+     "permission": [
+      {
+       "id": "modelperm-62cd2a5d10da4e44a445388cfc5d3545",
+       "object": "model_permission",
+       "created": 1794656448,
+       "allow_create_engine": false,
+       "allow_sampling": true,
+       "allow_logprobs": true,
+       "allow_search_indices": false,
+       "allow_view": true,
+       "allow_fine_tuning": false,
+       "organization": "*",
+       "group": null,
+       "is_blocking": false
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "label": "historical@0.11.2",
+ "cmd": "vllm serve Qwen/Qwen2.5-7B-Instruct-AWQ --revision b25037543e9394b818fdfca67ab2a00ecc7dd641 --served-model-name qwen --dtype float16 --quantization awq --max-model-len 8192 --gpu-memory-utilization 0.8 --max-num-seqs 64 --port 8000 --host 127.0.0.1 --generation-config vllm",
+ "env": {},
+ "health_after_s": 380.1,
+ "models": [
+  {
+   "id": "qwen",
+   "object": "model",
+   "created": 1794656448,
+   "owned_by": "vllm",
+   "root": "Qwen/Qwen2.5-7B-Instruct-AWQ",
+   "parent": null,
+   "max_model_len": 8192,
+   "permission": [
+    {
+     "id": "modelperm-62cd2a5d10da4e44a445388cfc5d3545",
+     "object": "model_permission",
+     "created": 1794656448,
+     "allow_create_engine": false,
+     "allow_sampling": true,
+     "allow_logprobs": true,
+     "allow_search_indices": false,
+     "allow_view": true,
+     "allow_fine_tuning": false,
+     "organization": "*",
+     "group": null,
+     "is_blocking": false
+    }
+   ]
+  }
+ ],
+ "used": "historical@0.11.2",
+ "vllm": "0.11.2"
+}

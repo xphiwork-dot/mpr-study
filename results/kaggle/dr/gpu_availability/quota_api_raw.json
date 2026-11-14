@@ -1,0 +1,46 @@
+{
+ "source": "GET https://www.kaggle.com/api/v1/kernels/quota (OAuth bearer, token not stored)",
+ "response": {
+  "quotaRefreshTime": "2026-11-14T00:00:00Z",
+  "gpuQuota": {
+   "timeUsed": {
+    "seconds": 0,
+    "nanos": 0
+   },
+   "timeReserved": {
+    "seconds": 0,
+    "nanos": 0
+   },
+   "totalTimeAllowed": {
+    "seconds": 108000,
+    "nanos": 0
+   },
+   "minimumTimeAllowed": {
+    "seconds": 108000,
+    "nanos": 0
+   },
+   "isPayToScaleEnabled": false,
+   "hasEverRun": false
+  },
+  "tpuQuota": {
+   "timeUsed": {
+    "seconds": 0,
+    "nanos": 0
+   },
+   "timeReserved": {
+    "seconds": 0,
+    "nanos": 0
+   },
+   "totalTimeAllowed": {
+    "seconds": 72000,
+    "nanos": 0
+   },
+   "minimumTimeAllowed": {
+    "seconds": 72000,
+    "nanos": 0
+   },
+   "isPayToScaleEnabled": false,
+   "hasEverRun": false
+  }
+ }
+}

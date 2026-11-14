@@ -1,0 +1,359 @@
+{
+ "groups": [
+  {
+   "group": "2-4",
+   "hop": 2,
+   "items": [
+    {
+     "uid": 0,
+     "rc_id": "RC000018#02",
+     "hop": 2
+    },
+    {
+     "uid": 2,
+     "rc_id": "RC000159#02",
+     "hop": 2
+    }
+   ]
+  },
+  {
+   "group": "5-7",
+   "hop": 5,
+   "items": [
+    {
+     "uid": 1,
+     "rc_id": "RC000150#05",
+     "hop": 5
+    },
+    {
+     "uid": 6,
+     "rc_id": "RC000141#05",
+     "hop": 5
+    }
+   ]
+  },
+  {
+   "group": "8-10",
+   "hop": 9,
+   "items": [
+    {
+     "uid": 7,
+     "rc_id": "RC000191#09",
+     "hop": 9
+    },
+    {
+     "uid": 5,
+     "rc_id": "RC000291#09",
+     "hop": 9
+    }
+   ]
+  }
+ ],
+ "requested": [
+  "0:RC000018#02",
+  "2:RC000159#02",
+  "1:RC000150#05",
+  "6:RC000141#05",
+  "7:RC000191#09",
+  "5:RC000291#09"
+ ],
+ "wall_s": 140.5,
+ "summary": {
+  "memories": {
+   "DecompositionReason_SparseRAG_k20": {
+    "name": "DecompositionReason_SparseRAG_k20",
+    "path": "/kaggle/working/results/kaggle/dr/runs/DecompositionReason_SparseRAG_k20.jsonl",
+    "rows_before": 0,
+    "todo": 6,
+    "rows": 6,
+    "failures": 0,
+    "calls": 40,
+    "prompt_tokens": 25413,
+    "completion_tokens": 758,
+    "wall_s": 70.3,
+    "stopped": null
+   },
+   "DecompositionReason_DenseRAG_k20": {
+    "name": "DecompositionReason_DenseRAG_k20",
+    "path": "/kaggle/working/results/kaggle/dr/runs/DecompositionReason_DenseRAG_k20.jsonl",
+    "rows_before": 0,
+    "todo": 6,
+    "rows": 6,
+    "failures": 0,
+    "calls": 40,
+    "prompt_tokens": 26738,
+    "completion_tokens": 800,
+    "wall_s": 70.2,
+    "stopped": null
+   }
+  },
+  "started": 1794656458.2034442,
+  "deadline": null,
+  "finished": 1794656598.718805
+ },
+ "SparseRAG_rows": 6,
+ "DenseRAG_rows": 6,
+ "ok": true,
+ "checks": [
+  {
+   "key": "5:RC000291#09",
+   "memory": "SparseRAG",
+   "calls": 5,
+   "sub_questions": 3,
+   "empty_answers": 0,
+   "max_prompt_tokens": 653,
+   "parser_fallback": false,
+   "n_solve_ids": [
+    20,
+    20,
+    20
+   ],
+   "merge_ids": 20,
+   "response": "1.47(kg)",
+   "calls_ok": true,
+   "subs_ok": true,
+   "prompt_fits": true,
+   "ok": true
+  },
+  {
+   "key": "1:RC000150#05",
+   "memory": "SparseRAG",
+   "calls": 7,
+   "sub_questions": 5,
+   "empty_answers": 0,
+   "max_prompt_tokens": 727,
+   "parser_fallback": false,
+   "n_solve_ids": [
+    20,
+    20,
+    20,
+    20,
+    20
+   ],
+   "merge_ids": 20,
+   "response": "20",
+   "calls_ok": true,
+   "subs_ok": true,
+   "prompt_fits": true,
+   "ok": true
+  },
+  {
+   "key": "0:RC000018#02",
+   "memory": "SparseRAG",
+   "calls": 7,
+   "sub_questions": 5,
+   "empty_answers": 0,
+   "max_prompt_tokens": 693,
+   "parser_fallback": false,
+   "n_solve_ids": [
+    20,
+    20,
+    20,
+    20,
+    20
+   ],
+   "merge_ids": 20,
+   "response": "-4750",
+   "calls_ok": true,
+   "subs_ok": true,
+   "prompt_fits": true,
+   "ok": true
+  },
+  {
+   "key": "7:RC000191#09",
+   "memory": "SparseRAG",
+   "calls": 7,
+   "sub_questions": 5,
+   "empty_answers": 0,
+   "max_prompt_tokens": 989,
+   "parser_fallback": false,
+   "n_solve_ids": [
+    20,
+    20,
+    20,
+    20,
+    20
+   ],
+   "merge_ids": 20,
+   "response": "50 (miles per gallon)",
+   "calls_ok": true,
+   "subs_ok": true,
+   "prompt_fits": true,
+   "ok": true
+  },
+  {
+   "key": "2:RC000159#02",
+   "memory": "SparseRAG",
+   "calls": 7,
+   "sub_questions": 5,
+   "empty_answers": 0,
+   "max_prompt_tokens": 757,
+   "parser_fallback": false,
+   "n_solve_ids": [
+    20,
+    20,
+    20,
+    20,
+    20
+   ],
+   "merge_ids": 20,
+   "response": "2023-06-18",
+   "calls_ok": true,
+   "subs_ok": true,
+   "prompt_fits": true,
+   "ok": true
+  },
+  {
+   "key": "6:RC000141#05",
+   "memory": "SparseRAG",
+   "calls": 7,
+   "sub_questions": 5,
+   "empty_answers": 0,
+   "max_prompt_tokens": 834,
+   "parser_fallback": false,
+   "n_solve_ids": [
+    20,
+    20,
+    20,
+    20,
+    20
+   ],
+   "merge_ids": 20,
+   "response": "10000 (USD)",
+   "calls_ok": true,
+   "subs_ok": true,
+   "prompt_fits": true,
+   "ok": true
+  },
+  {
+   "key": "5:RC000291#09",
+   "memory": "DenseRAG",
+   "calls": 5,
+   "sub_questions": 3,
+   "empty_answers": 0,
+   "max_prompt_tokens": 784,
+   "parser_fallback": false,
+   "n_solve_ids": [
+    20,
+    20,
+    20
+   ],
+   "merge_ids": 20,
+   "response": "1.1 kg",
+   "calls_ok": true,
+   "subs_ok": true,
+   "prompt_fits": true,
+   "ok": true
+  },
+  {
+   "key": "0:RC000018#02",
+   "memory": "DenseRAG",
+   "calls": 7,
+   "sub_questions": 5,
+   "empty_answers": 0,
+   "max_prompt_tokens": 732,
+   "parser_fallback": false,
+   "n_solve_ids": [
+    20,
+    20,
+    20,
+    20,
+    20
+   ],
+   "merge_ids": 20,
+   "response": "250",
+   "calls_ok": true,
+   "subs_ok": true,
+   "prompt_fits": true,
+   "ok": true
+  },
+  {
+   "key": "1:RC000150#05",
+   "memory": "DenseRAG",
+   "calls": 7,
+   "sub_questions": 5,
+   "empty_answers": 0,
+   "max_prompt_tokens": 864,
+   "parser_fallback": false,
+   "n_solve_ids": [
+    20,
+    20,
+    20,
+    20,
+    20
+   ],
+   "merge_ids": 20,
+   "response": "22",
+   "calls_ok": true,
+   "subs_ok": true,
+   "prompt_fits": true,
+   "ok": true
+  },
+  {
+   "key": "6:RC000141#05",
+   "memory": "DenseRAG",
+   "calls": 7,
+   "sub_questions": 5,
+   "empty_answers": 0,
+   "max_prompt_tokens": 888,
+   "parser_fallback": false,
+   "n_solve_ids": [
+    20,
+    20,
+    20,
+    20,
+    20
+   ],
+   "merge_ids": 20,
+   "response": "20500 (USD)",
+   "calls_ok": true,
+   "subs_ok": true,
+   "prompt_fits": true,
+   "ok": true
+  },
+  {
+   "key": "7:RC000191#09",
+   "memory": "DenseRAG",
+   "calls": 7,
+   "sub_questions": 5,
+   "empty_answers": 0,
+   "max_prompt_tokens": 998,
+   "parser_fallback": false,
+   "n_solve_ids": [
+    20,
+    20,
+    20,
+    20,
+    20
+   ],
+   "merge_ids": 20,
+   "response": "2275 (miles per gallon)",
+   "calls_ok": true,
+   "subs_ok": true,
+   "prompt_fits": true,
+   "ok": true
+  },
+  {
+   "key": "2:RC000159#02",
+   "memory": "DenseRAG",
+   "calls": 7,
+   "sub_questions": 5,
+   "empty_answers": 0,
+   "max_prompt_tokens": 811,
+   "parser_fallback": false,
+   "n_solve_ids": [
+    20,
+    20,
+    20,
+    20,
+    20
+   ],
+   "merge_ids": 20,
+   "response": "2023-04-29",
+   "calls_ok": true,
+   "subs_ok": true,
+   "prompt_fits": true,
+   "ok": true
+  }
+ ]
+}

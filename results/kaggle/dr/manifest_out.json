@@ -1,0 +1,401 @@
+{
+ "experiment": "s6_kaggle_dr",
+ "reason": "DecompositionReason",
+ "code_commit": "eeda20c49c71827bec6aafd89741c6a3126d5813",
+ "input_manifest": {
+  "build_host": "fedora",
+  "built_at": "2026-11-14T11:25:41Z",
+  "code_branch": "experiments/dr-kaggle",
+  "code_commit": "eeda20c49c71827bec6aafd89741c6a3126d5813",
+  "code_commit_subject": "feat(s6): run the DR kernel on the authenticated Colab T4 route",
+  "experiment": "s6_kaggle_dr",
+  "files": {
+   "baseline_nr_DenseRAG_k20.jsonl": {
+    "bytes": 143600,
+    "restricted_to_slice_keys": 306,
+    "sha256": "7200fd4b9c0cbec7e1ac883cbec05e5539d0cb5b70646cc8355d6d9a4022df1b",
+    "source": "results/t4/s1/NaiveReason_DenseRAG_k20.jsonl"
+   },
+   "baseline_nr_SparseRAG_k20.jsonl": {
+    "bytes": 143881,
+    "restricted_to_slice_keys": 306,
+    "sha256": "7a00b9ed0df8994f38e2ae86b098f5e16aa14acc4c479cfab558cd3e571e882b",
+    "source": "results/t4/s1/NaiveReason_SparseRAG_k20.jsonl"
+   },
+   "dr.py": {
+    "bytes": 23105,
+    "sha256": "9dc90a30c3321ac5e3018b12c0d8697a83a0751ad3c94b01725fa5ae9c127889",
+    "source": "experiments/s6_kaggle_dr/dr.py"
+   },
+   "kernel.py": {
+    "bytes": 52234,
+    "sha256": "9c51ff5fc69cd4a79f23b8a168c9c370aad16d8ee34438819df99752d41959fe",
+    "source": "experiments/s6_kaggle_dr/kernel.py"
+   },
+   "lib.py": {
+    "bytes": 6079,
+    "sha256": "f86bffe869bc4820e923365e2597d18a44a1d490fc3670c9639681d309e930f2",
+    "source": "experiments/_shared/lib.py"
+   },
+   "question_answer_0.json": {
+    "bytes": 3383324,
+    "sha256": "811eb54b391cb50c2514f38d8e0344bba2df9a4524119e5c3535d1fa4824c705",
+    "source": "data/mpr_dataset/question_answer/question_answer_0.json"
+   },
+   "question_answer_1.json": {
+    "bytes": 3392018,
+    "sha256": "2ba2d371fa70971b899038d51a068fa69f3ecb8d6d9594f9265402f144b5d1c3",
+    "source": "data/mpr_dataset/question_answer/question_answer_1.json"
+   },
+   "question_answer_10.json": {
+    "bytes": 3404950,
+    "sha256": "4daf51e00e88d9dca3a0582865a406c018e3c8539e94e54741e30e8cb8fa4470",
+    "source": "data/mpr_dataset/question_answer/question_answer_10.json"
+   },
+   "question_answer_11.json": {
+    "bytes": 3410563,
+    "sha256": "bd7258d6e2c7b6bfe95093ceac792eaa3bfaaefd36a3cd2f7dda4ae203839f1c",
+    "source": "data/mpr_dataset/question_answer/question_answer_11.json"
+   },
+   "question_answer_2.json": {
+    "bytes": 3405203,
+    "sha256": "6fb0d84841374f323417b90cdf85e75e750edcb8b8905e13659fcad12239c2b6",
+    "source": "data/mpr_dataset/question_answer/question_answer_2.json"
+   },
+   "question_answer_3.json": {
+    "bytes": 3398775,
+    "sha256": "fe3bc30be62f402672304405aafa3d3aad6eca7824235f357154c1c9434f6cea",
+    "source": "data/mpr_dataset/question_answer/question_answer_3.json"
+   },
+   "question_answer_4.json": {
+    "bytes": 3401183,
+    "sha256": "f64ea20e054dfd5b086f3b0f424120a98f31469487e487b89a00af2001ca76bb",
+    "source": "data/mpr_dataset/question_answer/question_answer_4.json"
+   },
+   "question_answer_5.json": {
+    "bytes": 3399991,
+    "sha256": "a4d23c7b13e08f4173afffcebb42f4e314720fb3ab483de8a350d91101218367",
+    "source": "data/mpr_dataset/question_answer/question_answer_5.json"
+   },
+   "question_answer_6.json": {
+    "bytes": 3404869,
+    "sha256": "f01325dfcbc102762c42e285457b4473801d9fe93766d9d15fb83be8344829a5",
+    "source": "data/mpr_dataset/question_answer/question_answer_6.json"
+   },
+   "question_answer_7.json": {
+    "bytes": 3399078,
+    "sha256": "d6e84563f95ba57f13c25931c9d300e9504d24232d513976e7ccdb977063081e",
+    "source": "data/mpr_dataset/question_answer/question_answer_7.json"
+   },
+   "question_answer_8.json": {
+    "bytes": 3389996,
+    "sha256": "083d3adf1b705f210e096d0fe212af7b1dce3c61202db00e9ed656fc610d2d24",
+    "source": "data/mpr_dataset/question_answer/question_answer_8.json"
+   },
+   "question_answer_9.json": {
+    "bytes": 3398929,
+    "sha256": "76dca2a625cb7e3f2ecbcbe1b9fcc61ef2f04eea35ce27cfcdc3be8cbfa5fa13",
+    "source": "data/mpr_dataset/question_answer/question_answer_9.json"
+   },
+   "s306.json": {
+    "bytes": 30414,
+    "sha256": "2e7b307bdcef4298b885305e0d56c837298de3136a3253f9c5d1941da3f8e831",
+    "source": "results/t4/slices/s306.json"
+   },
+   "score.py": {
+    "bytes": 2465,
+    "sha256": "f74bf8e65429a849a50862c566799c16e487fafbbdb65690d8551687a74090f5",
+    "source": "experiments/_shared/score.py"
+   },
+   "settings.json": {
+    "bytes": 5013,
+    "sha256": "c96ff4280f561143420e59869a47b203bf63d2f1b0ac4a315c036421d09e42a6",
+    "source": "experiments/s6_kaggle_dr/settings.json"
+   }
+  },
+  "kaggle": {
+   "dataset": "xunphi/mpr-dr-inputs",
+   "kernel": "xunphi/mpr-dr-reasoning"
+  },
+  "model": {
+   "dtype": "float16",
+   "generation_config": "vllm",
+   "gpu": "single T4 (CUDA_VISIBLE_DEVICES=0); a second T4, if allocated, is unused",
+   "gpu_memory_utilization": 0.8,
+   "id": "Qwen/Qwen2.5-7B-Instruct-AWQ",
+   "max_model_len": 8192,
+   "max_num_seqs": 64,
+   "quantization": "awq",
+   "revision": "b25037543e9394b818fdfca67ab2a00ecc7dd641",
+   "served_name": "qwen",
+   "tensor_parallel_size": 1
+  },
+  "privacy": "all Kaggle resources are private; no credentials, .git, upstream sources or other agents' state",
+  "python": "3.14.4 (main, Apr 16 2026, 00:00:00) [GCC 16.0.1 20260321 (Red Hat 16.0.1-0)]",
+  "reason": "DecompositionReason",
+  "upstream": {
+   "commit": "a24953c8f342c9f3b2064e562ead49d477d49138",
+   "prompts_sha256": "daf087ed2dabb95be1e334efeffd85de2bed914742fe41131afda98878322405",
+   "repo": "https://github.com/nuster1128/MPR"
+  }
+ },
+ "input_files_verified": {
+  "dr.py": {
+   "sha256": "9dc90a30c3321ac5e3018b12c0d8697a83a0751ad3c94b01725fa5ae9c127889",
+   "matches_manifest": true
+  },
+  "lib.py": {
+   "sha256": "f86bffe869bc4820e923365e2597d18a44a1d490fc3670c9639681d309e930f2",
+   "matches_manifest": true
+  },
+  "score.py": {
+   "sha256": "f74bf8e65429a849a50862c566799c16e487fafbbdb65690d8551687a74090f5",
+   "matches_manifest": true
+  },
+  "settings.json": {
+   "sha256": "c96ff4280f561143420e59869a47b203bf63d2f1b0ac4a315c036421d09e42a6",
+   "matches_manifest": true
+  },
+  "s306.json": {
+   "sha256": "2e7b307bdcef4298b885305e0d56c837298de3136a3253f9c5d1941da3f8e831",
+   "matches_manifest": true
+  },
+  "question_answer_0.json": {
+   "sha256": "811eb54b391cb50c2514f38d8e0344bba2df9a4524119e5c3535d1fa4824c705",
+   "matches_manifest": true
+  },
+  "question_answer_1.json": {
+   "sha256": "2ba2d371fa70971b899038d51a068fa69f3ecb8d6d9594f9265402f144b5d1c3",
+   "matches_manifest": true
+  },
+  "question_answer_2.json": {
+   "sha256": "6fb0d84841374f323417b90cdf85e75e750edcb8b8905e13659fcad12239c2b6",
+   "matches_manifest": true
+  },
+  "question_answer_3.json": {
+   "sha256": "fe3bc30be62f402672304405aafa3d3aad6eca7824235f357154c1c9434f6cea",
+   "matches_manifest": true
+  },
+  "question_answer_4.json": {
+   "sha256": "f64ea20e054dfd5b086f3b0f424120a98f31469487e487b89a00af2001ca76bb",
+   "matches_manifest": true
+  },
+  "question_answer_5.json": {
+   "sha256": "a4d23c7b13e08f4173afffcebb42f4e314720fb3ab483de8a350d91101218367",
+   "matches_manifest": true
+  },
+  "question_answer_6.json": {
+   "sha256": "f01325dfcbc102762c42e285457b4473801d9fe93766d9d15fb83be8344829a5",
+   "matches_manifest": true
+  },
+  "question_answer_7.json": {
+   "sha256": "d6e84563f95ba57f13c25931c9d300e9504d24232d513976e7ccdb977063081e",
+   "matches_manifest": true
+  },
+  "question_answer_8.json": {
+   "sha256": "083d3adf1b705f210e096d0fe212af7b1dce3c61202db00e9ed656fc610d2d24",
+   "matches_manifest": true
+  },
+  "question_answer_9.json": {
+   "sha256": "76dca2a625cb7e3f2ecbcbe1b9fcc61ef2f04eea35ce27cfcdc3be8cbfa5fa13",
+   "matches_manifest": true
+  },
+  "question_answer_10.json": {
+   "sha256": "4daf51e00e88d9dca3a0582865a406c018e3c8539e94e54741e30e8cb8fa4470",
+   "matches_manifest": true
+  },
+  "question_answer_11.json": {
+   "sha256": "bd7258d6e2c7b6bfe95093ceac792eaa3bfaaefd36a3cd2f7dda4ae203839f1c",
+   "matches_manifest": true
+  },
+  "baseline_nr_SparseRAG_k20.jsonl": {
+   "sha256": "7a00b9ed0df8994f38e2ae86b098f5e16aa14acc4c479cfab558cd3e571e882b",
+   "matches_manifest": true
+  },
+  "baseline_nr_DenseRAG_k20.jsonl": {
+   "sha256": "7200fd4b9c0cbec7e1ac883cbec05e5539d0cb5b70646cc8355d6d9a4022df1b",
+   "matches_manifest": true
+  }
+ },
+ "model": {
+  "id": "Qwen/Qwen2.5-7B-Instruct-AWQ",
+  "revision": "b25037543e9394b818fdfca67ab2a00ecc7dd641",
+  "served_name": "qwen",
+  "dtype": "float16",
+  "quantization": "awq",
+  "max_model_len": 8192,
+  "gpu_memory_utilization": 0.8,
+  "max_num_seqs": 64,
+  "generation_config": "vllm",
+  "tensor_parallel_size": 1,
+  "gpu": "single T4 (CUDA_VISIBLE_DEVICES=0); a second T4, if allocated, is unused"
+ },
+ "settings": {
+  "experiment": "s6_kaggle_dr",
+  "reason": "DecompositionReason",
+  "upstream": {
+   "repo": "https://github.com/nuster1128/MPR",
+   "commit": "a24953c8f342c9f3b2064e562ead49d477d49138",
+   "reasonings_file": "reasonings/DecompositionReason.py",
+   "prompts_file": "baselines/prompts.py"
+  },
+  "model": {
+   "id": "Qwen/Qwen2.5-7B-Instruct-AWQ",
+   "revision": "b25037543e9394b818fdfca67ab2a00ecc7dd641",
+   "served_name": "qwen",
+   "dtype": "float16",
+   "quantization": "awq",
+   "max_model_len": 8192,
+   "gpu_memory_utilization": 0.8,
+   "max_num_seqs": 64,
+   "generation_config": "vllm",
+   "tensor_parallel_size": 1,
+   "gpu": "single T4 (CUDA_VISIBLE_DEVICES=0); a second T4, if allocated, is unused"
+  },
+  "method": {
+   "decompose_num": 5,
+   "max_sub_questions_observed_limit": 5,
+   "divide_uses_retrieval": false,
+   "solve_sequential": true,
+   "merge_re_retrieves": true,
+   "nominal_calls_per_question": 7,
+   "nominal_calls_full_run": 4284
+  },
+  "decoding": {
+   "temperature": 0.0,
+   "sampling": false,
+   "max_tokens": {
+    "divide": 200,
+    "solve": 200,
+    "merge": 64
+   },
+   "rationale": "greedy, matching the historical NR/SR runs; 200-token intermediate steps like the SequentialReason thoughts, 64-token final answer like NR/SR"
+  },
+  "parser": {
+   "policy": "ref_faithful_drop_blank",
+   "upstream_rule": "text.split('\\n')[:decompose_num]",
+   "deviations": [
+    "whitespace-only lines are dropped (they cannot be sub-questions); counted per row",
+    "if no non-blank line remains, the original question is used as the single sub-question, flagged fallback=true (the DR call flow still runs: 3 calls)",
+    "lib.chat strips leading/trailing whitespace of every engine response, as in the historical NR/SR runs"
+   ],
+   "kept_as_upstream": [
+    "sub-questions are the first decompose_num non-blank lines in order",
+    "numbering and other prefixes are kept verbatim",
+    "no dedup, no repair, no truncation of long lines",
+    "Solve and Merge state formatting: '%d. %s (Answer: %s)' / '(Current Sub-question)' lines joined with newline",
+    "Solve retrieval key: '(question) {question}\\n (sub-question) {sub_question}'",
+    "Merge retrieval key: the answered current_state string"
+   ]
+  },
+  "retrieval": {
+   "systems": [
+    "SparseRAG",
+    "DenseRAG"
+   ],
+   "topk": 20,
+   "bm25s_version": "0.2.9",
+   "bm25_stopwords": "en",
+   "e5_model": "intfloat/e5-base-v2",
+   "e5_prefixes": false,
+   "e5_normalized": true,
+   "e5_stored_dtype": "float16"
+  },
+  "run": {
+   "slice": "s306.json",
+   "questions": 306,
+   "expected_rows_per_system": 306,
+   "expected_rows_total": 612,
+   "workers": 40,
+   "seed": 0,
+   "seed_policy": "greedy decoding, so no sampling seed; seed 0 fixes only the deterministic smoke-key selection and ordering (slice order otherwise)",
+   "smoke": {
+    "keys_per_hop_group": 2,
+    "hop_groups": {
+     "2-4": 2,
+     "5-7": 5,
+     "8-10": 9
+    },
+    "questions": 6,
+    "rows": 12,
+    "written_to_main_result_files": true,
+    "reason": "same frozen settings as the full run, so the full run resumes them instead of repeating calls"
+   },
+   "baseline_sanity": {
+    "keys": 6,
+    "memories": [
+     "SparseRAG",
+     "DenseRAG"
+    ],
+    "source": "results/t4/s1 NaiveReason rows restricted to the 306-key slice, recomputed in this job with the same deployment",
+    "gates": {
+     "min_exact_response_matches_of_6": 3,
+     "min_exact_response_matches_of_6_other_engine": 2,
+     "engine_reference_version": "0.32.0",
+     "min_questions_with_retrieval_overlap_18_of_20": 5
+    },
+    "rationale": "detects unexplained deployment drift (model revision, engine, templates, retrieval) before the full run; the exact-response floor is 3/6 on the historical vLLM 0.32.0 and 2/6 on any other engine because greedy text can differ by a token on a different build, while the retrieval-overlap floor stays 5/6 (retrieval does not depend on the engine)"
+   },
+   "deadline": {
+    "session_timeout_s": 9000,
+    "stop_submitting_before_session_end_s": 1200,
+    "watchdog_exit_before_session_end_s": 600,
+    "reason": "shared account has 30 GPU-hours per refresh (verified: timedelta 1 day 6 h, 0 used) and the two workers still serialize on the GPU lock, so this job is pushed with --timeout 9000 (2.5 h) after MR's 3 h and stops submitting 1200 s before the hard kill, leaving time for Kaggle to persist/commit /kaggle/working"
+   }
+  },
+  "kaggle": {
+   "kernel": "xunphi/mpr-dr-reasoning",
+   "dataset": "xunphi/mpr-dr-inputs",
+   "accelerator": "NvidiaTeslaT4",
+   "timeout_s": 9000
+  },
+  "scoring": {
+   "metrics": [
+    "EM",
+    "contains"
+   ],
+   "normalization": "experiments/_shared/score.py (SQuAD-style)",
+   "bootstrap_resamples": 2000,
+   "bootstrap_seed_ci": 0,
+   "bootstrap_seed_paired": 1,
+   "hop_groups": [
+    [
+     2,
+     4
+    ],
+    [
+     5,
+     7
+    ],
+    [
+     8,
+     10
+    ]
+   ],
+   "leak_free_rule": "slice flag leak_any == false (no number shared with own gold statements)"
+  }
+ },
+ "software_versions": {
+  "vllm": "0.11.2",
+  "torch": "2.9.0+cu128",
+  "transformers": "4.57.6",
+  "sentence_transformers": "5.7.0",
+  "bm25s": "0.2.9",
+  "numpy": "2.2.6",
+  "scipy": "1.16.3",
+  "_torch_cuda_build": "12.8",
+  "_cuda_available": true,
+  "_device_count": 1
+ },
+ "installs": [
+  "bm25s==0.2.9"
+ ],
+ "kaggle": {
+  "kernel": "xunphi/mpr-dr-reasoning",
+  "dataset": "xunphi/mpr-dr-inputs",
+  "session_timeout_s": 9000
+ },
+ "started": 1794655966.823311,
+ "finished": 1794658686.915876,
+ "wall_s": 2720.1
+}
