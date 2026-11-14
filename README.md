@@ -37,60 +37,186 @@ No upstream code is copied here (the repo has no licence); every script in this 
 Sessions 1-3b each ship a Colab notebook (`*.ipynb`, no outputs, committed unexecuted; they have not been executed as notebooks).
 S5 and S6 ship Colab CLI drivers instead (`colab_mr.sh`, `colab_run.sh`) and have no notebook.
 
-## Layout
+## Repository layout
 
-```
-README.md  setup.sh  requirements.txt  env.example      setup.sh: venv (uv) + pinned upstream clone + farm patch + dataset + subset
-experiments/            one folder per experiment/session (scripts, Colab driver or notebook, README); _shared/ holds lib, grid, summarize, score, t4.sh
-  01_farm_small_run/farm.patch    our diff for upstream utils.py / config.py (LLM Farm client, env-driven paths)
-  s5_t4_mr/  s6_t4_dr/           MR and DR runners, kernels, packaging, Colab drivers, local analysis tools
-results/                committed evidence: probes/ farm/ t4/ (s1 s2 s3_topk s3_steps s5_mr s6_dr sft slices retrieval throughput smoke_*) laptop/
-docs/                   reproduction-status.md, upstream-notes.md, index.html (study guide), independent-reproduction-report.html, mpr-experiment-map.html, scout-report.html, diagrams/, verification/
-papers/                 the paper PDF (arXiv v1)
-tests/                  85 local tests for the MR/DR runners, scoring and kernel staging (stdlib; a few analysis tests need numpy)
-upstream/  data/  results/logs/   gitignored: fetched clone, dataset, raw farm logs
-```
+| Path | Contents |
+|---|---|
+| [`README.md`](README.md) | This file: start here, experiments, run commands, reproduction status |
+| [`setup.sh`](setup.sh) | venv via `uv`, pinned upstream clone at `a24953c`, farm patch, dataset and 9-question subset |
+| [`requirements.txt`](requirements.txt) · [`env.example`](env.example) | Python dependencies; farm credentials template |
+| [`experiments/`](experiments/) | One folder per experiment/session, each with its own README |
+| [`experiments/_shared/`](experiments/_shared/) | `lib.py`, `grid.py`, `summarize.py`, `score.py`, `common.py`, `estimate.py`, Colab driver `t4.sh` |
+| [`experiments/s5_t4_mr/`](experiments/s5_t4_mr/) · [`experiments/s6_t4_dr/`](experiments/s6_t4_dr/) | MR/DR runners, kernels, packaging, Colab drivers and local analysis tools |
+| [`tests/`](tests/) | 85 local tests for the MR/DR runners, scoring and kernel staging (stdlib; a few analysis tests need numpy) |
+| `upstream/` · `data/` · `results/logs/` | Gitignored: pinned clone, dataset, raw farm logs |
+
+Committed evidence and docs:
+
+| Path | Contents |
+|---|---|
+| [`results/probes/`](results/probes/) | No-LLM retrieval recall (BM25 + e5) and leakage-check write-ups |
+| [`results/farm/`](results/farm/) | 9-question farm raw rows, `summary.md`, `usage.md` |
+| [`results/t4/`](results/t4/) | T4 evidence: `s1`, `s2`, `s3_topk`, `s3_steps`, `s5_mr`, `s6_dr`, `sft`, `slices`, `retrieval`, `throughput`, `smoke_*`; summaries at the top level |
+| [`results/laptop/`](results/laptop/) | Laptop LoRA / HybridMem rows and `sft/summary.md` |
+| [`papers/`](papers/) | The paper PDF (arXiv v1) |
+| [`docs/reproduction-status.md`](docs/reproduction-status.md) | Single status table with evidence and the reason for every gap |
+| [`docs/index.html`](docs/index.html) | Study guide: paper in 60 seconds, glossary, diagrams, quizzes, talk plan, verification |
+| [`docs/independent-reproduction-report.html`](docs/independent-reproduction-report.html) | 4-minute visual synthesis of S1-S6 |
+| [`docs/mpr-experiment-map.html`](docs/mpr-experiment-map.html) | Paper-to-experiment map and team plan |
+| [`docs/upstream-notes.md`](docs/upstream-notes.md) | Upstream gaps and bugs |
+| [`docs/scout-report.html`](docs/scout-report.html) | Original technical scout report |
+| [`docs/diagrams/`](docs/diagrams/) | Four standalone flow-chart HTMLs |
+| [`docs/verification/`](docs/verification/) | Independent verification notes/script for the Table 3 hop groups |
 
 ## Run commands
 
+Commands run from the repo root and use the `.venv` created by `setup.sh`.
+
+### Setup and tests
+
 ```bash
-./setup.sh                                                   # needs uv and git; TORCH_INDEX=<url> for a GPU wheel
-.venv/bin/python experiments/00_probes_retrieval_leak/retrieval_recall.py     # BM25 ~2 s; e5 ~40 s on a GPU (+ model download)
-.venv/bin/python experiments/00_probes_retrieval_leak/leak_check.py --show-example
-# spends farm tokens (about 94k for the committed runs): needs LLM_FARM_ENDPOINT, LLM_FARM_KEY, SMALL_MODEL_NAME (see env.example)
-cp env.example .env
-for m in Ignoramus Oracle SparseRAG DenseRAG; do experiments/01_farm_small_run/farm_run.sh Naive $m; done
-.venv/bin/python experiments/_shared/score.py results/farm/*/*.jsonl
-# Colab T4 via the colab CLI (details: experiments/_shared/README.md); always finish with t4.sh down
-experiments/s1_t4_one_call_grid/session1.sh                  # also session2.sh (s2), session3a.sh (s3a), session3b.sh (s3b)
-experiments/_shared/t4.sh down
-python3 experiments/_shared/summarize.py grid --tag s1 --slice results/t4/slices/s900.json      # regenerate a summary from raw results
-# MR and DR: one Colab T4 session each; the drivers hold the shared GPU lock and stop the session themselves
-# (validate/summarize/compare commands: experiments/s5_t4_mr/README.md and experiments/s6_t4_dr/README.md)
-experiments/s5_t4_mr/colab_mr.sh results/t4/s5_mr/_colab_out
-experiments/s6_t4_dr/colab_run.sh
-# laptop LoRA / HybridMem (CUDA GPU, farm credentials): see experiments/s4_laptop_lora_hybridmem/README.md
-python3 -m unittest discover -s tests -v                     # 85 local tests; run ./setup.sh first (parity tests read upstream/)
+./setup.sh
+.venv/bin/python -m unittest discover -s tests -v
 ```
 
-Or open a notebook in Colab (Runtime > T4 GPU): `experiments/s1_t4_one_call_grid/s1_t4_one_call_grid.ipynb`,
-`experiments/s2_t4_chain_of_thought/s2_t4_chain_of_thought.ipynb`, `experiments/s3a_t4_topk_sweep/s3a_t4_topk_sweep.ipynb`,
-`experiments/s3b_t4_step_sweep/s3b_t4_step_sweep.ipynb`. The repo is private: add a Colab secret `GITHUB_TOKEN` (read-only) for the clone cell.
+- `setup.sh` needs `uv` and `git`; set `TORCH_INDEX=<url>` for a GPU wheel.
+- 85 tests; the parity tests read the pinned `upstream/` clone that setup creates.
+
+### Local probes (no GPU for BM25)
+
+```bash
+.venv/bin/python experiments/00_probes_retrieval_leak/retrieval_recall.py
+.venv/bin/python experiments/00_probes_retrieval_leak/leak_check.py --show-example
+```
+
+BM25 takes about 2 s; e5 takes about 40 s on a GPU plus the model download.
+
+### Farm run (tiny, spends tokens)
+
+```bash
+cp env.example .env
+for m in Ignoramus Oracle SparseRAG DenseRAG; do
+  experiments/01_farm_small_run/farm_run.sh Naive "$m"
+done
+.venv/bin/python experiments/_shared/score.py results/farm/*/*.jsonl
+```
+
+Needs `LLM_FARM_ENDPOINT`, `LLM_FARM_KEY` and `SMALL_MODEL_NAME`; the committed runs used about 94k farm tokens.
+
+### Colab T4: sessions 1-3b
+
+```bash
+experiments/s1_t4_one_call_grid/session1.sh
+experiments/s2_t4_chain_of_thought/session2.sh
+experiments/s3a_t4_topk_sweep/session3a.sh
+experiments/s3b_t4_step_sweep/session3b.sh
+experiments/_shared/t4.sh down
+```
+
+Needs the `colab` CLI and `data/mpr_dataset.zip`; the shared driver and VM details are in [`experiments/_shared/README.md`](experiments/_shared/README.md).
+Always finish with `t4.sh down`. Regenerate a committed summary after a rerun with:
+
+```bash
+.venv/bin/python experiments/_shared/summarize.py grid --tag s1 --slice results/t4/slices/s900.json
+```
+
+### Colab T4: sessions 5-6 (MR / DR)
+
+```bash
+experiments/s5_t4_mr/colab_mr.sh results/t4/s5_mr/_colab_out
+experiments/s6_t4_dr/colab_run.sh
+```
+
+One session each. The drivers hold the shared GPU lock and stop the session when done.
+Validate, score and compare commands are in the folder READMEs:
+[`experiments/s5_t4_mr/README.md`](experiments/s5_t4_mr/README.md) and [`experiments/s6_t4_dr/README.md`](experiments/s6_t4_dr/README.md).
+
+### Laptop LoRA / HybridMem (session 4)
+
+```bash
+export T4_ROOT=$PWD
+export MPR_QA_DIR=$PWD/data/unz/mpr_dataset/question_answer
+export LAPTOP_SFT_WORK=$(mktemp -d)
+.venv/bin/python experiments/s4_laptop_lora_hybridmem/laptop_farm_pairs.py
+.venv/bin/python experiments/s4_laptop_lora_hybridmem/laptop_sft.py
+```
+
+Needs a CUDA GPU with about 6 GB and farm credentials; this spends about 89k farm tokens.
+If the venv has a CPU-only torch wheel, rerun setup with `TORCH_INDEX=https://download.pytorch.org/whl/cu118 ./setup.sh`.
+The T4 variant `session4.sh` had only a smoke run; see [`experiments/s4_laptop_lora_hybridmem/README.md`](experiments/s4_laptop_lora_hybridmem/README.md).
+
+### Notebooks
+
+Sessions 1-3b also ship Colab notebooks (no outputs, committed unexecuted; they have not been run as notebooks):
+[`s1_t4_one_call_grid.ipynb`](experiments/s1_t4_one_call_grid/s1_t4_one_call_grid.ipynb),
+[`s2_t4_chain_of_thought.ipynb`](experiments/s2_t4_chain_of_thought/s2_t4_chain_of_thought.ipynb),
+[`s3a_t4_topk_sweep.ipynb`](experiments/s3a_t4_topk_sweep/s3a_t4_topk_sweep.ipynb),
+[`s3b_t4_step_sweep.ipynb`](experiments/s3b_t4_step_sweep/s3b_t4_step_sweep.ipynb).
+The repo is private: add a Colab secret `GITHUB_TOKEN` (read-only) for the clone cell.
 Behind a corporate proxy set `REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt`.
 
 ## What is reproduced, and what is not
 
-Full tables (status, evidence file, reason for every gap): [`docs/reproduction-status.md`](docs/reproduction-status.md). In short:
+Full claim-by-claim evidence, including every gap and its reason: [`docs/reproduction-status.md`](docs/reproduction-status.md).
 
-- Reproduced: BM25 and e5 retrieval recall per hop (user 0, and with error bars over all 12 users), the leakage check, a scorer, a 9-question farm run, and on a Colab T4 the one-call grid (no memory / Oracle / BM25 / e5)
-  on 900 questions and the 5-step chain-of-thought grid on 306 questions, both with Qwen2.5-7B-Instruct AWQ and leak-free rescoring (`results/t4/summary_s1.md`, `summary_s2_vs_s1.md`).
-- Reproduced on the same 306-question slice: MR (`StructuredReason`, 612/612 rows) and DR (`DecompositionReason`, 612/612 rows), both audited, with vLLM 0.11.2 on a Colab T4 (`results/t4/s5_mr/summary_mr.md`, `results/t4/s6_dr/summary_dr.md`, `results/t4/s6_dr/summary_mr_vs_dr.md`). MR EM 0.203 (BM25) / 0.216 (e5), +0.088 over one-call NR for both retrievers, and no detectable difference from 5-step SR (+0.010 / -0.007; intervals include 0) at 12 calls/question instead of 5. DR EM 0.131 / 0.118, indistinguishable from one-call NR (+0.016 / -0.010) and below SR (-0.062 / -0.105) and MR (-0.072 / -0.098). So SR and MR score above DR and NR on this slice: the paper's SR >> DR ordering holds, but DR's small edge over NR does not.
-- Partially reproduced on the laptop: small-model LoRA and HybridMem (`results/laptop/sft/summary.md`).
-- Run, no support for the paper's top-k claims: top-k sweep k = 10 / 20 / 30 / 50 at 7B (`results/t4/summary_s3_topk_sweep.md`; answer EM is flat in k although retrieval recall rises).
-- Run, partial support for the paper's step-count claim: reasoning-step sweep 2 / 3 / 5 / 8 steps (`results/t4/summary_s3_steps_sweep.md`; every chain beats one call, 3 steps is nominally best, no detectable gain beyond 3 steps).
-- Not reproduced: MaskSFT, TreeRAG, GraphRAG, 7B LoRA with 50 adapters, and any paper number (different model setup).
+### Coverage
+
+```mermaid
+flowchart TB
+    subgraph reproduced ["Reproduced"]
+        probes["No-LLM probes<br/>retrieval recall · leakage · scorer"]
+        NR["NR · 1 call<br/>EM 0.114 / 0.127"]
+        SR["SR · 5 steps<br/>EM 0.193 / 0.222"]
+        MR["MR · 12 calls · 612 rows<br/>EM 0.203 / 0.216"]
+        DR["DR · ~5.9 calls · 612 rows<br/>EM 0.131 / 0.118"]
+    end
+    subgraph partial ["Partially reproduced"]
+        farm["LLM Farm · 9 questions<br/>NR 4 memories · SR 3 memories"]
+        laptop["Laptop · Qwen2.5-0.5B<br/>LoRA + HybridMem probe"]
+    end
+    subgraph missing ["Not reproduced"]
+        gaps["MaskSFT · TreeRAG · GraphRAG<br/>7B LoRA, 50 adapters · paper numbers"]
+    end
+```
+
+Diagram EM labels are BM25 / e5 on the frozen 306-question slice.
+
+### T4 reasoning: same 306 questions
+
+| Method | Session | Calls/question | BM25 EM | e5 EM | Paired Δ vs NR (BM25 / e5) | Reading |
+|---|---|---:|---:|---:|---|---|
+| NR, one call | S1 | 1 | 0.114 | 0.127 | baseline | baseline |
+| SR, five steps | S2 | 5 | 0.193 | 0.222 | +0.078 / +0.095 | above NR |
+| MR | S5 | 12 | 0.203 | 0.216 | +0.088 / +0.088 | above NR; no detectable difference from SR |
+| DR | S6 | ~5.9 | 0.131 | 0.118 | +0.016 / -0.010 | no detectable difference from NR; below SR and MR |
+
+NR is the 306-question matched subset of the 900-question S1 grid; SR, MR and DR each use the 306-question slice per retriever. Deltas are 95% paired bootstraps over questions; one slice and one seed.
+
+**Other paired deltas:** MR - SR +0.010 (BM25) / -0.007 (e5), both include 0; DR - SR -0.062 / -0.105; DR - MR -0.072 / -0.098. On the 140 leak-free questions, MR scores 0.186 / 0.236 and DR 0.143 / 0.129.
+
+Takeaway: SR and MR score above DR and NR on this slice, so the paper's SR >> DR ordering holds; DR's small edge over NR does not reproduce.
+
+### Other runs
+
+| Area | What ran | Scale | Headline result | Status |
+|---|---|---|---|---|
+| Retrieval probes | BM25 + e5 recall per hop; leakage check | user 0, all 12 users | Recall@20 0.488 / 0.498 over all users; hop 10 0.340 / 0.284; 53% of questions restate a number | reproduced |
+| Scorer | our EM + lenient contains | all runs | upstream has no scorer; numbers are comparable only within this repo | reproduced (our code) |
+| LLM Farm | NR, 4 memories; SR, 3 memories | 9 questions | NR EM: Ignoramus 0.11, Oracle 0.89, SparseRAG 0.78, DenseRAG 0.67 | partially |
+| Top-k sweep (S3a) | NR, k = 10 / 20 / 30 / 50 | 900 questions | EM flat across k (BM25 0.110-0.123, e5 0.108-0.117) while recall@k rises | run; paper claim not supported |
+| Step sweep (S3b) | SR, 2 / 3 / 5 / 8 steps | 306 questions | every chain beats one call; 3 steps nominally best; no detectable gain from 3 to 8 | run; partial support |
+| Laptop LoRA / HybridMem (S4) | Qwen2.5-0.5B, single LoRA + HybridMem | 300 facts; 60 seen + 60 paraphrased | small probe: single LoRA closed-book contains 6/60 and 7/60, but HybridMem did not beat single LoRA with retrieval | partially |
 
 The farm run is tiny (n = 9, one question is 0.11): only the large gaps mean anything.
+
+### Not reproduced
+
+| Item | Why |
+|---|---|
+| MaskSFT | needs LoRA training; not run |
+| TreeRAG, GraphRAG | LLM index build over about 13.1k facts per user; thousands of calls, never measured |
+| 7B LoRA with 50 adapters | does not fit the 6 GB laptop GPU |
+| Paper table values | different model, slice and scorer; absolute numbers are not comparable |
 
 ## Upstream license
 
