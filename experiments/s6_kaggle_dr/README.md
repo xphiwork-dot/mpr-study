@@ -1,16 +1,23 @@
-# S6 - DecompositionReason (DR) on a Kaggle T4
+# S6 - DecompositionReason (DR) on a Colab T4
 
 DR is the paper's decomposition reasoning structure (Section 3.4.3, Figure 2(d)): a question is broken
 into sub-questions, the sub-questions are answered one at a time with memory retrieval, and a final call
 merges the answers. This folder runs upstream's `DecompositionReason` (ADAPTED) on the frozen 306-question
 slice for the two retrievers the existing T4 sessions use (BM25/SparseRAG and e5/DenseRAG, k = 20), on one
-private Kaggle T4 GPU job capped at four hours, then scores it against the archived one-call
-(`results/t4/s1`) and five-step chain-of-thought (`results/t4/s2`) runs.
+tesla-T4 GPU session capped at 2.5 h, then scores it against the archived one-call (`results/t4/s1`) and
+five-step chain-of-thought (`results/t4/s2`) runs and against the peer MR experiment.
 
-Deliverables: this README, `report.md` (final report after the job), `dr.py` (the DR runner),
-`kernel.py` (the Kaggle entrypoint), `package.py` (private dataset/kernel packaging), `summarize_dr.py`,
-`validate_dr.py`, `settings.json` (frozen settings), `tests/test_dr.py`, and the evidence under
-`results/kaggle/dr/`.
+**Status: complete.** 612/612 rows on 2026-11-14 on a Colab free-tier Tesla T4 via `colab_run.sh`
+(vLLM 0.11.2), keyed to code commit `eeda20c`; see `report.md` for the numbers. The packaged Kaggle path
+(`package.py`, `kaggle_run.sh`, `kernel.py`) is tested and preserved, but every Kaggle accelerator request
+on the shared account ran CPU-only (four probes), so the run went through the authenticated Colab CLI —
+the same route the MR experiment used. The private resource IDs are `xunphi/mpr-dr-{inputs,reasoning}`; the
+historical `phinguynxun/...` names in (e1)/(e2) and `results/kaggle/dr/` are evidence of the blocked phase.
+
+Deliverables: this README, `report.md` (final report), `dr.py` (the DR runner), `kernel.py` (the entrypoint,
+unchanged on both routes), `package.py` (private dataset/kernel packaging), `colab_run.sh` (the proven Colab
+T4 driver), `summarize_dr.py`, `validate_dr.py`, `compare_mr_dr.py`, `settings.json` (frozen settings),
+`tests/`, and the evidence under `results/kaggle/dr/`.
 
 ## (a) What we run, and the limits we accept
 
@@ -83,18 +90,21 @@ upstream parser rule itself (`split('\n')[:5]`, including empty lines) is a sepa
    file, and a rerun resumes it. There is no silent fallback to NaiveReason. Twenty consecutive failures
    trip a circuit breaker and stop the run. A run deadline stops submitting new questions ~25 minutes
    before the session timeout and drains in-flight calls.
-7. **Runtime** environment: a Kaggle T4 (fp16/AWQ/Triton/Marlin as on Colab) instead of a Colab VM.
-   The vLLM/torch versions are recorded in `manifest_out.json`; the historical Colab versions were not
-   pinned, so small decoding differences are possible even with greedy decoding. A
-   NaiveReason deployment sanity gate (below) is our guard against unexplained drift.
+7. **Runtime** environment: one T4 (16 GB, fp16/AWQ) reached through the Colab CLI rather than the Kaggle
+   kernel launcher, because the account provisions no accelerator to Kaggle jobs (section (e)). One GPU
+   replica; a second T4, if present, is idle. The vLLM/torch versions are recorded in `manifest_out.json`
+   (0.11.2 / torch 2.9.0+cu128 for the completed run, the same pin that served the MR rows), and the
+   historical vLLM 0.32.0 difference is bounded by the NaiveReason deployment sanity gate below
+   (observed 5/6 byte-identical responses, 20/20 identical retrievals per memory).
 
 ## (c) Frozen settings and seed policy
 
 `settings.json` is the single source of truth, hashed into every result row (`settings_sha256`). It was
 written before scoring and does not depend on any observed result. Key values: `decompose_num` 5, top-k
-20, greedy, caps 200/200/64, parser `ref_faithful_drop_blank`, workers 32, slice s306, 612 expected rows,
-smoke = 6 questions (2 at hops 2, 5 and 9), sanity gate thresholds, session deadline 14,400 s with
-submission stop at 12,900 s and a watchdog exit at 13,800 s.
+20, greedy, caps 200/200/64, parser `ref_faithful_drop_blank`, workers 40, slice s306, 612 expected rows,
+smoke = 6 questions (2 at hops 2, 5 and 9), sanity gate thresholds, and a session deadline of 9,000 s with
+submission stop at 7,800 s and a watchdog exit at 8,400 s (the kernel reads `MPR_SESSION_TIMEOUT_S`, default
+9,000 s; the completed Colab run used 2,720 s of it).
 
 Seeds: DR is greedy, so there is no sampling seed. Seed 0 fixes only the deterministic smoke/sanity key
 selection (slice order) and the bootstrap conventions used later (`summarize_dr.py`: seed 0 for
@@ -122,18 +132,35 @@ Shared files reused without modification: `experiments/_shared/lib.py` (data, pr
 writer, vLLM chat, indexes, encoder) and `experiments/_shared/score.py` (EM/contains). Their sha256 is in
 the run manifest; neither is edited by this branch.
 
-## (e) Infrastructure: one private Kaggle job, embedded gates
+## (e) Infrastructure: one GPU session, embedded gates, two possible routes
 
-- Private dataset `phinguynxun/mpr-dr-inputs`: the 12 released `question_answer_*.json` files, the s306
+Two drivers run the **same committed `kernel.py`**: `colab_run.sh` (proven, used for the results) and
+`kaggle_run.sh` (blocked on the account, kept for a future attempt). Both hold the shared host lock
+`~/.local/state/mpr-study/kaggle-gpu.lock`, so a DR and an MR job can never overlap.
+
+**Colab route (used).** `colab_run.sh` builds the packaged dataset from a *clean* git tree (so
+`manifest.json` records the exact commit), tars it, creates a fresh `mpr-dr` session with `--gpu T4`, uploads
+and unpacks it at `/content/dr_inputs`, checks `nvidia-smi -L`, pre-installs `vllm==0.11.2` (the pin that
+actually served the MR rows on driver 580; the kernel's CUDA-generation choice would otherwise try 0.32.0
+first and pay a bounded fallback), launches `kernel.py` detached with `MPR_INPUT_ROOT=/content/dr_inputs`
+and `MPR_WORK=/kaggle/working`, polls the exit file/log every 60 s (pushing `hc` milestones on gate pass,
+every 20 min and at exit), packs `/kaggle/working`, downloads it into `results/kaggle/dr/raw`, and stops the
+session on exit (`DR_COLAB_KEEP=1` keeps it). Colab mounts `/kaggle/input` read-only, which is exactly why
+the kernel resolves `MPR_INPUT_ROOT` first and only then the Kaggle mount candidates.
+
+**Kaggle route (blocked, preserved).**
+
+- Private dataset `xunphi/mpr-dr-inputs` (built locally as `build/kaggle/dr_dataset`): the 12 released `question_answer_*.json` files, the s306
   slice, `dr.py`, `lib.py`, `score.py`, `settings.json`, the archived S1 NaiveReason rows restricted to
   the slice (for the sanity gate), and `manifest.json` with a sha256 of every file plus the code commit,
   upstream commit and model revision. Only this explicit allowlist is uploaded; no `.git`, credentials,
   upstream sources or other agents' state.
-- Private script kernel `phinguynxun/mpr-dr-reasoning`, `kaggle kernels push --timeout 9000
+- Private script kernel `xunphi/mpr-dr-reasoning`, `kaggle kernels push --timeout 9000
   --accelerator NvidiaTeslaT4`; internet on, needed for the pinned upstream clone and the model/e5
   downloads; one GPU replica (`CUDA_VISIBLE_DEVICES=0`), the second T4 (if allocated) is recorded and idle.
   The 2.5-hour cap is a shared-account constraint, not a method choice: both workers serialize on the
-  host GPU lock, so MR takes 3 h and DR 2.5 h (see (e2)).
+  host GPU lock, so MR takes 3 h and DR 2.5 h (see (e2)). The Colab driver passes the same 9,000 s cap
+  (`MPR_SESSION_TIMEOUT_S`); the completed run used 2,720 s of it.
 - The kernel **discovers** the read-only input directory instead of assuming it (`kernel.py:
   discover_input_root`): it tries `MPR_INPUT_ROOT`, `/kaggle/input`, `/kaggle/input/<slug>` and
   `/kaggle/input/datasets/<owner>/<slug>`, then walks `/kaggle/input` to depth 4, retrying for 90 s, and
@@ -196,9 +223,13 @@ candidates plus a bounded walk and retries, `stage_inputs()` publishes the probe
 `status.json`/`input_probe.json`, and it refuses a manifest that declares a different Kaggle dataset (so
 the MR dataset can never be staged by mistake).
 
-## (e2) Shared-account GPU budget: one 2.5-hour job, serialized with the MR worker
+## (e2) Budget: 2.5-hour cap, no Kaggle GPU quota used, serialized with the MR worker
 
-Both experiments run on one Kaggle account. `kaggle quota` on 2026-11-13 reported GPU `used 0.00h`,
+**Observed for the completed run: 0.00 Kaggle GPU-hours and one Colab free-tier T4 session of 53 min
+(2,720 s from kernel start to finish, 34 min of it the 612-row evaluation).** The numbers below describe
+the Kaggle allowance the route would have used; they remain true and untouched.
+
+Both experiments were planned on one Kaggle account. `kaggle quota` on 2026-11-13 reported GPU `used 0.00h`,
 `remaining 30.00h`, refresh 2026-11-14T00:00Z, and the SDK quota object confirms 30 h/week
 (`time_used` 0, `has_ever_run` false) — an earlier read of `timedelta.seconds` (21600 s) was mistaken for
 a 6 h allowance; the correct value is 1 day + 6 h = 108000 s. MR may take 3 h and DR 2.5 h
@@ -220,26 +251,31 @@ ls data/mpr_dataset/question_answer/question_answer_0.json   # gitignored data, 
 # 1. local checks (stdlib only; no GPU, no network; parity tests execute the upstream clone)
 python3 -m unittest discover -s tests -v
 
-# 2. freeze/commit, then build the private inputs + manifest and upload them
-python3 experiments/s6_kaggle_dr/package.py build
-kaggle datasets create -p build/kaggle/dr_dataset --keep-tabular     # or: package.py dataset-version
-kaggle kernels push -p build/kaggle/dr_kernel --timeout 9000 --accelerator NvidiaTeslaT4
+# 2. one locked Colab T4 job: builds the dataset from a CLEAN tree, stages /content/dr_inputs,
+#    pre-installs vllm 0.11.2, runs the unchanged kernel.py, downloads /kaggle/working into
+#    results/kaggle/dr/raw and stops the session (DR_COLAB_KEEP=1 keeps it for debugging)
+experiments/s6_kaggle_dr/colab_run.sh
 
-# 3. monitor, then download the outputs (do not stop at "push")
-kaggle kernels status phinguynxun/mpr-dr-reasoning
-kaggle kernels output phinguynxun/mpr-dr-reasoning -p results/kaggle/dr/raw -o
-
-# 4. validate and score locally (independent re-check against the released data)
+# 3. curate the downloaded rows, then validate and score locally (independent re-check)
+cp results/kaggle/dr/raw/results/kaggle/dr/runs/*.jsonl results/kaggle/dr/runs/
 python3 experiments/s6_kaggle_dr/validate_dr.py --runs results/kaggle/dr/runs
-python3 experiments/s6_kaggle_dr/summarize_dr.py \
+uv run --with numpy python3 experiments/s6_kaggle_dr/summarize_dr.py \
   --dr results/kaggle/dr/runs --slice results/t4/slices/s306.json \
   --nr results/t4/s1 --sr results/t4/s2 --out results/kaggle/dr/summary_dr.md
 
-# 5. cross-method comparison (DR vs the MR worker's export) with the same paired conventions
-python3 experiments/s6_kaggle_dr/compare_mr_dr.py \
+# 4. mutual comparison (DR vs the MR export, then the reverse direction)
+uv run --with numpy python3 experiments/s6_kaggle_dr/compare_mr_dr.py \
   --a-dir results/kaggle/dr/runs --a-label DR \
-  --b-dir /path/to/mr/runs --b-pattern 'MRReasoning_{mem}_k20.jsonl' --b-label MR \
+  --b-dir /home/xphi/Desktop/project/mpr-study/results/kaggle/mr \
+  --b-pattern 'StructuredReason_{mem}_k20_s5.jsonl' --b-label MR \
   --slice results/t4/slices/s306.json --out results/kaggle/dr/summary_mr_vs_dr.md
+# rerun with --a-* and --b-* swapped and --out results/kaggle/dr/summary_mr_minus_dr.md
+
+# 5. Kaggle alternative (still blocked on the account; no accelerator is provisioned):
+python3 experiments/s6_kaggle_dr/package.py build
+kaggle datasets version -p build/kaggle/dr_dataset -m "DR inputs for <commit>" --keep-tabular
+kaggle kernels push -p build/kaggle/dr_kernel --timeout 9000 --accelerator NvidiaTeslaT4
+experiments/s6_kaggle_dr/kaggle_run.sh     # wait for the lock + poll status + download to results/kaggle/dr/raw
 ```
 
 `compare_mr_dr.py` only needs the shared row schema (`uid`, `rc_id`, `k_hop`, `response`,
@@ -247,16 +283,17 @@ python3 experiments/s6_kaggle_dr/compare_mr_dr.py \
 drops questions missing on either side and reports the shared `n` for every paired row.
 
 `package.py` refuses to build from a dirty tracked tree so the manifest's code commit matches the code
-that ran. `summarize_dr.py` needs numpy (bootstrap only); run it with the repo venv if the system Python
-has none.
+that ran. `summarize_dr.py` needs numpy (bootstrap only); run it with the repo venv or `uv run --with numpy`
+if the system Python has none.
 
-### UI-started session (fallback when API pushes get no accelerator)
+### UI-started Kaggle session (unused fallback)
 
 On 2026-11-13 the account's API/CLI pushes (`kaggle kernels push --accelerator NvidiaTeslaT4`, script and
 notebook, all request shapes) ran CPU-only while the server stored the GPU settings (see (e1) and
-`results/kaggle/dr/gpu_availability/`). If an interactive Kaggle session *does* get a T4, run the same code
-there without pasting it: the private dataset now also carries `kernel.py` (identical to the pushed
-kernel's `code_file`, hash in `manifest.json`). In the UI notebook, one cell is enough:
+`results/kaggle/dr/gpu_availability/`). **This path was not used: the completed run went through the
+Colab CLI (f).** If a future interactive Kaggle session *does* get a T4, the same code can run there
+without pasting it: the packaged dataset also carries `kernel.py` (identical to the pushed kernel's
+`code_file`, hash in `manifest.json`). In the UI notebook, one cell is enough:
 
 ```python
 import glob, shutil, subprocess, sys
@@ -265,22 +302,41 @@ shutil.copyfile(src, "/kaggle/working/kernel.py")
 sys.exit(subprocess.call([sys.executable, "-u", "/kaggle/working/kernel.py"]))
 ```
 
-Attach the private dataset `phinguynxun/mpr-dr-inputs`, enable internet, pick T4. The job self-caps at
+Attach the private dataset `xunphi/mpr-dr-inputs`, enable internet, pick T4. The job self-caps at
 9000 s (`SESSION_TIMEOUT_S`, watchdog exit 600 s before that, stop-submitting 1200 s before), writes
-`status.json`/`DONE`/evidence to `/kaggle/working`, and the same validation/scoring commands below apply
-after downloading the output. Hold the shared GPU lock for the session's duration exactly as
-`kaggle_run.sh` does, and keep the capped scope and hash checks unchanged.
+`status.json`/`DONE`/evidence to `/kaggle/working`, and the same validation/scoring commands apply after
+downloading the output. Hold the shared GPU lock as `kaggle_run.sh` does, and keep the capped scope and
+hash checks unchanged.
 
-## (g) Results
+## (g) Results (observed 2026-11-14, Colab T4, vLLM 0.11.2)
 
-**Blocked: no accelerator on the shared Kaggle account; 0 of 612 rows, no metric reported.** See
-[`report.md`](report.md) for the full account, and `results/kaggle/dr/` for the evidence:
+**612/612 rows complete, 0 failures, all gates and the independent validator passed.** Full report and
+tables: [`report.md`](report.md); generated artifacts: `results/kaggle/dr/`.
+
+| run | n | EM [95% CI] | contains [95% CI] |
+|---|---|---|---|
+| DR SparseRAG | 306 | **0.131 [0.095, 0.167]** | 0.131 [0.095, 0.167] |
+| DR DenseRAG | 306 | **0.118 [0.082, 0.157]** | 0.121 [0.085, 0.160] |
+| DR SparseRAG, leak-free | 140 | 0.143 [0.086, 0.207] | 0.143 [0.086, 0.207] |
+| DR DenseRAG, leak-free | 140 | 0.129 [0.079, 0.186] | 0.136 [0.086, 0.193] |
+
+Paired differences (same 306 questions, DR minus baseline), all overall: DR is indistinguishable from
+one-call NR (SparseRAG +0.016 [−0.023, +0.056]; DenseRAG −0.010 [−0.046, +0.026]) and below the 5-step SR
+(SparseRAG −0.062 [−0.105, −0.016]; DenseRAG −0.105 [−0.154, −0.056]). Against MR (same slice, retrievers,
+model revision and T4/vLLM pin; MR samples its branch candidates, DR is greedy): DR − MR is
+**−0.072 [−0.118, −0.029]** EM on SparseRAG and **−0.098 [−0.147, −0.052]** on DenseRAG, with the reverse
+direction committed as `summary_mr_minus_dr.md`. MR-side numbers reproduce MR's own `summary_mr.md`
+exactly, and the reverse run mirrors the forward deltas/interval bounds to the last digit.
+
+Observed budget: 3,602 calls (1,802 + 1,800), 2,234,418 prompt + 62,014 completion tokens, 2,051 s of
+full-run wall at 40 concurrent questions (1.72-1.79 calls/s), 2,720 s kernel wall; 0.00 Kaggle GPU-hours.
+
+Blocker evidence kept as history (all under `results/kaggle/dr/`):
 
 - `attempt1_pi_setup_failure/` — the Pi-era attempt that died in setup, preserved unedited; its cause
   (dataset mounted at `/kaggle/input/datasets/<owner>/<slug>`, not `/kaggle/input/<slug>`) is proven by
   `mount_probe/mountprobe.json` and fixed in `kernel.py: discover_input_root`.
 - `gpu_availability/` — four private accelerator probes (two kernel types, three request shapes) all ran
   CPU-only with `enable_gpu: true` stored server-side, `torch 2.11.0+cpu`, no `/dev/nvidia*`, and
-  `GPU used 0.00h` / `has_ever_run: false`. The job was stopped rather than burning the attempt on a
-  CPU-only vLLM setup failure.
-- `runs/` stays empty until a GPU session can run §6 end to end.
+  `GPU used 0.00h` / `has_ever_run: false`. The Kaggle job was therefore not pushed; the Colab T4 route
+  produced the rows instead.
