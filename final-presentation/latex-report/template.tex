@@ -1,0 +1,295 @@
+%% ============================================================================
+%% 4-Page Final Project Report TEMPLATE (ACM sigconf 2-Column, No Bibliography)
+%% Paper Studied: Zhang et al., "Explicit v.s. Implicit Memory: Exploring
+%% Multi-hop Complex Reasoning Over Personalized Information", KDD '26.
+%%
+%% HOW TO USE THIS TEMPLATE:
+%%   1. Keep the section structure and space budgets (total = 4.00 pages).
+%%   2. Replace each [Key Idea / Fill-in Guide] block with concise final prose.
+%%   3. Replace [TODO: ...] figure boxes by uncommenting \includegraphics{...}
+%%      and adjusting width/height; fill in [TODO] cells in skeleton tables.
+%%   4. Compiles cleanly as-is on Overleaf (pdfLaTeX / XeLaTeX / LuaLaTeX).
+%% ============================================================================
+\documentclass[sigconf,nonacm,10pt]{acmart}
+
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[utf8]{inputenc}
+  \usepackage[T5,T1]{fontenc}
+  \newcommand{\vn}[1]{{\fontencoding{T5}\selectfont #1}}
+\else
+  \newcommand{\vn}[1]{#1}
+\fi
+
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{amsmath}
+% acmart's math fonts may already define \Bbbk (notably in XeTeX).
+\let\Bbbk\relax
+\usepackage{amssymb}
+\usepackage{enumitem}
+\usepackage{array}
+
+%% Palette for scaffold hints (remove or mute once final prose is filled in)
+\definecolor{GuideBorder}{HTML}{2563EB}
+\definecolor{GuideBg}{HTML}{EFF6FF}
+\definecolor{SlotBorder}{HTML}{64748B}
+\definecolor{SlotBg}{HTML}{F8FAFC}
+\definecolor{BudgetColor}{HTML}{0F766E}
+
+%% Remove ACM copyright / reference strip & bibliography to keep 4-page fit
+\settopmatter{printacmref=false, printccs=false, printfolios=true}
+\renewcommand\footnotetextcopyrightpermission[1]{}
+\pagestyle{plain}
+
+%% Tight spacing tuned for 4-page layout
+\setlength{\textfloatsep}{6pt plus 2pt minus 2pt}
+\setlength{\floatsep}{5pt plus 2pt minus 2pt}
+\setlength{\intextsep}{5pt plus 2pt minus 2pt}
+\setlength{\abovecaptionskip}{3pt}
+\setlength{\belowcaptionskip}{2pt}
+
+%% Helper macros for template guidance
+\newcommand{\budget}[1]{%
+  \noindent{\footnotesize\textit{\textcolor{BudgetColor}{\textbf{Space Budget:} #1}}}\par\vspace{2pt}%
+}
+\newcommand{\guide}[1]{\textcolor{GuideBorder}{\textbf{[#1]}}}
+\newcommand{\todo}[1]{\textcolor{red!70!black}{\textbf{[TODO: #1]}}}
+
+%% Framed placeholder box for figures (compiles cleanly without image files)
+\newcommand{\figplaceholder}[3]{%
+  \noindent\fcolorbox{SlotBorder}{SlotBg}{%
+    \begin{minipage}[c][#1][c]{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}
+      \centering\footnotesize\color{SlotBorder}
+      \textbf{[FIGURE PLACEHOLDER --- #2]}\\[3pt]
+      #3
+    \end{minipage}%
+  }%
+}
+
+\title[KDD '26 MPR Study \& Reproduction Report (Template)]{%
+  Explicit vs.\ Implicit Memory for Multi-Hop Personalized Reasoning:\\
+  Paper Study, \textsc{HybridMem}, and Independent Reproduction}
+
+\subtitle{Data Mining Final Project Report $\cdot$ Advisor (GVHD): \vn{Nguyễn Võ Lê Duy}}
+
+\author{\vn{Nguyễn Xuân Phi}}
+\affiliation{\institution{Data Mining Course Project}\country{}}
+\author{\vn{Lê Hải Phong}}
+\affiliation{\institution{Data Mining Course Project}\country{}}
+\author{\vn{Trần Nguyên Phong}}
+\affiliation{\institution{Data Mining Course Project}\country{}}
+\author{\vn{Phan Văn Phú}}
+\affiliation{\institution{Data Mining Course Project}\country{}}
+
+\renewcommand{\shortauthors}{Phi, Phong, Phong, and Phu}
+
+\begin{abstract}
+\guide{Abstract Scaffold --- Target: 100--140 words}
+\begin{itemize}[leftmargin=*, nosep, topsep=1pt]
+  \item \textbf{Context:} State why multi-hop reasoning over private user histories (MPR) breaks single-hop personalization benchmarks (LaMP, PerLTQA).
+  \item \textbf{Paper \& Method:} Summarize Zhang et al.\ (KDD '26, pp.\ 1964--1974), the 2--10 hop MPR benchmark, and \textsc{HybridMem} (\textsc{BlockSFT}).
+  \item \textbf{Our Scope:} Briefly state our offline probes (32,399 Qs) + GPU sessions (\texttt{S1}--\texttt{S6} on Colab T4 \texttt{Qwen2.5-7B-AWQ}, laptop \texttt{0.5B}, Farm sanity).
+  \item \textbf{Headline Findings:} Summarize confirmed claims (\textsc{SR} $+7.8$--$11.8$\,pp over \textsc{NR}, 3-step peak) vs.\ audit nuances (\textsc{MR} $2.4\times$ cost tie, \textsc{DR} collapse, $53\%$ prompt numeric leakage, \textsc{HybridMem} $+0.002$ mean Table~3 gain).
+\end{itemize}
+\end{abstract}
+
+\begin{document}
+\maketitle
+
+%% ============================================================================
+%% SECTION 1: INTRODUCTION (~0.35p)
+%% ============================================================================
+\section{Introduction}
+\budget{~0.35 page (fill rest of Page 1 col 1)}
+
+\begin{itemize}[leftmargin=*, nosep, topsep=2pt]
+  \item \guide{Key Idea 1 --- Motivation} Contrast prior personalization benchmarks: \textbf{LaMP} (style/preference matching) and \textbf{PerLTQA / LongMemEval} (1--2 hop conversational recall with matched train/test distributions) vs.\ real-world multi-hop reasoning over $\sim$13,100 atomic private facts/user (e.g., Paper Fig.~1a: \emph{Alice $\rightarrow$ Bob $\rightarrow$ David $\rightarrow$ New York}).
+  \item \guide{Key Idea 2 --- Explicit vs.\ Implicit Tension}
+    \emph{Explicit (RAG):} keeps text in external indices (\texttt{BM25s}, \texttt{e5}), fails single-shot due to \emph{bridge-entity mismatch}.
+    \emph{Implicit (LoRA SFT):} compiles facts into weights (\textsc{MaskSFT}, \textsc{AskSFT}), suffers capacity interference and reasoning erosion.
+    \emph{Proposed Bridge:} \textsc{HybridMem} (\textsc{BlockSFT}) combines K-means clustered LoRA with RAG routing.
+  \item \guide{Key Idea 3 --- Scope of Our Study} Explain our clean-room reproduction across 32,399 offline probes and six GPU sessions (\texttt{S1}--\texttt{S6}) on consumer hardware (Colab T4 4-bit 7B + laptop 0.5B), testing whether structural orderings and claims hold under paired bootstrap evaluation.
+\end{itemize}
+
+%% ============================================================================
+%% SECTION 2: PROBLEM SETUP & MPR DATASET (~0.55p)
+%% ============================================================================
+\section{Problem Setup and MPR Dataset}
+\budget{~0.55 page (Page 1 col 2 + top of Page 2)}
+
+\begin{itemize}[leftmargin=*, nosep, topsep=2pt]
+  \item \guide{Key Idea 1 --- Formal Definition 1} Given private user statements $\mathcal{S} = \{s_1, \dots, s_n\}$ ($n \approx 13{,}100$) and multi-hop question $q$, predict $\hat{a} = f(q; \mathcal{S})$ scored by normalized Exact Match ($\text{EM}$). Highlight the \textbf{2 mandatory conditions}:
+    (1) \emph{Personalized Necessity \& Sufficiency} ($\exists S \subseteq \mathcal{S}, S \neq \emptyset$ sufficient to deduce $a$, blocking world-knowledge shortcuts);
+    (2) \emph{Multi-hop Irreducibility} ($\nexists s_i \in \mathcal{S}$ alone yields $a$).
+  \item \guide{Key Idea 2 --- 5-Step KG Pipeline (Paper Fig.\ 2a)} Outline:
+    (1) \emph{Meta-Graph} $\mathcal{G}$ (108 entity/attr spaces, 34 entity/attribute/value-offset relations) $\rightarrow$
+    (2) \emph{12 User Graphs} $\tilde{G}$ ($\sim$5,902 nodes/user) $\rightarrow$
+    (3) \emph{Statements} $\mathcal{S}$ ($\sim$13,097/user; 157,166 total) $\rightarrow$
+    (4) \emph{Disambiguated Random Walks} ($k=2\text{--}10$ hops) $\rightarrow$
+    (5) \emph{LLM QA Rewrite} $(T, M, q, a)$.
+  \item \guide{Key Idea 3 --- Dataset Audit Note} Note the release count check: paper cites 108,000 (Table~2) and 10,800 (\S3.3.3), while the actual release holds \textbf{32,400 QAs} (12 users $\times$ 2,700 QAs; \textbf{32,399 valid} after 1 null in user~8 hop~4); paper eval uses a 2,700-Q subset.
+\end{itemize}
+
+\begin{figure}[h]
+  \centering
+  \figplaceholder{2.1cm}{Paper Fig. 1a / Fig. 2a Pipeline}{%
+    Insert compact 5-step KG pipeline diagram (Meta-Graph $\rightarrow$ 12 User Graphs $\rightarrow$ Statements $\rightarrow$ Random Walks $\rightarrow$ QA) or 3-hop bridge-entity example.\\
+    \emph{Replace box with:} \texttt{\textbackslash includegraphics[width=\textbackslash columnwidth]\{figures/...\}}%
+  }
+  \caption{\todo{Short caption summarizing MPR 5-step dataset pipeline and core scale stats.}}
+  \label{fig:pipeline}
+\end{figure}
+
+%% ============================================================================
+%% SECTION 3: METHODOLOGY & PROPOSED HYBRIDMEM (~0.95p)
+%% ============================================================================
+\section{Methodology and Proposed \textsc{HybridMem}}
+\budget{~0.95 page (Page 2 across col 1 \& col 2)}
+
+\subsection{Memory Mechanisms and Reasoning Structures}
+\begin{itemize}[leftmargin=*, nosep, topsep=2pt]
+  \item \guide{Memory Taxonomy (Paper Fig.\ 2c)} Summarize:
+    \emph{Explicit ($k=20$):} \textsc{SparseRAG} (\texttt{BM25s}), \textsc{DenseRAG} (\texttt{e5-base-v2}), \textsc{TreeRAG} (\texttt{MemTree}), \textsc{GraphRAG}, plus \textsc{Ignoramus} ($\hat{S}=\emptyset$) and \textsc{Oracle} ($\hat{S}=M$).
+    \emph{Implicit (LoRA $r=8, \alpha=32$, epochs $1\text{--}10$):} \textsc{MaskSFT} (masked entity/relation prediction) and \textsc{AskSFT} (self-generated QA pairs).
+  \item \guide{4 Reasoning Structures (Paper Fig.\ 2d)} Define flow \& call cost:
+    \textbf{\textsc{NR}} (1 call, static top-$k$);
+    \textbf{\textsc{SR}} ($L$ calls, default $L=5$, CoT thought $o_i$ + re-retrieval $\text{RAG}(q \Vert o_{1..i}, \mathcal{S})$);
+    \textbf{\textsc{MR}} (12 calls at $L=5, B=2$, ToT branching $T=0.7$ + LLM selector);
+    \textbf{\textsc{DR}} ($\sim$5.9 calls, Divide $\le 5$ sub-Qs without RAG $\rightarrow$ sequential Solve $\rightarrow$ Merge).
+\end{itemize}
+
+\begin{figure*}[t]
+  \centering
+  \figplaceholder{2.6cm}{4 Reasoning Structures + HybridMem Architecture}{%
+    Left/Top: 4-panel flow of \textsc{NR} vs.\ \textsc{SR} vs.\ \textsc{MR} vs.\ \textsc{DR} (e.g., \texttt{fig1\_reasoning\_flows.pdf}).
+    Right/Bottom: \textsc{HybridMem} (\textsc{BlockSFT}) two-stage lane (Offline \texttt{e5} + K-means $\rightarrow$ $C$ LoRAs; Online RAG top-$k$ $\rightarrow$ Majority Vote $c^*$ $\rightarrow$ Load LoRA$_{c^*}$).\\
+    \emph{Replace box with:} \texttt{\textbackslash includegraphics[width=0.96\textbackslash textwidth]\{figures/fig1\_reasoning\_flows.pdf\}}%
+  }
+  \caption{\todo{Caption contrasting the four reasoning structures (\textsc{NR/SR/MR/DR}) and \textsc{HybridMem} routing.}}
+  \label{fig:method}
+\end{figure*}
+
+\subsection{Proposed Method: \textsc{HybridMem} (\textsc{BlockSFT})}
+\begin{itemize}[leftmargin=*, nosep, topsep=2pt]
+  \item \guide{Why Naive SFT+RAG (\texttt{MS+X}/\texttt{AS+X}) Fails} Explain three pitfalls: stuffing $\sim$13.1k facts into one LoRA causes knowledge interference, SFT erodes multi-step reasoning, and a single adapter is query-agnostic at inference.
+  \item \guide{Offline Phase --- Clustering \& Per-Cluster LoRA} Embed user statements $\mathcal{S}$ via \texttt{e5-base-v2}, cluster via K-means into $C$ local context blocks ($C \in \{30, 50\}$), train an independent LoRA $\hat{\theta}_c$ per cluster alongside the text retrieval index.
+  \item \guide{Online Phase --- Retrieval \& Majority-Vote Routing} Retrieve top-$k$ statements $\hat{S}$, select the best-matching adapter by majority vote $c^* = \arg\max_c \sum_{s \in \hat{S}} \mathbb{I}[\text{cluster}(s)=c]$, and run inference with $\hat{\theta}_{c^*}$ conditioned on $\hat{S}$.
+\end{itemize}
+
+%% ============================================================================
+%% SECTION 4: EXPERIMENTS & GROUP REPRODUCTION (~1.15p)
+%% ============================================================================
+\section{Experiments and Group Reproduction}
+\budget{~1.15 pages (Page 2 end + Page 3)}
+
+\subsection{Paper Findings Summary (8$\times$A800, 2,700 Qs)}
+\begin{itemize}[leftmargin=*, nosep, topsep=2pt]
+  \item \guide{Explicit Memory (Fig.\ 3)} \textsc{SR} \& \textsc{MR} outperform \textsc{NR} \& \textsc{DR} (+10--20\% range); \textsc{DenseRAG} leads short hops (semantic match), \textsc{SparseRAG} leads long hops (keyword match), \textsc{GraphRAG} lags due to entity noise.
+  \item \guide{Ablations (Figs.\ 4--6)} Larger $k$ helps short hops while long hops peak at intermediate $k$; reasoning gains plateau after \textbf{3 steps}; \texttt{3B} drops sharply vs.\ \texttt{7B} on \textsc{NR}/\textsc{DR}.
+  \item \guide{Implicit Collapse (Fig.\ 8)} Pure \textsc{MaskSFT}/\textsc{AskSFT} stays near 0\%; adding SFT to \textsc{Oracle} (\textsc{MSO}/\textsc{ASO}) hurts \textsc{SR}/\textsc{MR} reasoning.
+  \item \guide{\textsc{HybridMem} Table~3 \& Sensitivity (Figs.\ 7, 9, 10)} Highlights \textsc{SR} \textsc{SparseRAG} long-hop gain ($0.200 \rightarrow 0.232$); cluster counts 30 vs.\ 50 are robust (50 slightly higher); optimal training at \textbf{epoch~7}; incurs clustering + adapter-swap latency.
+\end{itemize}
+
+\subsection{Our Group's Reproduction (\texttt{S0}--\texttt{S6} on Consumer GPUs)}
+\begin{itemize}[leftmargin=*, nosep, topsep=2pt]
+  \item \guide{Setup \& Paired Protocol} Explain why we test structural orderings via paired bootstrap CIs (2,000 resamples) rather than raw A800 numbers: offline probes (32,399 Qs), Colab T4 \texttt{Qwen2.5-7B-Instruct-AWQ} (\texttt{s900} / \texttt{s306}, 140 leak-free), 9-Q LLM Farm sanity (\textsc{Oracle} 0.89 $>$ \textsc{SparseRAG} 0.78 $>$ \textsc{DenseRAG} 0.67 $\gg$ \textsc{Ignoramus} 0.11), and laptop RTX~A3000 \texttt{0.5B} \textsc{HybridMem} (\texttt{S4}).
+  \item \guide{Retrieval Crossover (\texttt{S0}, 32,399 Qs)} Confirm \texttt{e5} leads hops 2--4 (hop 2: 0.997 vs.\ 0.877) and \texttt{BM25} leads hops 5--10 (hop 10: 0.340 vs.\ 0.284), while \texttt{all-gold@20} drops to 1.6\% (\texttt{BM25}) / 0.5\% (\texttt{e5}) at hop 10.
+  \item \guide{Reasoning Grid \& Sweeps (\texttt{S1--S3b, S5, S6})} Fill Table~\ref{tab:repro_skeleton}: \textsc{SR-3} peaks (0.229 \texttt{BM25} / 0.245 \texttt{e5}), \textsc{MR} ties \textsc{SR-5} at 12 calls/Q, \textsc{DR} collapses to \textsc{NR}, and $k \in \{10..50\}$ yields flat \textsc{NR} EM (0.108--0.123) despite rising recall.
+  \item \guide{\texttt{0.5B} Check (\texttt{S4}) \& Table~3 Audit} Report \texttt{S4} closed-book recall (6/60 seen, 7/60 paraphrased vs.\ 0/60, 1/60 base) and 5-cluster \textsc{HybridMem} (38/60, 36/60 vs.\ base RAG 41/60, 43/60), plus our 40-cell Paper Table~3 audit (mean $+0.002$ EM: 23 up, 15 down, 2 tied).
+  \item \guide{Essential Code Fix Note (2 lines max)} Briefly note clean-room fixes over upstream \texttt{a24953c} (added SQuAD EM scorer, fixed \textsc{BlockSFT} \texttt{"default"} adapter crash \& 4,608-token SFT padding) without listing minor repo bugs.
+\end{itemize}
+
+\begin{table}[h]
+  \centering
+  \caption{\todo{Paired \texttt{s306} EM comparison (\texttt{Qwen2.5-7B-AWQ}, $k=20$) --- verify/format final cells.}}
+  \label{tab:repro_skeleton}
+  \footnotesize
+  \setlength{\tabcolsep}{3.5pt}
+  \begin{tabular}{@{}llcccc@{}}
+    \toprule
+    \textbf{Structure} & \textbf{Memory} & \textbf{Calls/Q} & \textbf{All EM} & \textbf{Leak-Free} & \textbf{$\Delta$ vs.\ NR} \\
+    \midrule
+    \textsc{NR} (\texttt{S1})   & BM25 / e5 & 1.0  & 0.114 / 0.127 & 0.136 / 0.143 & baseline \\
+    \textsc{SR-5} (\texttt{S2}) & BM25 / e5 & 5.0  & 0.193 / 0.222 & 0.193 / 0.236 & +0.078 / +0.095 \\
+    \textsc{SR-3} (\texttt{S3b})& BM25 / e5 & 3.0  & \textbf{0.229 / 0.245} & \textbf{0.221 / 0.243} & \textbf{+0.114 / +0.118} \\
+    \textsc{MR} (\texttt{S5})   & BM25 / e5 & 12.0 & 0.203 / 0.216 & 0.186 / 0.236 & +0.088 / +0.088 \\
+    \textsc{DR} (\texttt{S6})   & BM25 / e5 & 5.9  & 0.131 / 0.118 & 0.143 / 0.129 & +0.016 / -0.010 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{figure}[h]
+  \centering
+  \figplaceholder{2.2cm}{Paired EM \& Compute Pareto Chart}{%
+    Insert reproduction chart comparing \textsc{NR}, \textsc{SR-3}, \textsc{SR-5}, \textsc{MR}, \textsc{DR} (e.g., \texttt{fig3\_reasoning\_and\_pareto.pdf}).\\
+    \emph{Replace box with:} \texttt{\textbackslash includegraphics[width=\textbackslash columnwidth]\{figures/fig3\_reasoning\_and\_pareto.pdf\}}%
+  }
+  \caption{\todo{Caption highlighting 3-step \textsc{SR} as the compute-vs.-accuracy Pareto frontier.}}
+  \label{fig:pareto}
+\end{figure}
+
+%% ============================================================================
+%% SECTION 5: INDEPENDENT DISCUSSION & ANALYSIS (~0.60p)
+%% ============================================================================
+\section{Independent Discussion and Analysis}
+\budget{~0.60 page (Page 3 end / Page 4 col 1)}
+
+\begin{itemize}[leftmargin=*, nosep, topsep=2pt]
+  \item \guide{1. Why \textsc{DR} Collapses to \textsc{NR}} Analyze the 3 failure links from \texttt{S6} traces:
+    (a) \emph{blind Divide} splits $q$ with zero retrieved facts $\rightarrow$ ungrounded sub-queries;
+    (b) \emph{Solve$\rightarrow$Merge recall drop} (Merge gold recall 0.353/0.369 $<$ \textsc{NR} 0.466/0.497);
+    (c) non-CoT ``concise'' sub-answers hurt arithmetic even under all-gold recall (0.242 vs.\ \textsc{MR} 0.375).
+  \item \guide{2. Why \textsc{MR} Ties \textsc{SR} at $2.4\times$ Cost} Explain \texttt{S5} trace findings:
+    (a) append-only candidate list leaves shallow depth 1--2 thoughts selected on \textbf{74.5\%} of Qs;
+    (b) \textbf{32.3\%} (593/1,836) of branch pairs are exact duplicates, wasting 12 calls/Q ($2.05\times$ wall time) for $+0.010$/$-0.007$ $\Delta\text{EM}$.
+  \item \guide{3. Prompt Numeric Leakage (53\% / Leak-Free Splits)} Explain how LLM rewriting copies gold numbers into $q$ (\textbf{53\%} overall, \textbf{82\%} at hop~10; 38\%/62\% for 3+ digits), inflating \texttt{s900} \textsc{Ignoramus} EM $4.6\times$ (0.065 vs.\ 0.014 leak-free) and masking true RAG gain (+6.8\,pp all $\rightarrow$ +10.7\,pp leak-free).
+  \item \guide{4. Practical Agent Design Rules} Synthesize 3 rules: default to 3-step \textsc{SR}; never decompose before first retrieval; prefer hybrid lexical+dense explicit indices over per-cluster LoRA memorization.
+\end{itemize}
+
+\begin{figure}[h]
+  \centering
+  \figplaceholder{2.0cm}{Recall@20 Crossover \& Prompt Leakage Chart}{%
+    Insert offline probe figure (\texttt{fig2\_recall\_and\_leakage.pdf}) showing \texttt{BM25} vs.\ \texttt{e5} crossover and hop-wise numeric leakage.\\
+    \emph{Replace box with:} \texttt{\textbackslash includegraphics[width=\textbackslash columnwidth]\{figures/fig2\_recall\_and\_leakage.pdf\}}%
+  }
+  \caption{\todo{Caption on 32,399-question retrieval crossover and prompt number leakage.}}
+  \label{fig:leakage}
+\end{figure}
+
+%% ============================================================================
+%% SECTION 6: CONCLUSION & MEMBER TASKS (~0.40p)
+%% ============================================================================
+\section{Conclusion and Member Task Assignment}
+\budget{~0.40 page (Page 4 col 2 --- must finish cleanly on Page 4)}
+
+\subsection{Conclusion}
+\begin{itemize}[leftmargin=*, nosep, topsep=2pt]
+  \item \guide{Confirmed vs.\ Challenged} Write 2--3 crisp sentences contrasting confirmed paper insights (explicit $\gg$ implicit; 3-step \textsc{SR} optimal; \texttt{BM25}/\texttt{e5} crossover) against refined findings (\textsc{MR}/\textsc{DR} limits, flat top-$k$, marginal $+0.2$\,pp \textsc{HybridMem} gain, 53\% leakage).
+  \item \guide{Final Takeaway} One closing sentence on practical personal agent architecture.
+\end{itemize}
+
+\subsection{Tasks Assigned to Each Member}
+\begin{table}[h]
+  \centering
+  \caption{\todo{Verify and edit final deliverables per team member.}}
+  \label{tab:members}
+  \footnotesize
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{@{}p{0.27\columnwidth}p{0.69\columnwidth}@{}}
+    \toprule
+    \textbf{Team Member} & \textbf{Assigned Tasks \& Deliverables (Edit / Verify)} \\
+    \midrule
+    \textbf{\vn{Nguyễn Xuân Phi}} & \todo{Confirm:} Coordination; dataset/repo audit (\texttt{00\_probes}, 32,399 Qs); SQuAD EM scorer; final report \& slide synthesis. \\
+    \addlinespace[2pt]
+    \textbf{\vn{Lê Hải Phong}} & \todo{Confirm:} Explicit grid runner; LLM Farm sanity (\texttt{01\_farm}); \texttt{S1} (\textsc{NR}, 900 Qs) \& \texttt{S2} (\textsc{SR-5}, 306 Qs) + paired CI scripts. \\
+    \addlinespace[2pt]
+    \textbf{\vn{Trần Nguyên Phong}} & \todo{Confirm:} Top-$k$ (\texttt{S3a}) \& step (\texttt{S3b}) sweeps; clean-room \textsc{MR} (\texttt{S5}) \& \textsc{DR} (\texttt{S6}) execution and trace audits. \\
+    \addlinespace[2pt]
+    \textbf{\vn{Phan Văn Phú}} & \todo{Confirm:} \texttt{S4} laptop \textsc{AskSFT}/\textsc{HybridMem} fixes \& run; Paper Table~3 40-cell audit; report/slide figures. \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\end{document}
