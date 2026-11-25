@@ -7,6 +7,7 @@ synthetic input dataset (same layout as the private Kaggle dataset), point the k
 check that staging verifies every sha256, reproduces the expected layout, rejects a tampered file,
 selects the pre-registered smoke keys from the real slice, and always writes status/DONE on finish.
 """
+
 import hashlib
 import importlib.util
 import json
@@ -28,7 +29,9 @@ def sha256(path):
 
 
 def load_kernel():
-    spec = importlib.util.spec_from_file_location("s6_kernel_under_test", os.path.join(EXP, "kernel.py"))
+    spec = importlib.util.spec_from_file_location(
+        "s6_kernel_under_test", os.path.join(EXP, "kernel.py")
+    )
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
     return mod
@@ -47,20 +50,39 @@ def make_input(tmp):
         files[name] = {"sha256": sha256(path), "bytes": os.path.getsize(path)}
 
     for u in range(12):
-        put(f"question_answer_{u}.json",
-            json.dumps({"message": {f"MG{i}": f"statement {i}" for i in range(25)},
-                        "qa": {"2": {"RC000001#02": {"question": "q?", "answer": "a",
-                                                     "message": ["MG001"], "fold_tag": 2}}}}))
+        put(
+            f"question_answer_{u}.json",
+            json.dumps(
+                {
+                    "message": {f"MG{i}": f"statement {i}" for i in range(25)},
+                    "qa": {
+                        "2": {
+                            "RC000001#02": {
+                                "question": "q?",
+                                "answer": "a",
+                                "message": ["MG001"],
+                                "fold_tag": 2,
+                            }
+                        }
+                    },
+                }
+            ),
+        )
     put("s306.json", json.dumps({"meta": {"n": 306}, "items": []}))
-    for name, src in (("dr.py", os.path.join(EXP, "dr.py")),
-                      ("lib.py", os.path.join(REPO, "experiments", "_shared", "lib.py")),
-                      ("score.py", os.path.join(REPO, "experiments", "_shared", "score.py")),
-                      ("settings.json", os.path.join(EXP, "settings.json"))):
+    for name, src in (
+        ("dr.py", os.path.join(EXP, "dr.py")),
+        ("lib.py", os.path.join(REPO, "experiments", "_shared", "lib.py")),
+        ("score.py", os.path.join(REPO, "experiments", "_shared", "score.py")),
+        ("settings.json", os.path.join(EXP, "settings.json")),
+    ):
         put(name, open(src, encoding="utf-8").read())
     for mem in ("SparseRAG", "DenseRAG"):
         put(f"baseline_nr_{mem}_k20.jsonl", "")
-    manifest = {"code_commit": "test-commit", "files": files,
-                "upstream": {"prompts_sha256": "0" * 64}}
+    manifest = {
+        "code_commit": "test-commit",
+        "files": files,
+        "upstream": {"prompts_sha256": "0" * 64},
+    }
     put("manifest.json", json.dumps(manifest))
     return inp, manifest
 
@@ -87,13 +109,19 @@ class KernelStagingTests(unittest.TestCase):
             point_at(km, tmp, inp)
             got_manifest, verified = km.stage_inputs()
             self.assertEqual(got_manifest["code_commit"], "test-commit")
-            self.assertTrue(all(v["matches_manifest"] for v in verified.values()), verified)
+            self.assertTrue(
+                all(v["matches_manifest"] for v in verified.values()), verified
+            )
             for name in ("dr.py", "lib.py", "score.py", "settings.json"):
                 self.assertTrue(os.path.isfile(os.path.join(km.SCRIPTS, name)), name)
             for u in range(12):
-                self.assertTrue(os.path.isfile(os.path.join(km.QA_DIR, f"question_answer_{u}.json")))
+                self.assertTrue(
+                    os.path.isfile(os.path.join(km.QA_DIR, f"question_answer_{u}.json"))
+                )
             self.assertEqual(sha256(km.SLICE), manifest["files"]["s306.json"]["sha256"])
-            self.assertTrue(os.path.isfile(os.path.join(km.ROOT, "baseline_nr_SparseRAG_k20.jsonl")))
+            self.assertTrue(
+                os.path.isfile(os.path.join(km.ROOT, "baseline_nr_SparseRAG_k20.jsonl"))
+            )
             with open(km.STATUS_PATH) as f:
                 status = json.load(f)
             self.assertEqual(status["stage"], "stage_inputs")
@@ -107,7 +135,9 @@ class KernelStagingTests(unittest.TestCase):
             nested = os.path.join(base, "datasets", "xunphi", "mpr-dr-inputs")
             os.makedirs(os.path.dirname(nested))
             os.rename(inp, nested)
-            point_at(km, tmp, os.path.join(base, "mpr-dr-inputs"))  # the Pi-era assumption: absent
+            point_at(
+                km, tmp, os.path.join(base, "mpr-dr-inputs")
+            )  # the Pi-era assumption: absent
             km.INPUT_BASE = base
             got, verified = km.stage_inputs()
             self.assertEqual(got["code_commit"], "test-commit")
@@ -161,33 +191,51 @@ class KernelStagingTests(unittest.TestCase):
     def test_runtime_projection_uses_per_call_latency_and_worker_slots(self):
         """The gate must not divide the 612-row token total by the 12-row smoke wall clock."""
         km = load_kernel()
-        rows = [{"calls": 7, "secs": 35.0, "prompt_tokens": 5000, "completion_tokens": 200}
-                for _ in range(12)]
+        rows = [
+            {"calls": 7, "secs": 35.0, "prompt_tokens": 5000, "completion_tokens": 200}
+            for _ in range(12)
+        ]
         est = km.project_full_run(rows, 42, remaining_secs=6000)
         self.assertEqual(est["projected_full_calls"], 7 * 612)
-        self.assertAlmostEqual(est["estimated_full_secs"], round(7 * 612 * 5.0 / 42 * 1.3, 1), places=1)
+        self.assertAlmostEqual(
+            est["estimated_full_secs"], round(7 * 612 * 5.0 / 42 * 1.3, 1), places=1
+        )
         self.assertEqual(est["decision"], "start_full_run")
         # doubling the worker slots halves the projection; a tight budget refuses the full run
-        self.assertAlmostEqual(km.project_full_run(rows, 84, 6000)["estimated_full_secs"],
-                               round(est["estimated_full_secs"] / 2, 1), places=1)
-        self.assertEqual(km.project_full_run(rows, 42, remaining_secs=100)["decision"],
-                         "do_not_start_full_run")
+        self.assertAlmostEqual(
+            km.project_full_run(rows, 84, 6000)["estimated_full_secs"],
+            round(est["estimated_full_secs"] / 2, 1),
+            places=1,
+        )
+        self.assertEqual(
+            km.project_full_run(rows, 42, remaining_secs=100)["decision"],
+            "do_not_start_full_run",
+        )
 
     def test_serve_plan_tries_the_installed_pin_first_then_the_others_once(self):
         """A pin that imports is not proof it can serve the GPU; serve may downgrade inside the session."""
         km = load_kernel()
-        self.assertEqual(km.serve_spec_plan("vllm==0.32.0",
-                                            ["vllm==0.32.0", "vllm==0.11.2", "vllm==0.10.2"]),
-                         ["vllm==0.32.0", "vllm==0.11.2", "vllm==0.10.2"])
-        self.assertEqual(km.serve_spec_plan("vllm==0.10.2", ["vllm==0.11.2", "vllm==0.10.2"]),
-                         ["vllm==0.10.2", "vllm==0.11.2"])
-        self.assertEqual(km.serve_spec_plan("unknown", ["vllm==0.11.2"]), ["vllm==0.11.2"])
+        self.assertEqual(
+            km.serve_spec_plan(
+                "vllm==0.32.0", ["vllm==0.32.0", "vllm==0.11.2", "vllm==0.10.2"]
+            ),
+            ["vllm==0.32.0", "vllm==0.11.2", "vllm==0.10.2"],
+        )
+        self.assertEqual(
+            km.serve_spec_plan("vllm==0.10.2", ["vllm==0.11.2", "vllm==0.10.2"]),
+            ["vllm==0.10.2", "vllm==0.11.2"],
+        )
+        self.assertEqual(
+            km.serve_spec_plan("unknown", ["vllm==0.11.2"]), ["vllm==0.11.2"]
+        )
         self.assertEqual(km.serve_spec_plan("vllm==0.11.2", None), ["vllm==0.11.2"])
 
     def test_sanity_gate_thresholds_follow_engine_parity(self):
         """A CUDA-12 vLLM pin must not fail the deployment gate purely on a token-level text difference."""
         km = load_kernel()
-        gates = json.load(open(os.path.join(EXP, "settings.json")))["run"]["baseline_sanity"]["gates"]
+        gates = json.load(open(os.path.join(EXP, "settings.json")))["run"][
+            "baseline_sanity"
+        ]["gates"]
         same = km.sanity_gates("0.32.0", gates)
         self.assertTrue(same["engine_matches_reference"])
         self.assertEqual(same["min_exact_response_matches_of_6"], 3)
@@ -201,7 +249,9 @@ class KernelStagingTests(unittest.TestCase):
     def test_vllm_pins_follow_the_gpu_driver_cuda_generation(self):
         """vLLM >= 0.12 ships CUDA 13 wheels (needs driver >= 580); older drivers need a CUDA 12 pin."""
         km = load_kernel()
-        self.assertEqual(km.vllm_specs(580)[0], "vllm==0.32.0")   # historical T4 version, CUDA 13 ok
+        self.assertEqual(
+            km.vllm_specs(580)[0], "vllm==0.32.0"
+        )  # historical T4 version, CUDA 13 ok
         self.assertEqual(km.vllm_specs(590)[0], "vllm==0.32.0")
         for driver in (550, 570, None):
             specs = km.vllm_specs(driver)
@@ -211,8 +261,15 @@ class KernelStagingTests(unittest.TestCase):
 
     def test_smoke_keys_cover_all_hop_groups_on_the_real_slice(self):
         km = load_kernel()
-        km._settings = json.load(open(os.path.join(EXP, "settings.json"), encoding="utf-8"))
-        sl = json.load(open(os.path.join(REPO, "results", "t4", "slices", "s306.json"), encoding="utf-8"))
+        km._settings = json.load(
+            open(os.path.join(EXP, "settings.json"), encoding="utf-8")
+        )
+        sl = json.load(
+            open(
+                os.path.join(REPO, "results", "t4", "slices", "s306.json"),
+                encoding="utf-8",
+            )
+        )
         groups, flat = km.smoke_keys(sl["items"])
         self.assertEqual(len(flat), 6)
         self.assertEqual([g["hop"] for g in groups], [2, 5, 9])
@@ -224,7 +281,9 @@ class KernelStagingTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             inp, manifest = make_input(tmp)
             point_at(km, tmp, inp)
-            km._settings = json.load(open(os.path.join(EXP, "settings.json"), encoding="utf-8"))
+            km._settings = json.load(
+                open(os.path.join(EXP, "settings.json"), encoding="utf-8")
+            )
             km.stage_finish(manifest, {}, validation=None, error="UnitTestError: boom")
             with open(km.STATUS_PATH) as f:
                 status = json.load(f)

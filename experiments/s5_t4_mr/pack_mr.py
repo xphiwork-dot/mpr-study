@@ -46,12 +46,17 @@ def git(*args):
 
 
 def find_dataset_dir(explicit):
-    candidates = [explicit, os.path.join(ROOT, "data", "mpr_dataset"),
-                  os.path.join(PARENT, "mpr-study", "data", "mpr_dataset")]
+    candidates = [
+        explicit,
+        os.path.join(ROOT, "data", "mpr_dataset"),
+        os.path.join(PARENT, "mpr-study", "data", "mpr_dataset"),
+    ]
     for c in candidates:
         if c and os.path.isdir(os.path.join(c, "question_answer")):
             return os.path.abspath(c)
-    raise SystemExit("released dataset not found; pass --dataset-dir (question_answer/ inside)")
+    raise SystemExit(
+        "released dataset not found; pass --dataset-dir (question_answer/ inside)"
+    )
 
 
 def main():
@@ -78,8 +83,10 @@ def main():
         files[rel] = {"bytes": os.path.getsize(dst), "sha256": sha256(dst)}
 
     for u in range(12):
-        add(os.path.join(data_dir, "question_answer", f"question_answer_{u}.json"),
-            f"question_answer_{u}.json")
+        add(
+            os.path.join(data_dir, "question_answer", f"question_answer_{u}.json"),
+            f"question_answer_{u}.json",
+        )
     add(os.path.join(ROOT, "results", "t4", "slices", "s306.json"), "s306.json")
     for tag in ("s1", "s2"):
         for name in sorted(os.listdir(os.path.join(ROOT, "results", "t4", tag))):
@@ -127,8 +134,18 @@ def main():
         json.dump(meta, f, indent=2, sort_keys=True)
         f.write("\n")
     total = sum(v["bytes"] for v in files.values())
-    print(json.dumps({"staged": out, "files": len(files), "bytes": total,
-                      "git_commit": manifest["git_commit"], "git_dirty": dirty}, indent=2))
+    print(
+        json.dumps(
+            {
+                "staged": out,
+                "files": len(files),
+                "bytes": total,
+                "git_commit": manifest["git_commit"],
+                "git_dirty": dirty,
+            },
+            indent=2,
+        )
+    )
     print(f"next: kaggle datasets create -p {out}   (private by default)")
 
 

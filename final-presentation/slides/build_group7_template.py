@@ -693,7 +693,9 @@ class Group7TemplateBuilder:
         finally:
             cmd_path.unlink(missing_ok=True)
 
-        print(f"Built {out_pptx} and {out_deckcraft} ({total} slides, {len(self.cmds)} cmds)")
+        print(
+            f"Built {out_pptx} and {out_deckcraft} ({total} slides, {len(self.cmds)} cmds)"
+        )
 
 
 def main() -> None:

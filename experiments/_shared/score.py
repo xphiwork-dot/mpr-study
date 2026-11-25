@@ -10,6 +10,7 @@ ground_truth, fold_tag. This script reports, per file, overall and per hop group
 Usage: python experiments/_shared/score.py upstream/MPR/results/*/*.jsonl
 Stdlib only.
 """
+
 import argparse
 import json
 import re
@@ -53,10 +54,15 @@ def score_file(path):
 
 
 def main():
-    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
     ap.add_argument("files", nargs="+")
     args = ap.parse_args()
-    print(f"{'file':<48} {'n':>4} {'EM':>6} {'contains':>9} | EM by hop group " + " ".join(f"{g:>5}" for g in GROUPS))
+    print(
+        f"{'file':<48} {'n':>4} {'EM':>6} {'contains':>9} | EM by hop group "
+        + " ".join(f"{g:>5}" for g in GROUPS)
+    )
     for path in args.files:
         by = score_file(path)
         if not by:
@@ -64,7 +70,9 @@ def main():
             continue
         n, e, c = by["all"]
         name = "/".join(path.split("/")[-2:])
-        groups = " ".join(f"{by[g][1] / by[g][0]:5.2f}" if by[g][0] else "    -" for g in GROUPS)
+        groups = " ".join(
+            f"{by[g][1] / by[g][0]:5.2f}" if by[g][0] else "    -" for g in GROUPS
+        )
         print(f"{name:<48} {n:>4} {e / n:6.3f} {c / n:9.3f} | {'':<15} {groups}")
 
 

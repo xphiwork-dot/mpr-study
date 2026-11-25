@@ -102,7 +102,9 @@ class MRFailure(RuntimeError):
 # deterministic helpers
 
 
-def stable_seed(experiment_seed: int, uid: int, rc_id: str, round_idx: int, branch_idx: int) -> int:
+def stable_seed(
+    experiment_seed: int, uid: int, rc_id: str, round_idx: int, branch_idx: int
+) -> int:
     """Stable per-(question, round, branch) seed, independent of thread order."""
     raw = f"mpr-mr|{experiment_seed}|{uid}|{rc_id}|{round_idx}|{branch_idx}".encode()
     return int.from_bytes(hashlib.sha256(raw).digest()[:4], "big") & 0x7FFFFFFF
@@ -131,7 +133,8 @@ def format_thoughts(path) -> str:
 
 def format_paths(path_buffer) -> str:
     return "\n".join(
-        "Path %d: %s" % (pid, " ".join("(Step %d) %s" % (sid + 1, t) for sid, t in enumerate(path)))
+        "Path %d: %s"
+        % (pid, " ".join("(Step %d) %s" % (sid + 1, t) for sid, t in enumerate(path)))
         for pid, path in enumerate(path_buffer)
     )
 
@@ -155,7 +158,11 @@ def prompt_hashes(prompts) -> dict:
         "Naive_RAG_Prompt_Template",
     ):
         text = getattr(prompts, name)
-        out[name] = {"sha256": sha256_text(text), "chars": len(text), "lines": text.count("\n") + 1}
+        out[name] = {
+            "sha256": sha256_text(text),
+            "chars": len(text),
+            "lines": text.count("\n") + 1,
+        }
     return out
 
 
@@ -199,7 +206,9 @@ def vllm_chat(
         t0 = time.time()
         try:
             req = urllib.request.Request(
-                url + "/v1/chat/completions", payload, {"Content-Type": "application/json"}
+                url + "/v1/chat/completions",
+                payload,
+                {"Content-Type": "application/json"},
             )
             with urllib.request.urlopen(req, timeout=timeout) as r:
                 d = json.load(r)
@@ -243,13 +252,27 @@ class MRRunner:
         self.retrieve_fn = retrieve_fn
         self.memory = memory
 
-    def _generate(self, kind: str, params: dict, max_tokens: int, *, sampling: bool,
-                  uid: int, rc_id: str, round_idx: int | None, branch_idx: int | None,
-                  retrieval_query: str | None, retrieved_ids, trace: dict) -> str:
+    def _generate(
+        self,
+        kind: str,
+        params: dict,
+        max_tokens: int,
+        *,
+        sampling: bool,
+        uid: int,
+        rc_id: str,
+        round_idx: int | None,
+        branch_idx: int | None,
+        retrieval_query: str | None,
+        retrieved_ids,
+        trace: dict,
+    ) -> str:
         name = f"{kind}_RAG_Prompt_Template"
         prompt = getattr(self.P, name).format(**params)
         if sampling:
-            seed = stable_seed(self.cfg.experiment_seed, uid, rc_id, int(round_idx), int(branch_idx))
+            seed = stable_seed(
+                self.cfg.experiment_seed, uid, rc_id, int(round_idx), int(branch_idx)
+            )
             temperature, top_p = self.cfg.branch_temperature, self.cfg.branch_top_p
         else:
             seed, temperature, top_p = None, self.cfg.greedy_temperature, None
@@ -298,26 +321,37 @@ class MRRunner:
         trace["stats"]["completion_tokens"] += event["completion_tokens"]
         trace["stats"]["seconds"] += elapsed
         if event["completion_tokens"] >= max_tokens:
-            trace["stats"]["truncations"][kind] = trace["stats"]["truncations"].get(kind, 0) + 1
+            trace["stats"]["truncations"][kind] = (
+                trace["stats"]["truncations"].get(kind, 0) + 1
+            )
         return text
 
     def _select(self, path_buffer, question, uid, rc_id, round_idx, trace):
         paths = format_paths(path_buffer)
         raw = self._generate(
-            "Structured_Selection", {"question": question, "reasoning_paths": paths},
-            self.cfg.max_answer_tokens, sampling=False, uid=uid, rc_id=rc_id,
-            round_idx=round_idx, branch_idx=None, retrieval_query=None, retrieved_ids=None,
+            "Structured_Selection",
+            {"question": question, "reasoning_paths": paths},
+            self.cfg.max_answer_tokens,
+            sampling=False,
+            uid=uid,
+            rc_id=rc_id,
+            round_idx=round_idx,
+            branch_idx=None,
+            retrieval_query=None,
+            retrieved_ids=None,
             trace=trace,
         )
         idx, status = parse_selection(raw, len(path_buffer))
-        trace["selections"].append({
-            "round": round_idx,
-            "buffer_size": len(path_buffer),
-            "buffer_depths": [len(p) for p in path_buffer],
-            "raw": raw,
-            "selected": idx,
-            "status": status,
-        })
+        trace["selections"].append(
+            {
+                "round": round_idx,
+                "buffer_size": len(path_buffer),
+                "buffer_depths": [len(p) for p in path_buffer],
+                "raw": raw,
+                "selected": idx,
+                "status": status,
+            }
+        )
         if status != "ok":
             trace["stats"]["selection_fallbacks"] += 1
         return idx
@@ -342,17 +376,27 @@ class MRRunner:
             },
             "settings": asdict(cfg),
             "memory": self.memory,
-            "upstream": {"repo": "nuster1128/MPR", "commit": UPSTREAM_COMMIT,
-                         "class": "reasonings.StructuredReason"},
+            "upstream": {
+                "repo": "nuster1128/MPR",
+                "commit": UPSTREAM_COMMIT,
+                "class": "reasonings.StructuredReason",
+            },
         }
 
         # Start thought: retrieval key = question.
         ids, refs = self.retrieve_fn(uid, question)
         first_ids = list(ids)
         start = self._generate(
-            "Structured_Start", {"question": question, "references": refs},
-            cfg.max_thought_tokens, sampling=False, uid=uid, rc_id=rc_id,
-            round_idx=None, branch_idx=None, retrieval_query=question, retrieved_ids=ids,
+            "Structured_Start",
+            {"question": question, "references": refs},
+            cfg.max_thought_tokens,
+            sampling=False,
+            uid=uid,
+            rc_id=rc_id,
+            round_idx=None,
+            branch_idx=None,
+            retrieval_query=question,
+            retrieved_ids=ids,
             trace=trace,
         )
         path_buffer = [[start]]
@@ -371,22 +415,35 @@ class MRRunner:
                 ids, refs = self.retrieve_fn(uid, current_path[-1])
                 thought = self._generate(
                     "Structured_Middle",
-                    {"question": question, "references": refs,
-                     "previous_thoughts": previous_thoughts},
-                    cfg.max_thought_tokens, sampling=True, uid=uid, rc_id=rc_id,
-                    round_idx=current_step, branch_idx=branch_id,
-                    retrieval_query=current_path[-1], retrieved_ids=ids, trace=trace,
+                    {
+                        "question": question,
+                        "references": refs,
+                        "previous_thoughts": previous_thoughts,
+                    },
+                    cfg.max_thought_tokens,
+                    sampling=True,
+                    uid=uid,
+                    rc_id=rc_id,
+                    round_idx=current_step,
+                    branch_idx=branch_id,
+                    retrieval_query=current_path[-1],
+                    retrieved_ids=ids,
+                    trace=trace,
                 )
                 new_path_list.append(current_path + [thought])
                 new_thoughts_by_branch.append(thought)
             if len(new_thoughts_by_branch) > 1:
-                duplicate = _norm_dup(new_thoughts_by_branch[0]) == _norm_dup(new_thoughts_by_branch[1])
-                trace["candidate_pairs"].append({
-                    "round": current_step,
-                    "duplicate": duplicate,
-                    "branch0_sha256": sha256_text(new_thoughts_by_branch[0]),
-                    "branch1_sha256": sha256_text(new_thoughts_by_branch[1]),
-                })
+                duplicate = _norm_dup(new_thoughts_by_branch[0]) == _norm_dup(
+                    new_thoughts_by_branch[1]
+                )
+                trace["candidate_pairs"].append(
+                    {
+                        "round": current_step,
+                        "duplicate": duplicate,
+                        "branch0_sha256": sha256_text(new_thoughts_by_branch[0]),
+                        "branch1_sha256": sha256_text(new_thoughts_by_branch[1]),
+                    }
+                )
             # Exactly upstream line 45: path_buffer[:pid] + path_buffer[pid:] + new_path_list.
             path_buffer = path_buffer[:pid] + path_buffer[pid:] + new_path_list
             trace["path_buffer_sizes"].append(len(path_buffer))
@@ -401,11 +458,20 @@ class MRRunner:
         ids, refs = self.retrieve_fn(uid, final_path[-1])
         answer = self._generate(
             "Structured_Final",
-            {"question": question, "references": refs,
-             "previous_thoughts": format_thoughts(final_path)},
-            cfg.max_answer_tokens, sampling=False, uid=uid, rc_id=rc_id,
-            round_idx=cfg.max_step - 1, branch_idx=None,
-            retrieval_query=final_path[-1], retrieved_ids=ids, trace=trace,
+            {
+                "question": question,
+                "references": refs,
+                "previous_thoughts": format_thoughts(final_path),
+            },
+            cfg.max_answer_tokens,
+            sampling=False,
+            uid=uid,
+            rc_id=rc_id,
+            round_idx=cfg.max_step - 1,
+            branch_idx=None,
+            retrieval_query=final_path[-1],
+            retrieved_ids=ids,
+            trace=trace,
         )
 
         trace["first_retrieved"] = first_ids
@@ -442,8 +508,14 @@ def get_encoder_mr(device: str | None = None):
 class MemoryStore:
     """Per-user BM25/e5 index over the released statement memory."""
 
-    def __init__(self, data_dir: str, cache_dir: str, topk: int, dense: bool,
-                 device: str | None = None):
+    def __init__(
+        self,
+        data_dir: str,
+        cache_dir: str,
+        topk: int,
+        dense: bool,
+        device: str | None = None,
+    ):
         self.data_dir = data_dir
         self.cache_dir = cache_dir
         self.topk = topk
@@ -479,8 +551,9 @@ class MemoryStore:
         return ids, "\n".join(ix.messages[i] for i in ids)
 
 
-def prepare_embeddings(data_dir: str, cache_dir: str, users, device: str | None,
-                       batch_size: int = 256) -> dict:
+def prepare_embeddings(
+    data_dir: str, cache_dir: str, users, device: str | None, batch_size: int = 256
+) -> dict:
     """Build the ordered e5 embedding cache, matching retrieve.py's convention."""
     import numpy as np
 
@@ -505,24 +578,34 @@ def prepare_embeddings(data_dir: str, cache_dir: str, users, device: str | None,
         if os.path.exists(path):
             emb = np.load(path)
             if emb.shape[0] != len(ids):
-                raise MRFailure(f"embedding cache {path} has {emb.shape[0]} rows for {len(ids)} statements")
+                raise MRFailure(
+                    f"embedding cache {path} has {emb.shape[0]} rows for {len(ids)} statements"
+                )
         else:
             texts = [d["message"][i] for i in ids]
             t0 = time.time()
             emb = enc.encode(
-                texts, normalize_embeddings=True, batch_size=batch_size, show_progress_bar=False
+                texts,
+                normalize_embeddings=True,
+                batch_size=batch_size,
+                show_progress_bar=False,
             ).astype("float16")
             tmp = path + ".tmp.npy"
             np.save(tmp, emb)
             os.replace(tmp, path)
-            print(f"[prepare] user {uid}: {len(ids)} statements in {time.time() - t0:.1f}s", flush=True)
+            print(
+                f"[prepare] user {uid}: {len(ids)} statements in {time.time() - t0:.1f}s",
+                flush=True,
+            )
         with open(path, "rb") as f:
             h = hashlib.sha256()
             for chunk in iter(lambda: f.read(1024 * 1024), b""):
                 h.update(chunk)
         manifest["users"][str(uid)] = {
-            "rows": int(emb.shape[0]), "dim": int(emb.shape[1]),
-            "sha256": h.hexdigest(), "path": f"emb_user{uid}.npy",
+            "rows": int(emb.shape[0]),
+            "dim": int(emb.shape[1]),
+            "sha256": h.hexdigest(),
+            "path": f"emb_user{uid}.npy",
         }
     out = os.path.join(cache_dir, "embeddings_manifest.json")
     tmp = out + ".tmp"
@@ -559,11 +642,14 @@ def smoke_items(items):
     used_users = set()
     for target_hop in (2, 6, 10):
         candidates = sorted(
-            (i for i in items if int(i["hop"]) == target_hop), key=lambda x: (x["uid"], x["rc_id"])
+            (i for i in items if int(i["hop"]) == target_hop),
+            key=lambda x: (x["uid"], x["rc_id"]),
         )
         if not candidates:
             raise MRFailure(f"smoke hop {target_hop} missing from slice")
-        pick = next((i for i in candidates if i["uid"] not in used_users), candidates[0])
+        pick = next(
+            (i for i in candidates if i["uid"] not in used_users), candidates[0]
+        )
         used_users.add(pick["uid"])
         out.append(pick)
     return out
@@ -620,10 +706,16 @@ def _parse_users(text: str) -> list[int]:
 
 def cmd_prepare(args):
     users = _parse_users(args.users)
-    manifest = prepare_embeddings(args.data_dir, args.cache_dir, users, args.device,
-                                  batch_size=args.batch_size)
-    _write_json_atomic(os.path.join(args.output_dir, "embeddings_manifest.json"), manifest)
-    print(json.dumps({"prepared_users": users, "cache_dir": args.cache_dir}, indent=2), flush=True)
+    manifest = prepare_embeddings(
+        args.data_dir, args.cache_dir, users, args.device, batch_size=args.batch_size
+    )
+    _write_json_atomic(
+        os.path.join(args.output_dir, "embeddings_manifest.json"), manifest
+    )
+    print(
+        json.dumps({"prepared_users": users, "cache_dir": args.cache_dir}, indent=2),
+        flush=True,
+    )
     return 0
 
 
@@ -635,7 +727,9 @@ def cmd_run(args):
         experiment_seed=args.seed,
     )
     if cfg.expected_calls != args.expected_calls:
-        raise MRFailure(f"expected-calls setting {args.expected_calls} != derived {cfg.expected_calls}")
+        raise MRFailure(
+            f"expected-calls setting {args.expected_calls} != derived {cfg.expected_calls}"
+        )
     os.makedirs(args.output_dir, exist_ok=True)
     items = lib.load_slice(args.slice)["items"]
     if args.stage == "smoke":
@@ -657,14 +751,28 @@ def cmd_run(args):
         path = os.path.join(args.output_dir, name + ".jsonl")
         done = load_valid_rows(path)
         todo = [i for i in items if f"{i['uid']}:{i['rc_id']}" not in done]
-        print(f"[{name}] {len(done)} done, {len(todo)} to do, stage={args.stage}", flush=True)
+        print(
+            f"[{name}] {len(done)} done, {len(todo)} to do, stage={args.stage}",
+            flush=True,
+        )
         if not todo:
             continue
-        store = MemoryStore(args.data_dir, args.cache_dir, cfg.topk, dense=(mem == "dense"),
-                            device=args.device)
+        store = MemoryStore(
+            args.data_dir,
+            args.cache_dir,
+            cfg.topk,
+            dense=(mem == "dense"),
+            device=args.device,
+        )
         chat_fn = lambda p, mt, temperature, top_p, seed: vllm_chat(  # noqa: E731
-            p, mt, temperature=temperature, top_p=top_p, seed=seed,
-            url=args.vllm_url, model=args.model, timeout=args.request_timeout,
+            p,
+            mt,
+            temperature=temperature,
+            top_p=top_p,
+            seed=seed,
+            url=args.vllm_url,
+            model=args.model,
+            timeout=args.request_timeout,
         )
         runner = MRRunner(cfg, prompts, chat_fn, store.refs, memory=mem)
         timing_path = os.path.join(args.output_dir, "timing.jsonl")
@@ -676,18 +784,25 @@ def cmd_run(args):
         while pending:
             if deadline and time.time() > deadline:
                 deadline_hit = True
-                print(f"[{name}] deadline reached, stopping with {len(pending)} unstarted", flush=True)
+                print(
+                    f"[{name}] deadline reached, stopping with {len(pending)} unstarted",
+                    flush=True,
+                )
                 break
             batch = pending[: args.workers]
-            pending = pending[args.workers:]
+            pending = pending[args.workers :]
             with ThreadPoolExecutor(max_workers=min(args.workers, len(batch))) as ex:
                 futs = {}
                 for item, attempt in batch:
-                    data, _ = store.user(item["uid"])  # build index outside worker burst
+                    data, _ = store.user(
+                        item["uid"]
+                    )  # build index outside worker burst
                     qa = data["qa"][str(item["hop"])][item["rc_id"]]
-                    futs[ex.submit(runner.solve, item["uid"], item["rc_id"], qa["question"])] = (
-                        item, qa, attempt
-                    )
+                    futs[
+                        ex.submit(
+                            runner.solve, item["uid"], item["rc_id"], qa["question"]
+                        )
+                    ] = (item, qa, attempt)
                 for fut in as_completed(futs):
                     item, qa, attempt = futs[fut]
                     try:
@@ -700,30 +815,61 @@ def cmd_run(args):
                         ct += row["completion_tokens"]
                     except Exception as e:  # noqa: BLE001 - record and retry once
                         failures += 1
-                        _append_jsonl(fail_path, {
-                            "uid": item["uid"], "rc_id": item["rc_id"], "k_hop": item["hop"],
-                            "memory": label, "attempt": attempt, "stage": args.stage,
-                            "error": repr(e), "traceback": traceback.format_exc(),
-                            "time": time.time(),
-                        })
-                        print(f"  failure {item['uid']}:{item['rc_id']} attempt {attempt}: {e}", flush=True)
+                        _append_jsonl(
+                            fail_path,
+                            {
+                                "uid": item["uid"],
+                                "rc_id": item["rc_id"],
+                                "k_hop": item["hop"],
+                                "memory": label,
+                                "attempt": attempt,
+                                "stage": args.stage,
+                                "error": repr(e),
+                                "traceback": traceback.format_exc(),
+                                "time": time.time(),
+                            },
+                        )
+                        print(
+                            f"  failure {item['uid']}:{item['rc_id']} attempt {attempt}: {e}",
+                            flush=True,
+                        )
                         if attempt < args.max_attempts:
                             pending.append((item, attempt + 1))
                         else:
                             global_failures += 1
-            print(f"  [{name}] {done_count}/{len(todo)} done, {failures} failures", flush=True)
+            print(
+                f"  [{name}] {done_count}/{len(todo)} done, {failures} failures",
+                flush=True,
+            )
         wall = time.time() - t_mem
-        _append_jsonl(timing_path, {
-            "stage": args.stage, "file": name, "questions_done": done_count,
-            "questions_target": len(todo), "calls": calls, "prompt_tokens": pt,
-            "completion_tokens": ct, "wall_s": round(wall, 1), "workers": args.workers,
-            "failures": failures, "deadline_hit": deadline_hit, "time": time.time(),
-            "settings": asdict(cfg),
-        })
-        print(f"[{name}] stage {args.stage} done in {wall:.0f}s, {done_count} rows, "
-              f"{calls} calls, {failures} failures", flush=True)
-    print(f"[run] total {time.time() - t_all:.0f}s, failures={global_failures}, "
-          f"deadline_hit={deadline_hit}", flush=True)
+        _append_jsonl(
+            timing_path,
+            {
+                "stage": args.stage,
+                "file": name,
+                "questions_done": done_count,
+                "questions_target": len(todo),
+                "calls": calls,
+                "prompt_tokens": pt,
+                "completion_tokens": ct,
+                "wall_s": round(wall, 1),
+                "workers": args.workers,
+                "failures": failures,
+                "deadline_hit": deadline_hit,
+                "time": time.time(),
+                "settings": asdict(cfg),
+            },
+        )
+        print(
+            f"[{name}] stage {args.stage} done in {wall:.0f}s, {done_count} rows, "
+            f"{calls} calls, {failures} failures",
+            flush=True,
+        )
+    print(
+        f"[run] total {time.time() - t_all:.0f}s, failures={global_failures}, "
+        f"deadline_hit={deadline_hit}",
+        flush=True,
+    )
     coverage = coverage_report(args.output_dir, items, args.data_dir, memories)
     complete = all(v["complete"] for v in coverage["memories"].values())
     return 0 if complete else 3
@@ -743,8 +889,13 @@ def cmd_sanity(args):
         todo = [i for i in items if f"{i['uid']}:{i['rc_id']}" not in done]
         if not todo:
             continue
-        store = MemoryStore(args.data_dir, args.cache_dir, cfg.topk, dense=(mem == "dense"),
-                            device=args.device)
+        store = MemoryStore(
+            args.data_dir,
+            args.cache_dir,
+            cfg.topk,
+            dense=(mem == "dense"),
+            device=args.device,
+        )
         for item in todo:
             data, _ = store.user(item["uid"])
             qa = data["qa"][str(item["hop"])][item["rc_id"]]
@@ -752,12 +903,24 @@ def cmd_sanity(args):
             prompt = getattr(prompts, "Naive_RAG_Prompt_Template").format(
                 question=qa["question"], references=refs
             )
-            out = vllm_chat(prompt, cfg.max_answer_tokens, temperature=0.0, seed=None,
-                            url=args.vllm_url, model=args.model, timeout=args.request_timeout)
+            out = vllm_chat(
+                prompt,
+                cfg.max_answer_tokens,
+                temperature=0.0,
+                seed=None,
+                url=args.vllm_url,
+                model=args.model,
+                timeout=args.request_timeout,
+            )
             row = {
-                "uid": item["uid"], "rc_id": item["rc_id"], "k_hop": int(item["hop"]),
-                "memory": label, "response": out["text"], "ground_truth": qa["answer"],
-                "first_retrieved": ids, "calls": 1,
+                "uid": item["uid"],
+                "rc_id": item["rc_id"],
+                "k_hop": int(item["hop"]),
+                "memory": label,
+                "response": out["text"],
+                "ground_truth": qa["answer"],
+                "first_retrieved": ids,
+                "calls": 1,
                 "prompt_tokens": out["prompt_tokens"],
                 "completion_tokens": out["completion_tokens"],
                 "secs": round(out["seconds"], 3),
@@ -796,14 +959,24 @@ def _coverage_one(path, items, data_dir, label):
         if item is None or int(r["k_hop"]) != int(item["hop"]):
             wrong_hop.append(k)
     return {
-        "memory": label, "rows": len(rows), "expected": len(expected),
-        "missing": missing[:20], "missing_count": len(missing),
-        "extra": extra[:20], "extra_count": len(extra),
-        "wrong_call_count": wrong_calls[:20], "wrong_call_count_n": len(wrong_calls),
-        "wrong_ground_truth": wrong_gt[:20], "wrong_ground_truth_n": len(wrong_gt),
+        "memory": label,
+        "rows": len(rows),
+        "expected": len(expected),
+        "missing": missing[:20],
+        "missing_count": len(missing),
+        "extra": extra[:20],
+        "extra_count": len(extra),
+        "wrong_call_count": wrong_calls[:20],
+        "wrong_call_count_n": len(wrong_calls),
+        "wrong_ground_truth": wrong_gt[:20],
+        "wrong_ground_truth_n": len(wrong_gt),
         "wrong_hop_n": len(wrong_hop),
-        "complete": not missing and not extra and not wrong_calls and not wrong_gt and not wrong_hop
-                    and len(rows) == len(expected),
+        "complete": not missing
+        and not extra
+        and not wrong_calls
+        and not wrong_gt
+        and not wrong_hop
+        and len(rows) == len(expected),
     }
 
 
@@ -820,9 +993,17 @@ def smoke_gate_report(output_dir: str, items, data_dir: str) -> dict:
     """Pre-registered smoke gates; must pass before the full 306x2 run."""
     cov = coverage_report(output_dir, items, data_dir, ["sparse", "dense"])
     reasons = []
-    stats = {"rows": 0, "calls": 0, "duplicate_pairs": 0, "candidate_pairs": 0,
-             "selection_fallbacks": 0, "selections": 0, "empty_responses": 0,
-             "retrieval_calls": 0, "retrieval_empty": 0}
+    stats = {
+        "rows": 0,
+        "calls": 0,
+        "duplicate_pairs": 0,
+        "candidate_pairs": 0,
+        "selection_fallbacks": 0,
+        "selections": 0,
+        "empty_responses": 0,
+        "retrieval_calls": 0,
+        "retrieval_empty": 0,
+    }
     for mem in ("sparse", "dense"):
         label = MEMORIES[mem][0]
         path = os.path.join(output_dir, f"StructuredReason_{label}_k20_s5.jsonl")
@@ -841,7 +1022,10 @@ def smoke_gate_report(output_dir: str, items, data_dir: str) -> dict:
                     stats["retrieval_calls"] += 1
                     if not ev.get("retrieved_ids"):
                         stats["retrieval_empty"] += 1
-                if not str(ev.get("response", "")).strip() and ev.get("kind") != "Structured_Selection":
+                if (
+                    not str(ev.get("response", "")).strip()
+                    and ev.get("kind") != "Structured_Selection"
+                ):
                     stats["empty_responses"] += 1
         if not cov["memories"][mem]["complete"]:
             reasons.append(f"{mem}: incomplete rows/uniqueness/ground truth")
@@ -850,15 +1034,24 @@ def smoke_gate_report(output_dir: str, items, data_dir: str) -> dict:
     if stats["rows"] != 6:
         reasons.append(f"smoke rows {stats['rows']} != 6")
     if stats["calls"] != 6 * MRConfig().expected_calls:
-        reasons.append(f"smoke calls {stats['calls']} != {6 * MRConfig().expected_calls}")
+        reasons.append(
+            f"smoke calls {stats['calls']} != {6 * MRConfig().expected_calls}"
+        )
     if stats["empty_responses"]:
         reasons.append(f"{stats['empty_responses']} empty non-selection responses")
     if stats["retrieval_empty"]:
         reasons.append(f"{stats['retrieval_empty']} retrieval calls returned no ids")
     if stats["selections"] and stats["selection_fallbacks"] == stats["selections"]:
-        reasons.append("all selections fell back; selector parsing/deployment is broken")
-    if stats["candidate_pairs"] and stats["duplicate_pairs"] == stats["candidate_pairs"]:
-        reasons.append("all branch candidate pairs are exact duplicates; sampling is not diverse")
+        reasons.append(
+            "all selections fell back; selector parsing/deployment is broken"
+        )
+    if (
+        stats["candidate_pairs"]
+        and stats["duplicate_pairs"] == stats["candidate_pairs"]
+    ):
+        reasons.append(
+            "all branch candidate pairs are exact duplicates; sampling is not diverse"
+        )
     return {"pass": not reasons, "reasons": reasons, "coverage": cov, "stats": stats}
 
 
@@ -887,7 +1080,9 @@ def sanity_report(sanity_dir: str, baseline_dir: str, items) -> dict:
         if base_path is None:
             reasons.append(f"{mem}: baseline NaiveReason_{label}_k20.jsonl missing")
             continue
-        base = {row_key(r): r for r in lib.read_jsonl(base_path) if row_key(r) in expected}
+        base = {
+            row_key(r): r for r in lib.read_jsonl(base_path) if row_key(r) in expected
+        }
         missing_base = sorted(expected - set(base))
         if missing_base:
             reasons.append(f"{mem}: baseline missing {len(missing_base)} smoke keys")
@@ -908,14 +1103,29 @@ def sanity_report(sanity_dir: str, baseline_dir: str, items) -> dict:
             exact += ex
             lens_ours.append(len(str(ro["response"])))
             lens_base.append(len(str(rb["response"])))
-            report["cases"].append({"key": k, "memory": label, "ours": ro["response"],
-                                    "baseline": rb["response"], "em_ours": eo,
-                                    "em_baseline": eb, "exact_normalized_match": ex})
+            report["cases"].append(
+                {
+                    "key": k,
+                    "memory": label,
+                    "ours": ro["response"],
+                    "baseline": rb["response"],
+                    "em_ours": eo,
+                    "em_baseline": eb,
+                    "exact_normalized_match": ex,
+                }
+            )
         mem_report = {
-            "n": n, "em_ours": em_ours, "em_baseline": em_base, "empty": empty,
+            "n": n,
+            "em_ours": em_ours,
+            "em_baseline": em_base,
+            "empty": empty,
             "exact_normalized_match": exact,
-            "mean_answer_chars_ours": sum(lens_ours) / len(lens_ours) if lens_ours else 0,
-            "mean_answer_chars_baseline": sum(lens_base) / len(lens_base) if lens_base else 0,
+            "mean_answer_chars_ours": sum(lens_ours) / len(lens_ours)
+            if lens_ours
+            else 0,
+            "mean_answer_chars_baseline": sum(lens_base) / len(lens_base)
+            if lens_base
+            else 0,
         }
         report["memories"][mem] = mem_report
         if n != len(expected):
@@ -923,9 +1133,12 @@ def sanity_report(sanity_dir: str, baseline_dir: str, items) -> dict:
         if empty:
             reasons.append(f"{mem}: {empty} empty sanity answers")
         if n and (em_ours / n) < (em_base / n) - 0.34:
-            reasons.append(f"{mem}: EM drift {em_ours}/{n} vs baseline {em_base}/{n} (>0.34)")
+            reasons.append(
+                f"{mem}: EM drift {em_ours}/{n} vs baseline {em_base}/{n} (>0.34)"
+            )
         if mem_report["mean_answer_chars_baseline"] and (
-            mem_report["mean_answer_chars_ours"] > 5 * max(1.0, mem_report["mean_answer_chars_baseline"])
+            mem_report["mean_answer_chars_ours"]
+            > 5 * max(1.0, mem_report["mean_answer_chars_baseline"])
         ):
             reasons.append(f"{mem}: answer length drift")
     report["pass"] = not reasons
@@ -938,7 +1151,9 @@ def sanity_report(sanity_dir: str, baseline_dir: str, items) -> dict:
 
 
 def main(argv=None):
-    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
     sub = ap.add_subparsers(dest="cmd", required=True)
 
     p = sub.add_parser("prepare-embeddings")

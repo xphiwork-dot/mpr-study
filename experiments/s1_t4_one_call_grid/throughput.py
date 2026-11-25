@@ -8,6 +8,7 @@ Questions are drawn cyclically from the whole slice (all 12 users) and every req
 "[req N]" line in front, so vLLM's prefix cache cannot answer repeats; the numbers are therefore cold-cache
 throughput (a first attempt without the nonce, on 2 users, was inflated by exact-prompt cache hits and was discarded).
 """
+
 import argparse
 import itertools
 import json
@@ -17,7 +18,9 @@ import threading
 import time
 from types import SimpleNamespace
 
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "_shared"))  # lib.py, grid.py, score.py (flat next to this file on the Colab VM)
+sys.path.insert(
+    0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "_shared")
+)  # lib.py, grid.py, score.py (flat next to this file on the Colab VM)
 import grid  # noqa: E402
 import lib  # noqa: E402
 
@@ -37,7 +40,13 @@ def phase(name, runner, items, mem, workers, seconds, out):
     stop = time.time() + seconds
     cyc = itertools.cycle(items)
     lock = threading.Lock()
-    tot = {"questions": 0, "calls": 0, "prompt_tokens": 0, "completion_tokens": 0, "lat": []}
+    tot = {
+        "questions": 0,
+        "calls": 0,
+        "prompt_tokens": 0,
+        "completion_tokens": 0,
+        "lat": [],
+    }
 
     def work():
         while time.time() < stop:
@@ -61,11 +70,20 @@ def phase(name, runner, items, mem, workers, seconds, out):
     [x.join() for x in ths]
     el = time.time() - t
     lat = sorted(tot.pop("lat"))
-    rec = {"phase": name, "workers": workers, "wall_s": round(el, 1), **tot,
-           "calls_per_s": round(tot["calls"] / el, 2), "questions_per_min": round(tot["questions"] / el * 60, 1),
-           "prompt_tok_per_s": round(tot["prompt_tokens"] / el), "completion_tok_per_s": round(tot["completion_tokens"] / el),
-           "median_call_latency_s": round(lat[len(lat) // 2], 2) if lat else None,
-           "avg_prompt_tokens_per_call": round(tot["prompt_tokens"] / max(tot["calls"], 1))}
+    rec = {
+        "phase": name,
+        "workers": workers,
+        "wall_s": round(el, 1),
+        **tot,
+        "calls_per_s": round(tot["calls"] / el, 2),
+        "questions_per_min": round(tot["questions"] / el * 60, 1),
+        "prompt_tok_per_s": round(tot["prompt_tokens"] / el),
+        "completion_tok_per_s": round(tot["completion_tokens"] / el),
+        "median_call_latency_s": round(lat[len(lat) // 2], 2) if lat else None,
+        "avg_prompt_tokens_per_call": round(
+            tot["prompt_tokens"] / max(tot["calls"], 1)
+        ),
+    }
     print(json.dumps(rec), flush=True)
     with open(out, "a") as f:
         f.write(json.dumps(rec) + "\n")
@@ -82,15 +100,23 @@ def main():
     P = lib.load_prompts()
     nr = grid.Runner(SimpleNamespace(reason="naive", topk=20, max_step=5), P)
     sr = grid.Runner(SimpleNamespace(reason="seq", topk=20, max_step=5), P)
-    for u in lib.USERS:  # pre-build BM25 indexes outside the timed phases (shared by nr and sr)
+    for u in (
+        lib.USERS
+    ):  # pre-build BM25 indexes outside the timed phases (shared by nr and sr)
         nr.user(u, False)
     sr.data, sr.index = nr.data, nr.index
     phase("warmup_naive_sparse", nr, items, "sparse", 8, 20, out)
     for w, s in ((8, a.seconds), (32, a.seconds), (64, a.seconds)):
         phase(f"naive_sparse_c{w}", nr, items, "sparse", w, s, out)
-    text, pt, ct, secs = lib.chat("Write a numbered list of 40 short facts about rivers.", 200)
-    rec = {"phase": "single_request_decode", "completion_tokens": ct, "wall_s": round(secs, 2),
-           "completion_tok_per_s": round(ct / secs, 1)}
+    text, pt, ct, secs = lib.chat(
+        "Write a numbered list of 40 short facts about rivers.", 200
+    )
+    rec = {
+        "phase": "single_request_decode",
+        "completion_tokens": ct,
+        "wall_s": round(secs, 2),
+        "completion_tok_per_s": round(ct / secs, 1),
+    }
     print(json.dumps(rec), flush=True)
     with open(out, "a") as f:
         f.write(json.dumps(rec) + "\n")

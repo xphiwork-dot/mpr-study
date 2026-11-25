@@ -32,8 +32,10 @@ import traceback
 import urllib.request
 from datetime import datetime, timezone
 
-SESSION_TIMEOUT_S = 4 * 60 * 60   # approved single-job cap (CLI --timeout 14400; weekly allowance 30 h)
-RESERVE_S = 30 * 60               # stop the full run in time to write status/manifest/tar
+SESSION_TIMEOUT_S = (
+    4 * 60 * 60
+)  # approved single-job cap (CLI --timeout 14400; weekly allowance 30 h)
+RESERVE_S = 30 * 60  # stop the full run in time to write status/manifest/tar
 START = time.time()
 START_UTC = datetime.now(timezone.utc).isoformat()
 WORK = "/kaggle/working"
@@ -48,15 +50,23 @@ VLLM_URL = f"http://127.0.0.1:{VLLM_PORT}"
 MODEL = "Qwen/Qwen2.5-7B-Instruct-AWQ"
 MODEL_REVISION = "b25037543e9394b818fdfca67ab2a00ecc7dd641"
 UPSTREAM_COMMIT = "a24953c8f342c9f3b2064e562ead49d477d49138"
-VLLM_PIN_CUDA13 = "0.32.0"   # needs NVIDIA driver >= 580 (CUDA 13 wheels)
-VLLM_PIN_CUDA12 = "0.11.2"   # fallback for 525 <= driver < 580 (CUDA 12 wheels)
+VLLM_PIN_CUDA13 = "0.32.0"  # needs NVIDIA driver >= 580 (CUDA 13 wheels)
+VLLM_PIN_CUDA12 = "0.11.2"  # fallback for 525 <= driver < 580 (CUDA 12 wheels)
 VLLM_PIN = VLLM_PIN_CUDA13
 BM25S_PIN = "0.2.9"
 ST_PIN = "6.3.0"
-WORKERS = 64        # matches vLLM --max-num-seqs so the server batch stays full
+WORKERS = 64  # matches vLLM --max-num-seqs so the server batch stays full
 ENV_PACKAGES = (
-    "vllm", "torch", "transformers", "sentence-transformers", "bm25s",
-    "numpy", "tokenizers", "huggingface-hub", "accelerate", "safetensors",
+    "vllm",
+    "torch",
+    "transformers",
+    "sentence-transformers",
+    "bm25s",
+    "numpy",
+    "tokenizers",
+    "huggingface-hub",
+    "accelerate",
+    "safetensors",
 )
 
 LOG_PATH = os.path.join(LOGS, "kernel.log")
@@ -103,17 +113,25 @@ def run_stream(cmd, *, env=None, timeout=None, check=True, tag=None):
     """Run a command, stream its output to the kernel log, return (rc, text)."""
     tag = tag or cmd[0]
     log(f"$ {tag}: {' '.join(str(c) for c in cmd)}")
-    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-                         text=True, env=env, bufsize=1)
+    p = subprocess.Popen(
+        cmd,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+        env=env,
+        bufsize=1,
+    )
     lines = []
     timer = None
     if timeout:
+
         def _kill():
             log(f"{tag}: TIMEOUT after {timeout}s, killing")
             try:
                 os.killpg(os.getpgid(p.pid), signal.SIGKILL)
             except Exception:
                 p.kill()
+
         timer = threading.Timer(timeout, _kill)
         timer.start()
     try:
@@ -132,8 +150,8 @@ def run_stream(cmd, *, env=None, timeout=None, check=True, tag=None):
 
 INPUT_SLUG = "xunphi/mpr-mr-inputs"
 INPUT_CANDIDATES = [
-    "/kaggle/input/mpr-mr-inputs",              # legacy flat mount
-    "/kaggle/input/datasets/" + INPUT_SLUG,     # current mount layout
+    "/kaggle/input/mpr-mr-inputs",  # legacy flat mount
+    "/kaggle/input/datasets/" + INPUT_SLUG,  # current mount layout
 ]
 
 
@@ -209,15 +227,26 @@ def verify_inputs(input_root, slice_path):
 def clone_upstream():
     up = os.path.join(RUN, "upstream", "MPR")
     if os.path.exists(os.path.join(up, ".git")):
-        have = subprocess.check_output(["git", "-C", up, "rev-parse", "HEAD"], text=True).strip()
+        have = subprocess.check_output(
+            ["git", "-C", up, "rev-parse", "HEAD"], text=True
+        ).strip()
         if have == UPSTREAM_COMMIT:
             log("upstream clone already at pinned commit")
             return up
         shutil.rmtree(up)
-    run_stream(["git", "clone", "--no-checkout", "https://github.com/nuster1128/MPR", up],
-               timeout=300, tag="git clone upstream")
-    run_stream(["git", "-C", up, "checkout", UPSTREAM_COMMIT], timeout=120, tag="git checkout upstream")
-    have = subprocess.check_output(["git", "-C", up, "rev-parse", "HEAD"], text=True).strip()
+    run_stream(
+        ["git", "clone", "--no-checkout", "https://github.com/nuster1128/MPR", up],
+        timeout=300,
+        tag="git clone upstream",
+    )
+    run_stream(
+        ["git", "-C", up, "checkout", UPSTREAM_COMMIT],
+        timeout=120,
+        tag="git checkout upstream",
+    )
+    have = subprocess.check_output(
+        ["git", "-C", up, "rev-parse", "HEAD"], text=True
+    ).strip()
     if have != UPSTREAM_COMMIT:
         raise RuntimeError(f"upstream checkout mismatch {have}")
     log(f"upstream pinned at {have}")
@@ -247,8 +276,12 @@ def ensure_packages(vllm_pin=None):
     rc, _ = run_stream(cmd, timeout=2400, check=False, tag="pip install")
     if rc != 0:
         log("pip install failed; trying uv pip install --system")
-        run_stream(["uv", "pip", "install", "--system", "--no-cache-dir", *need],
-                   timeout=2400, check=True, tag="uv pip install")
+        run_stream(
+            ["uv", "pip", "install", "--system", "--no-cache-dir", *need],
+            timeout=2400,
+            check=True,
+            tag="uv pip install",
+        )
     importlib.invalidate_caches()
     for mod in ("vllm", "bm25s", "sentence_transformers"):
         if importlib.util.find_spec(mod) is None:
@@ -307,8 +340,13 @@ def fallback_vllm_pin(primary):
 def gpu_info():
     try:
         text = subprocess.check_output(
-            ["nvidia-smi", "--query-gpu=index,name,memory.total,driver_version",
-             "--format=csv,noheader"], text=True, timeout=30
+            [
+                "nvidia-smi",
+                "--query-gpu=index,name,memory.total,driver_version",
+                "--format=csv,noheader",
+            ],
+            text=True,
+            timeout=30,
         ).strip()
     except Exception as e:  # noqa: BLE001
         text = f"nvidia-smi failed: {e!r}"
@@ -321,11 +359,15 @@ def wait_health(proc, timeout_s=1500):
     last = None
     while time.time() - t0 < timeout_s:
         if proc.poll() is not None:
-            raise RuntimeError(f"vLLM exited early rc={proc.returncode}; see {LOGS}/vllm.log")
+            raise RuntimeError(
+                f"vLLM exited early rc={proc.returncode}; see {LOGS}/vllm.log"
+            )
         try:
             with urllib.request.urlopen(VLLM_URL + "/health", timeout=5) as r:
                 if r.status == 200:
-                    with urllib.request.urlopen(VLLM_URL + "/v1/models", timeout=10) as r2:
+                    with urllib.request.urlopen(
+                        VLLM_URL + "/v1/models", timeout=10
+                    ) as r2:
                         models = json.load(r2)
                     log(f"vLLM healthy after {time.time() - t0:.0f}s, models={models}")
                     return True
@@ -347,24 +389,42 @@ def start_vllm(env, gpu):
         cmd = [sys.executable, "-m", "vllm.entrypoints.openai.api_server"]
     cmd += [
         MODEL,
-        "--revision", MODEL_REVISION,
-        "--tokenizer-revision", MODEL_REVISION,
-        "--served-model-name", "qwen",
-        "--dtype", "float16",
-        "--quantization", "awq",
-        "--max-model-len", "8192",
-        "--gpu-memory-utilization", "0.80",
-        "--max-num-seqs", "64",
-        "--generation-config", "vllm",
-        "--tensor-parallel-size", "1",
+        "--revision",
+        MODEL_REVISION,
+        "--tokenizer-revision",
+        MODEL_REVISION,
+        "--served-model-name",
+        "qwen",
+        "--dtype",
+        "float16",
+        "--quantization",
+        "awq",
+        "--max-model-len",
+        "8192",
+        "--gpu-memory-utilization",
+        "0.80",
+        "--max-num-seqs",
+        "64",
+        "--generation-config",
+        "vllm",
+        "--tensor-parallel-size",
+        "1",
         "--disable-log-requests",
-        "--host", "127.0.0.1",
-        "--port", str(VLLM_PORT),
+        "--host",
+        "127.0.0.1",
+        "--port",
+        str(VLLM_PORT),
     ]
     log(f"starting vLLM on CUDA_VISIBLE_DEVICES={gpu}: {' '.join(cmd)}")
     f = open(log_path, "w", encoding="utf-8")
-    p = subprocess.Popen(cmd, stdout=f, stderr=subprocess.STDOUT, text=True,
-                         env=venv, start_new_session=True)
+    p = subprocess.Popen(
+        cmd,
+        stdout=f,
+        stderr=subprocess.STDOUT,
+        text=True,
+        env=venv,
+        start_new_session=True,
+    )
     p._log_file = f  # type: ignore[attr-defined]
     try:
         wait_health(p)
@@ -395,29 +455,34 @@ def stop_vllm(proc):
 
 def mr_env(input_root, up, env, *, cuda: str):
     e = dict(env)
-    e.update({
-        "JAX_PLATFORMS": "cpu",
-        "XLA_PYTHON_CLIENT_PREALLOCATE": "false",
-        "TOKENIZERS_PARALLELISM": "false",
-        "TRANSFORMERS_VERBOSITY": "error",
-        "T4_ROOT": RUN,
-        "MPR_QA_DIR": input_root,
-        "MPR_PROMPTS": os.path.join(up, "baselines", "prompts.py"),
-        "VLLM_URL": VLLM_URL,
-        "MR_SERVED_MODEL": "qwen",
-        "HF_HOME": os.path.join(RUN, "hf"),
-        "CUDA_VISIBLE_DEVICES": cuda,
-    })
+    e.update(
+        {
+            "JAX_PLATFORMS": "cpu",
+            "XLA_PYTHON_CLIENT_PREALLOCATE": "false",
+            "TOKENIZERS_PARALLELISM": "false",
+            "TRANSFORMERS_VERBOSITY": "error",
+            "T4_ROOT": RUN,
+            "MPR_QA_DIR": input_root,
+            "MPR_PROMPTS": os.path.join(up, "baselines", "prompts.py"),
+            "VLLM_URL": VLLM_URL,
+            "MR_SERVED_MODEL": "qwen",
+            "HF_HOME": os.path.join(RUN, "hf"),
+            "CUDA_VISIBLE_DEVICES": cuda,
+        }
+    )
     return e
 
 
 def run_mr(code_dir, args, e, timeout):
     cmd = [sys.executable, os.path.join(code_dir, "mr.py"), *args]
-    return run_stream(cmd, env=e, timeout=timeout, check=False, tag="mr " + " ".join(args[:2]))
+    return run_stream(
+        cmd, env=e, timeout=timeout, check=False, tag="mr " + " ".join(args[:2])
+    )
 
 
-def gather_manifest(input_root, input_manifest, slice_path, up, code_dir, env_info, gates,
-                    vllm_pin=None):
+def gather_manifest(
+    input_root, input_manifest, slice_path, up, code_dir, env_info, gates, vllm_pin=None
+):
     if code_dir not in sys.path:
         sys.path.insert(0, code_dir)
     import mr
@@ -430,31 +495,55 @@ def gather_manifest(input_root, input_manifest, slice_path, up, code_dir, env_in
             rel = os.path.relpath(p, OUT)
             files[rel] = {"bytes": os.path.getsize(p), "sha256": sha256_file(p)}
     embedding_manifest = os.path.join(CACHE, "embeddings_manifest.json")
-    emb = json.load(open(embedding_manifest, encoding="utf-8")) if os.path.exists(embedding_manifest) else None
+    emb = (
+        json.load(open(embedding_manifest, encoding="utf-8"))
+        if os.path.exists(embedding_manifest)
+        else None
+    )
     prompts = mr.prompt_hashes(lib.load_prompts())
     slice_meta = json.load(open(slice_path, encoding="utf-8"))["meta"]
     return {
         "experiment": "s5_t4_mr StructuredReason (MR)",
         "branch": "experiments/mr-kaggle",
-        "upstream": {"repo": "https://github.com/nuster1128/MPR", "commit": UPSTREAM_COMMIT,
-                     "clone_head": subprocess.check_output(["git", "-C", up, "rev-parse", "HEAD"], text=True).strip()},
-        "model": {"repo": MODEL, "revision": MODEL_REVISION, "served_name": "qwen",
-                  "dtype": "float16", "quantization": "awq", "max_model_len": 8192,
-                  "gpu_memory_utilization": 0.80, "max_num_seqs": 64,
-                  "tensor_parallel_size": 1, "vllm": vllm_pin or VLLM_PIN},
+        "upstream": {
+            "repo": "https://github.com/nuster1128/MPR",
+            "commit": UPSTREAM_COMMIT,
+            "clone_head": subprocess.check_output(
+                ["git", "-C", up, "rev-parse", "HEAD"], text=True
+            ).strip(),
+        },
+        "model": {
+            "repo": MODEL,
+            "revision": MODEL_REVISION,
+            "served_name": "qwen",
+            "dtype": "float16",
+            "quantization": "awq",
+            "max_model_len": 8192,
+            "gpu_memory_utilization": 0.80,
+            "max_num_seqs": 64,
+            "tensor_parallel_size": 1,
+            "vllm": vllm_pin or VLLM_PIN,
+        },
         "embedding": emb,
-        "slice": {"path": os.path.basename(slice_path), "sha256": sha256_file(slice_path),
-                  "meta": slice_meta},
+        "slice": {
+            "path": os.path.basename(slice_path),
+            "sha256": sha256_file(slice_path),
+            "meta": slice_meta,
+        },
         "inputs": input_manifest,
         "prompts": prompts,
         "settings": {
             **mr.asdict(mr.MRConfig()),
-            "workers": WORKERS, "topk": 20, "memories": ["SparseRAG", "DenseRAG"],
+            "workers": WORKERS,
+            "topk": 20,
+            "memories": ["SparseRAG", "DenseRAG"],
             "branch_decoding": "seeded sampling T=0.7, top_p=1.0",
             "greedy_decoding": "start, selections, final answer; T=0",
             "expected_calls_per_question": mr.MRConfig().expected_calls,
-            "expected_rows": 612, "expected_rows_per_retriever": 306,
-            "session_timeout_s": SESSION_TIMEOUT_S, "reserve_s": RESERVE_S,
+            "expected_rows": 612,
+            "expected_rows_per_retriever": 306,
+            "session_timeout_s": SESSION_TIMEOUT_S,
+            "reserve_s": RESERVE_S,
         },
         "environment": env_info,
         "gates": gates,
@@ -474,8 +563,9 @@ def check_cuda():
         "'devices': torch.cuda.device_count(),"
         "'caps': [torch.cuda.get_device_capability(i) for i in range(torch.cuda.device_count())]}))"
     )
-    rc, text = run_stream([sys.executable, "-c", code], timeout=300, check=False,
-                          tag="cuda check")
+    rc, text = run_stream(
+        [sys.executable, "-c", code], timeout=300, check=False, tag="cuda check"
+    )
     info = {}
     for line in reversed(text.splitlines()):
         line = line.strip()
@@ -487,20 +577,39 @@ def check_cuda():
                 continue
     log("cuda check: " + json.dumps(info))
     if rc != 0 or not info.get("available"):
-        raise RuntimeError(f"torch cannot use CUDA after the pinned install: {info or text[-800:]}")
+        raise RuntimeError(
+            f"torch cannot use CUDA after the pinned install: {info or text[-800:]}"
+        )
     return info
 
 
 def main():
     setup_dirs()
     proc = None
-    status = {"status": "running", "started_utc": START_UTC,
-              "session_timeout_s": SESSION_TIMEOUT_S, "reserve_s": RESERVE_S}
+    status = {
+        "status": "running",
+        "started_utc": START_UTC,
+        "session_timeout_s": SESSION_TIMEOUT_S,
+        "reserve_s": RESERVE_S,
+    }
     try:
         log(f"Kaggle MR kernel start; python={sys.version.split()[0]}")
-        log("selected env: " + json.dumps({k: os.environ.get(k) for k in (
-            "KAGGLE_KERNEL_RUN_TYPE", "KAGGLE_URL_BASE", "KAGGLE_KERNEL_SLUG",
-            "KAGGLE_KERNEL_VERSION", "KAGGLE_USERNAME")}, sort_keys=True))
+        log(
+            "selected env: "
+            + json.dumps(
+                {
+                    k: os.environ.get(k)
+                    for k in (
+                        "KAGGLE_KERNEL_RUN_TYPE",
+                        "KAGGLE_URL_BASE",
+                        "KAGGLE_KERNEL_SLUG",
+                        "KAGGLE_KERNEL_VERSION",
+                        "KAGGLE_USERNAME",
+                    )
+                },
+                sort_keys=True,
+            )
+        )
         input_root, slice_path = find_input()
         input_manifest = verify_inputs(input_root, slice_path)
         code_dir = input_root
@@ -514,8 +623,10 @@ def main():
         main_gpu = "1" if gpu["count"] >= 2 else ""
         driver_major = parse_driver_major(gpu.get("nvidia_smi", ""))
         vllm_pin = choose_vllm_pin(driver_major)
-        log(f"allocation: vLLM GPU={vllm_gpu}, retrieval/query encoder GPU={main_gpu or 'CPU'}, "
-            f"driver major={driver_major}, vllm pin={vllm_pin}")
+        log(
+            f"allocation: vLLM GPU={vllm_gpu}, retrieval/query encoder GPU={main_gpu or 'CPU'}, "
+            f"driver major={driver_major}, vllm pin={vllm_pin}"
+        )
 
         up = clone_upstream()
         ensure_packages(vllm_pin)
@@ -536,17 +647,34 @@ def main():
         write_json(os.path.join(RUN, "environment.json"), env_info)
 
         base_env = os.environ.copy()
-        base_env.update({
-            "JAX_PLATFORMS": "cpu",
-            "XLA_PYTHON_CLIENT_PREALLOCATE": "false",
-            "HF_HOME": os.path.join(RUN, "hf"),
-        })
+        base_env.update(
+            {
+                "JAX_PLATFORMS": "cpu",
+                "XLA_PYTHON_CLIENT_PREALLOCATE": "false",
+                "HF_HOME": os.path.join(RUN, "hf"),
+            }
+        )
         prep_env = mr_env(input_root, up, base_env, cuda=vllm_gpu)
-        rc, _ = run_mr(code_dir, [
-            "prepare-embeddings", "--data-dir", input_root,
-            "--cache-dir", CACHE, "--output-dir", OUT, "--users", "all",
-            "--device", "cuda" if gpu["count"] else "cpu", "--batch-size", "256",
-        ], prep_env, timeout=2400)
+        rc, _ = run_mr(
+            code_dir,
+            [
+                "prepare-embeddings",
+                "--data-dir",
+                input_root,
+                "--cache-dir",
+                CACHE,
+                "--output-dir",
+                OUT,
+                "--users",
+                "all",
+                "--device",
+                "cuda" if gpu["count"] else "cpu",
+                "--batch-size",
+                "256",
+            ],
+            prep_env,
+            timeout=2400,
+        )
         if rc != 0:
             raise RuntimeError("embedding preparation failed")
         log("embedding cache ready")
@@ -573,66 +701,154 @@ def main():
             proc = start_vllm(base_env, vllm_gpu)
         log("vLLM ready")
 
-        sanity_rc, _ = run_mr(code_dir, [
-            "sanity", "--slice", slice_path,
-            "--data-dir", input_root,
-            "--cache-dir", CACHE, "--output-dir", SANITY,
-            "--topk", "20", "--device", "cuda" if main_gpu else "cpu",
-        ], main_env, timeout=1800)
+        sanity_rc, _ = run_mr(
+            code_dir,
+            [
+                "sanity",
+                "--slice",
+                slice_path,
+                "--data-dir",
+                input_root,
+                "--cache-dir",
+                CACHE,
+                "--output-dir",
+                SANITY,
+                "--topk",
+                "20",
+                "--device",
+                "cuda" if main_gpu else "cpu",
+            ],
+            main_env,
+            timeout=1800,
+        )
         sys.path.insert(0, code_dir)
         import lib
         import mr
+
         smoke = mr.smoke_items(lib.load_slice(slice_path)["items"])
         sanity = mr.sanity_report(SANITY, input_root, smoke)
         sanity["run_rc"] = sanity_rc
         write_json(os.path.join(OUT, "sanity_report.json"), sanity)
         log("sanity: " + json.dumps(sanity, indent=2)[:4000])
         if not sanity["pass"]:
-            raise RuntimeError("NR deployment sanity gate failed: " + "; ".join(sanity["reasons"]))
+            raise RuntimeError(
+                "NR deployment sanity gate failed: " + "; ".join(sanity["reasons"])
+            )
 
-        rc, _ = run_mr(code_dir, [
-            "run", "--stage", "smoke", "--slice", slice_path,
-            "--data-dir", input_root,
-            "--cache-dir", CACHE, "--output-dir", OUT,
-            "--memories", "sparse,dense", "--topk", "20", "--max-step", "5",
-            "--branch-size", "2", "--expected-calls", "12", "--seed", "0",
-            "--workers", "6", "--device", "cuda" if main_gpu else "cpu",
-        ], main_env, timeout=1800)
+        rc, _ = run_mr(
+            code_dir,
+            [
+                "run",
+                "--stage",
+                "smoke",
+                "--slice",
+                slice_path,
+                "--data-dir",
+                input_root,
+                "--cache-dir",
+                CACHE,
+                "--output-dir",
+                OUT,
+                "--memories",
+                "sparse,dense",
+                "--topk",
+                "20",
+                "--max-step",
+                "5",
+                "--branch-size",
+                "2",
+                "--expected-calls",
+                "12",
+                "--seed",
+                "0",
+                "--workers",
+                "6",
+                "--device",
+                "cuda" if main_gpu else "cpu",
+            ],
+            main_env,
+            timeout=1800,
+        )
         smoke_gate = mr.smoke_gate_report(OUT, smoke, input_root)
         smoke_gate["run_rc"] = rc
         write_json(os.path.join(OUT, "smoke_report.json"), smoke_gate)
         log("smoke gate: " + json.dumps(smoke_gate, indent=2)[:4000])
         if not smoke_gate["pass"]:
-            raise RuntimeError("MR smoke gate failed: " + "; ".join(smoke_gate["reasons"]))
+            raise RuntimeError(
+                "MR smoke gate failed: " + "; ".join(smoke_gate["reasons"])
+            )
 
         deadline = START + SESSION_TIMEOUT_S - RESERVE_S
-        log(f"full evaluation deadline epoch={deadline:.0f} "
-            f"({deadline - time.time():.0f}s left)")
-        full_rc, _ = run_mr(code_dir, [
-            "run", "--stage", "full", "--slice", slice_path,
-            "--data-dir", input_root,
-            "--cache-dir", CACHE, "--output-dir", OUT,
-            "--memories", "sparse,dense", "--topk", "20", "--max-step", "5",
-            "--branch-size", "2", "--expected-calls", "12", "--seed", "0",
-            "--workers", str(WORKERS), "--deadline", str(deadline),
-            "--device", "cuda" if main_gpu else "cpu",
-        ], main_env, timeout=max(600, int(deadline - time.time()) + 300))
+        log(
+            f"full evaluation deadline epoch={deadline:.0f} "
+            f"({deadline - time.time():.0f}s left)"
+        )
+        full_rc, _ = run_mr(
+            code_dir,
+            [
+                "run",
+                "--stage",
+                "full",
+                "--slice",
+                slice_path,
+                "--data-dir",
+                input_root,
+                "--cache-dir",
+                CACHE,
+                "--output-dir",
+                OUT,
+                "--memories",
+                "sparse,dense",
+                "--topk",
+                "20",
+                "--max-step",
+                "5",
+                "--branch-size",
+                "2",
+                "--expected-calls",
+                "12",
+                "--seed",
+                "0",
+                "--workers",
+                str(WORKERS),
+                "--deadline",
+                str(deadline),
+                "--device",
+                "cuda" if main_gpu else "cpu",
+            ],
+            main_env,
+            timeout=max(600, int(deadline - time.time()) + 300),
+        )
         items = lib.load_slice(slice_path)["items"]
-        coverage = mr.coverage_report(OUT, items, input_root,
-                                      ["sparse", "dense"])
-        full_complete = full_rc == 0 and all(v["complete"] for v in coverage["memories"].values())
+        coverage = mr.coverage_report(OUT, items, input_root, ["sparse", "dense"])
+        full_complete = full_rc == 0 and all(
+            v["complete"] for v in coverage["memories"].values()
+        )
         gates = {
-            "sanity": sanity, "smoke": smoke_gate, "coverage": coverage,
-            "full_run_rc": full_rc, "full_complete": full_complete,
+            "sanity": sanity,
+            "smoke": smoke_gate,
+            "coverage": coverage,
+            "full_run_rc": full_rc,
+            "full_complete": full_complete,
         }
         write_json(os.path.join(OUT, "coverage_report.json"), coverage)
-        status.update({
-            "status": "complete" if full_complete else "partial_or_blocked",
-            "gates": gates,
-            "elapsed_s": round(time.time() - START, 1),
-        })
-        manifest = gather_manifest(input_root, input_manifest, slice_path, up, code_dir,
-                                  env_info, gates, vllm_pin)
+        status.update(
+            {
+                "status": "complete" if full_complete else "partial_or_blocked",
+                "gates": gates,
+                "elapsed_s": round(time.time() - START, 1),
+            }
+        )
+        manifest = gather_manifest(
+            input_root,
+            input_manifest,
+            slice_path,
+            up,
+            code_dir,
+            env_info,
+            gates,
+            vllm_pin,
+        )
         write_json(os.path.join(OUT, "manifest.json"), manifest)
         write_json(os.path.join(OUT, "status.json"), status)
         log("status: " + json.dumps(status, indent=2)[:4000])
@@ -641,9 +857,14 @@ def main():
     except Exception as e:  # noqa: BLE001
         log("FATAL: " + repr(e))
         log(traceback.format_exc())
-        status.update({"status": "blocked", "error": repr(e),
-                       "traceback": traceback.format_exc(),
-                       "elapsed_s": round(time.time() - START, 1)})
+        status.update(
+            {
+                "status": "blocked",
+                "error": repr(e),
+                "traceback": traceback.format_exc(),
+                "elapsed_s": round(time.time() - START, 1),
+            }
+        )
         write_json(os.path.join(OUT, "status.json"), status)
         return 1
     finally:
@@ -657,12 +878,19 @@ def main():
                 emb = os.path.join(CACHE, "embeddings_manifest.json")
                 if os.path.exists(emb):
                     tf.add(emb, arcname="cache/embeddings_manifest.json")
-            for name in ("status.json", "manifest.json", "smoke_report.json",
-                         "sanity_report.json", "coverage_report.json"):
+            for name in (
+                "status.json",
+                "manifest.json",
+                "smoke_report.json",
+                "sanity_report.json",
+                "coverage_report.json",
+            ):
                 src = os.path.join(OUT, name)
                 if os.path.exists(src):
                     shutil.copy2(src, os.path.join(WORK, "mpr-mr-" + name))
-            with open(os.path.join(WORK, "mpr-mr-package.txt"), "w", encoding="utf-8") as f:
+            with open(
+                os.path.join(WORK, "mpr-mr-package.txt"), "w", encoding="utf-8"
+            ) as f:
                 f.write(f"tar={TAR}\nbytes={os.path.getsize(TAR)}\n")
             log(f"packaged {TAR} ({os.path.getsize(TAR)} bytes)")
         except Exception as e:  # noqa: BLE001

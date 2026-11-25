@@ -20,6 +20,7 @@ The dataset holds:
 The kernel dir holds only kernel.py + kernel-metadata.json; `kaggle kernels push` uploads the code file,
 and the helpers come from the dataset.
 """
+
 import argparse
 import hashlib
 import json
@@ -59,13 +60,18 @@ def run(cmd, check=True):
 
 
 def git(*args):
-    return subprocess.run(["git", "-C", REPO, *args], capture_output=True, text=True).stdout.strip()
+    return subprocess.run(
+        ["git", "-C", REPO, *args], capture_output=True, text=True
+    ).stdout.strip()
 
 
 def require_clean_tree():
     dirty = git("status", "--porcelain", "--untracked-files=no")
     if dirty:
-        raise SystemExit("tracked files are dirty; commit before packaging so the manifest matches the code:\n" + dirty)
+        raise SystemExit(
+            "tracked files are dirty; commit before packaging so the manifest matches the code:\n"
+            + dirty
+        )
 
 
 def read_jsonl(path):
@@ -79,7 +85,9 @@ def build():
     subject = git("log", "-1", "--pretty=%s")
     branch = git("rev-parse", "--abbrev-ref", "HEAD")
     upstream = os.path.join(REPO, "upstream", "MPR")
-    head = subprocess.run(["git", "-C", upstream, "rev-parse", "HEAD"], capture_output=True, text=True).stdout.strip()
+    head = subprocess.run(
+        ["git", "-C", upstream, "rev-parse", "HEAD"], capture_output=True, text=True
+    ).stdout.strip()
     if head != UPSTREAM_COMMIT:
         raise SystemExit(f"upstream clone is at {head}, expected {UPSTREAM_COMMIT}")
     prompts = os.path.join(upstream, "baselines", "prompts.py")
@@ -96,12 +104,18 @@ def build():
     def add(src, name):
         dst = os.path.join(DATASET_DIR, name)
         shutil.copyfile(src, dst)
-        files[name] = {"sha256": sha256_file(dst), "bytes": os.path.getsize(dst), "source": os.path.relpath(src, REPO)}
+        files[name] = {
+            "sha256": sha256_file(dst),
+            "bytes": os.path.getsize(dst),
+            "source": os.path.relpath(src, REPO),
+        }
         return dst
 
     qa_src = os.path.join(REPO, "data", "mpr_dataset", "question_answer")
     if not os.path.isdir(qa_src):
-        raise SystemExit(f"missing released dataset at {qa_src} (gitignored; see experiments/_shared/README.md)")
+        raise SystemExit(
+            f"missing released dataset at {qa_src} (gitignored; see experiments/_shared/README.md)"
+        )
     for u in range(12):
         src = os.path.join(qa_src, f"question_answer_{u}.json")
         if not os.path.isfile(src):
@@ -109,15 +123,20 @@ def build():
         add(src, f"question_answer_{u}.json")
     slice_src = os.path.join(REPO, "results", "t4", "slices", "s306.json")
     add(slice_src, "s306.json")
-    slice_keys = {(i["uid"], i["rc_id"]) for i in json.load(open(slice_src, encoding="utf-8"))["items"]}
+    slice_keys = {
+        (i["uid"], i["rc_id"])
+        for i in json.load(open(slice_src, encoding="utf-8"))["items"]
+    }
     assert len(slice_keys) == 306, len(slice_keys)
-    for name, src in (("dr.py", os.path.join(HERE, "dr.py")),
-                      ("lib.py", os.path.join(REPO, "experiments", "_shared", "lib.py")),
-                      ("score.py", os.path.join(REPO, "experiments", "_shared", "score.py")),
-                      ("settings.json", os.path.join(HERE, "settings.json")),
-                      # same committed file as the pushed kernel's code_file, so a UI-started session can
-                      # run this exact code without pasting it; the manifest hash covers it too
-                      ("kernel.py", os.path.join(HERE, "kernel.py"))):
+    for name, src in (
+        ("dr.py", os.path.join(HERE, "dr.py")),
+        ("lib.py", os.path.join(REPO, "experiments", "_shared", "lib.py")),
+        ("score.py", os.path.join(REPO, "experiments", "_shared", "score.py")),
+        ("settings.json", os.path.join(HERE, "settings.json")),
+        # same committed file as the pushed kernel's code_file, so a UI-started session can
+        # run this exact code without pasting it; the manifest hash covers it too
+        ("kernel.py", os.path.join(HERE, "kernel.py")),
+    ):
         add(src, name)
     for mem in ("SparseRAG", "DenseRAG"):
         src = os.path.join(REPO, "results", "t4", "s1", f"NaiveReason_{mem}_k20.jsonl")
@@ -129,8 +148,12 @@ def build():
         with open(dst, "w", encoding="utf-8") as f:
             for r in rows:
                 f.write(json.dumps(r, ensure_ascii=False) + "\n")
-        files[name] = {"sha256": sha256_file(dst), "bytes": os.path.getsize(dst),
-                       "source": os.path.relpath(src, REPO), "restricted_to_slice_keys": len(slice_keys)}
+        files[name] = {
+            "sha256": sha256_file(dst),
+            "bytes": os.path.getsize(dst),
+            "source": os.path.relpath(src, REPO),
+            "restricted_to_slice_keys": len(slice_keys),
+        }
 
     manifest = {
         "experiment": "s6_t4_dr",
@@ -138,8 +161,11 @@ def build():
         "code_commit": commit,
         "code_commit_subject": subject,
         "code_branch": branch,
-        "upstream": {"repo": settings["upstream"]["repo"], "commit": UPSTREAM_COMMIT,
-                     "prompts_sha256": prompts_sha},
+        "upstream": {
+            "repo": settings["upstream"]["repo"],
+            "commit": UPSTREAM_COMMIT,
+            "prompts_sha256": prompts_sha,
+        },
         "model": settings["model"],
         "kaggle": {"kernel": KERNEL_REF, "dataset": DATASET_REF},
         "files": files,
@@ -159,15 +185,20 @@ def build():
         "description": (
             "Private inputs for the DR (DecompositionReason) Kaggle session of the MPR study. "
             "Contains the released per-user question_answer JSON files, the frozen 306-question slice, "
-            "the experiment code and a sha256 manifest. Not for redistribution."),
+            "the experiment code and a sha256 manifest. Not for redistribution."
+        ),
         "licenses": [{"name": "other"}],
         "keywords": [],
     }
-    with open(os.path.join(DATASET_DIR, "dataset-metadata.json"), "w", encoding="utf-8") as f:
+    with open(
+        os.path.join(DATASET_DIR, "dataset-metadata.json"), "w", encoding="utf-8"
+    ) as f:
         json.dump(meta, f, indent=1)
         f.write("\n")
 
-    shutil.copyfile(os.path.join(HERE, "kernel.py"), os.path.join(KERNEL_DIR, "kernel.py"))
+    shutil.copyfile(
+        os.path.join(HERE, "kernel.py"), os.path.join(KERNEL_DIR, "kernel.py")
+    )
     kernel_meta = {
         "id": KERNEL_REF,
         "title": "MPR DR reasoning",
@@ -184,10 +215,14 @@ def build():
         "model_sources": [],
         "machine_shape": "NvidiaTeslaT4",
     }
-    with open(os.path.join(KERNEL_DIR, "kernel-metadata.json"), "w", encoding="utf-8") as f:
+    with open(
+        os.path.join(KERNEL_DIR, "kernel-metadata.json"), "w", encoding="utf-8"
+    ) as f:
         json.dump(kernel_meta, f, indent=1)
         f.write("\n")
-    print(f"built {DATASET_DIR} ({sum(v['bytes'] for v in files.values()) / 1e6:.1f} MB) and {KERNEL_DIR}")
+    print(
+        f"built {DATASET_DIR} ({sum(v['bytes'] for v in files.values()) / 1e6:.1f} MB) and {KERNEL_DIR}"
+    )
     print(f"commit {commit[:12]} {subject}")
     print(f"upstream prompts sha256 {prompts_sha}")
     return manifest
@@ -198,14 +233,36 @@ def dataset(action):
         run([KAGGLE, "datasets", "create", "-p", DATASET_DIR, "--keep-tabular"])
     elif action == "version":
         notes = f"DR inputs for {git('rev-parse', '--short', 'HEAD')}"
-        run([KAGGLE, "datasets", "version", "-p", DATASET_DIR, "-m", notes, "--keep-tabular"])
+        run(
+            [
+                KAGGLE,
+                "datasets",
+                "version",
+                "-p",
+                DATASET_DIR,
+                "-m",
+                notes,
+                "--keep-tabular",
+            ]
+        )
     else:
         raise SystemExit(action)
 
 
 def kernel():
-    run([KAGGLE, "kernels", "push", "-p", KERNEL_DIR, "--timeout", str(SESSION_TIMEOUT_S),
-         "--accelerator", "NvidiaTeslaT4"])
+    run(
+        [
+            KAGGLE,
+            "kernels",
+            "push",
+            "-p",
+            KERNEL_DIR,
+            "--timeout",
+            str(SESSION_TIMEOUT_S),
+            "--accelerator",
+            "NvidiaTeslaT4",
+        ]
+    )
 
 
 def status():
@@ -221,8 +278,13 @@ def output():
 
 
 def main():
-    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("action", choices=["build", "dataset", "kernel", "status", "output", "dataset-version"])
+    ap = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+    ap.add_argument(
+        "action",
+        choices=["build", "dataset", "kernel", "status", "output", "dataset-version"],
+    )
     args = ap.parse_args()
     if args.action == "build":
         build()
