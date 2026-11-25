@@ -5,10 +5,13 @@ and the dataset, start `vllm serve` for Qwen2.5-7B-Instruct-AWQ, run that sessio
 results to /content (and optionally Google Drive). The notebooks are written without outputs and contain no credentials:
 the repo is private, so the clone cell reads an optional Colab secret named GITHUB_TOKEN at run time.
 
-Usage: python experiments/_shared/make_notebooks.py        (rewrites the four .ipynb files; stdlib only)
+Regenerate and format the notebooks from the repository root:
+    python3 experiments/_shared/make_notebooks.py
+    uvx ruff@0.17.6 format experiments/s*/s*.ipynb
 Provenance: written by us, no upstream reference. The commands inside the notebooks mirror experiments/_shared/t4.sh
 (pinned model revision, vLLM flags, flat scripts/t4 layout on the VM) and the sessionN.sh drivers.
 """
+
 import json
 import os
 
@@ -20,59 +23,91 @@ DATASET_ID = "1a0Ya9buk1I0hsGoaRX8bW0QJjsKuN4FR"  # same id as setup.sh
 # jobs: (job name, script in scripts/t4/, arguments, needs the vLLM server)
 SESSIONS = {
     "s1": {
-        "dir": "s1_t4_one_call_grid", "file": "s1_t4_one_call_grid.ipynb",
+        "dir": "s1_t4_one_call_grid",
+        "file": "s1_t4_one_call_grid.ipynb",
         "title": "Session 1: throughput, 12-user retrieval error bars, one-call grid on 900 questions",
-        "readme": "experiments/s1_t4_one_call_grid/README.md", "status": None,
+        "readme": "experiments/s1_t4_one_call_grid/README.md",
+        "status": None,
         "jobs": [
             ("thr", "throughput.py", "--slice results/slices/s900.json --seconds 90"),
-            ("grid1", "grid.py", "--slice results/slices/s900.json --reason naive --memories ignoramus,oracle,sparse,dense --topk 20 --tag s1"),
+            (
+                "grid1",
+                "grid.py",
+                "--slice results/slices/s900.json --reason naive --memories ignoramus,oracle,sparse,dense --topk 20 --tag s1",
+            ),
         ],
         "summaries": [
-            "summarize.py throughput", "summarize.py retrieval",
+            "summarize.py throughput",
+            "summarize.py retrieval",
             "summarize.py grid --tag s1 --slice results/t4/slices/s900.json",
         ],
-        "tags": ["s1", "retrieval", "throughput"], "main_summary": "summary_s1.md",
+        "tags": ["s1", "retrieval", "throughput"],
+        "main_summary": "summary_s1.md",
     },
     "s2": {
-        "dir": "s2_t4_chain_of_thought", "file": "s2_t4_chain_of_thought.ipynb",
+        "dir": "s2_t4_chain_of_thought",
+        "file": "s2_t4_chain_of_thought.ipynb",
         "title": "Session 2: five-step chain-of-thought (SequentialReason) grid on 306 questions",
-        "readme": "experiments/s2_t4_chain_of_thought/README.md", "status": None,
+        "readme": "experiments/s2_t4_chain_of_thought/README.md",
+        "status": None,
         "jobs": [
-            (f"grid2_{m}", "grid.py", f"--slice results/slices/s306.json --reason seq --max-step 5 --memories {m} --topk 20 --tag s2 --workers 48")
-            for m in ("ignoramus", "oracle", "sparse", "dense")],
+            (
+                f"grid2_{m}",
+                "grid.py",
+                f"--slice results/slices/s306.json --reason seq --max-step 5 --memories {m} --topk 20 --tag s2 --workers 48",
+            )
+            for m in ("ignoramus", "oracle", "sparse", "dense")
+        ],
         "summaries": [
             "summarize.py grid --tag s2 --slice results/t4/slices/s306.json",
             "summarize.py compare --tag s2 --nr-tag s1 --slice results/t4/slices/s306.json",
         ],
-        "tags": ["s2"], "main_summary": "summary_s2_vs_s1.md",
+        "tags": ["s2"],
+        "main_summary": "summary_s2_vs_s1.md",
     },
     "s3a": {
-        "dir": "s3a_t4_topk_sweep", "file": "s3a_t4_topk_sweep.ipynb",
+        "dir": "s3a_t4_topk_sweep",
+        "file": "s3a_t4_topk_sweep.ipynb",
         "title": "Session 3a: top-k sweep (k = 10 / 30 / 50) with one-call NaiveReason on 900 questions",
-        "readme": "experiments/s3a_t4_topk_sweep/README.md", "status": None,
+        "readme": "experiments/s3a_t4_topk_sweep/README.md",
+        "status": None,
         "jobs": [
-            (f"grid3_k{k}", "grid.py", f"--slice results/slices/s900.json --reason naive --memories sparse,dense --topk {k} --tag s3_topk")
-            for k in (10, 30, 50)],
+            (
+                f"grid3_k{k}",
+                "grid.py",
+                f"--slice results/slices/s900.json --reason naive --memories sparse,dense --topk {k} --tag s3_topk",
+            )
+            for k in (10, 30, 50)
+        ],
         "summaries": [
             "summarize.py grid --tag s3_topk --slice results/t4/slices/s900.json",
             "summarize.py topk",
         ],
-        "tags": ["s3_topk"], "main_summary": "summary_s3_topk_sweep.md",
+        "tags": ["s3_topk"],
+        "main_summary": "summary_s3_topk_sweep.md",
     },
     "s3b": {
-        "dir": "s3b_t4_step_sweep", "file": "s3b_t4_step_sweep.ipynb",
+        "dir": "s3b_t4_step_sweep",
+        "file": "s3b_t4_step_sweep.ipynb",
         "title": "Session 3b: reasoning-step sweep (2 / 3 / 8 steps)",
         "readme": "experiments/s3b_t4_step_sweep/README.md",
         "status": "The sweep was run on 2026-11-02 with the `colab` CLI driver (`session3b.sh`), not with this notebook; results are in `results/t4/s3_steps/`. "
-                  "The notebook is the same jobs for a Colab VM, committed unexecuted.",
+        "The notebook is the same jobs for a Colab VM, committed unexecuted.",
         "jobs": [
-            (f"grid3_s{s}", "grid.py", f"--slice results/slices/s306.json --reason seq --max-step {s} --memories sparse,dense --topk 20 --tag s3_steps --workers 48")
-            for s in (2, 3, 8)],
+            (
+                f"grid3_s{s}",
+                "grid.py",
+                f"--slice results/slices/s306.json --reason seq --max-step {s} --memories sparse,dense --topk 20 --tag s3_steps --workers 48",
+            )
+            for s in (2, 3, 8)
+        ],
         "summaries": [
             "summarize.py grid --tag s3_steps --slice results/t4/slices/s306.json",
             "summarize.py steps",
         ],
-        "tags": ["s3_steps"], "main_summary": "summary_s3_steps_sweep.md", "limit": True,
+        "tags": ["s3_steps"],
+        "main_summary": "summary_s3_steps_sweep.md",
+        "limit": True,
     },
 }
 
@@ -86,10 +121,17 @@ def md(cid, text):
 
 
 def code(cid, text):
-    return {"cell_type": "code", "id": cid, "metadata": {}, "execution_count": None, "outputs": [], "source": lines(text)}
+    return {
+        "cell_type": "code",
+        "id": cid,
+        "metadata": {},
+        "execution_count": None,
+        "outputs": [],
+        "source": lines(text),
+    }
 
 
-CLONE = '''
+CLONE = """
 import base64, os, shutil, subprocess
 
 REPO = "/content/mpr-study"
@@ -108,9 +150,9 @@ else:
     print(r.stdout[-300:], (r.stderr[-300:] if r.returncode else ""))
     assert r.returncode == 0, "clone failed: set the GITHUB_TOKEN secret (private repo) or upload the repo folder to /content/mpr-study"
 print(sorted(os.listdir(REPO)))
-'''
+"""
 
-INSTALL = '''
+INSTALL = """
 # vLLM brings its own torch. Do NOT import vllm or torch in this kernel: that opens a CUDA context (~3.5 GB) and
 # vLLM then runs out of memory on its first request. Check for the package with find_spec only.
 !pip -q install uv gdown
@@ -118,9 +160,9 @@ INSTALL = '''
 !uv pip uninstall --system -q torchao || true      # Colab's torchao is refused by peft; not needed here
 import importlib.util
 print("vllm installed:", importlib.util.find_spec("vllm") is not None)
-'''
+"""
 
-STAGE = '''
+STAGE = """
 import glob, zipfile
 
 T4 = "/content/t4"                     # same layout as the colab-CLI driver (experiments/_shared/t4.sh)
@@ -144,9 +186,9 @@ if not os.path.isdir(f"{T4}/data/mpr_dataset/question_answer"):
     !gdown @@DATASET@@ -O /content/t4_dataset.zip
     zipfile.ZipFile("/content/t4_dataset.zip").extractall(f"{T4}/data")
 print(sorted(os.listdir(f"{T4}/data")), sorted(os.listdir(f"{T4}/results")))
-'''
+"""
 
-RESUME = '''
+RESUME = """
 # Optional: Google Drive keeps the raw results between Colab sessions, so a fresh VM resumes where the last one stopped.
 if SAVE_TO_DRIVE:
     from google.colab import drive
@@ -156,7 +198,7 @@ if SAVE_TO_DRIVE:
     if os.path.exists(prev):
         !tar xzf {prev} -C {T4}
         print("restored", prev)
-'''
+"""
 
 HELPERS = '''
 import time, urllib.request
@@ -218,11 +260,15 @@ def job(name, script, args=""):
 
 
 def build(key, s):
-    status = s["status"] or ("Committed unexecuted as a notebook (`not executed as a notebook`): the same steps were run for this session "
-                             "through the `colab` CLI driver; the folder README says what was run and where the results are.")
+    status = s["status"] or (
+        "Committed unexecuted as a notebook (`not executed as a notebook`): the same steps were run for this session "
+        "through the `colab` CLI driver; the folder README says what was run and where the results are."
+    )
     cells = [
-        md("intro", f"""
-# {s['title']}
+        md(
+            "intro",
+            f"""
+# {s["title"]}
 
 Explicit vs Implicit Memory (MPR, KDD '26) study repo. Runs on a **free-tier Colab T4** (Runtime > Change runtime type > T4 GPU).
 
@@ -233,72 +279,117 @@ prompt templates) and the dataset, serve `Qwen/Qwen2.5-7B-Instruct-AWQ` with vLL
 summaries, and save the raw results to `/content` (and to Google Drive if you set `SAVE_TO_DRIVE`). All jobs are resumable: a
 finished question is skipped when you rerun a cell after the session was cut.
 
-Folder README (experiment, provenance, expected numbers): `{s['readme']}`.
-"""),
-        code("config", f"""
+Folder README (experiment, provenance, expected numbers): `{s["readme"]}`.
+""",
+        ),
+        code(
+            "config",
+            f"""
 # ---- settings (no credentials here) ----
 REPO_URL = "https://github.com/xphiwork-dot/mpr-study.git"   # private repo: see the clone cell
 REPO_REF = "main"
 SAVE_TO_DRIVE = False        # True: mount Google Drive, keep a copy of the raw results there and resume from it
 DRIVE_DIR = "/content/drive/MyDrive/mpr_study_results"
 SESSION = "{key}"
-""" + ("LIMIT = 0                   # >0: only the first N questions per run (shorter session, as LIMIT=150 in session3b.sh)\n" if s.get("limit") else "")
-             + "\n!nvidia-smi --query-gpu=name,memory.total --format=csv,noheader\n"),
+"""
+            + (
+                "LIMIT = 0                   # >0: only the first N questions per run (shorter session, as LIMIT=150 in session3b.sh)\n"
+                if s.get("limit")
+                else ""
+            )
+            + "\n!nvidia-smi --query-gpu=name,memory.total --format=csv,noheader\n",
+        ),
         code("clone", CLONE),
         code("install", INSTALL),
-        code("stage", STAGE.replace("@@COMMIT@@", UPSTREAM_COMMIT).replace("@@DATASET@@", DATASET_ID)),
+        code(
+            "stage",
+            STAGE.replace("@@COMMIT@@", UPSTREAM_COMMIT).replace(
+                "@@DATASET@@", DATASET_ID
+            ),
+        ),
         code("resume", RESUME),
         code("helpers", HELPERS.replace("@@REV@@", MODEL_REV)),
-        md("retrieve-md", """
+        md(
+            "retrieve-md",
+            """
 ## 1. Retrieval pass (no LLM)
 
 `retrieve.py` embeds every user's statements with e5-base-v2 (the cache used by the dense-memory runs) and writes per-question
 recall for all 12 users. It needs the GPU **without** the vLLM server, so it runs first; a user that is already done is skipped.
-"""),
+""",
+        ),
         code("retrieve", 'job("retrieve", "retrieve.py")'),
-        md("serve-md", "## 2. Start vLLM\n\nQwen2.5-7B-Instruct AWQ (4-bit), fp16 compute, `--max-model-len 8192`; the runner uses greedy decoding."),
+        md(
+            "serve-md",
+            "## 2. Start vLLM\n\nQwen2.5-7B-Instruct AWQ (4-bit), fp16 compute, `--max-model-len 8192`; the runner uses greedy decoding.",
+        ),
         code("serve", "serve()"),
-        md("run-md", "## 3. Run this session's jobs\n\nEach cell is one call of the same script and arguments as in the session shell driver. Rerun a cell after a cut session: finished questions are skipped."),
+        md(
+            "run-md",
+            "## 3. Run this session's jobs\n\nEach cell is one call of the same script and arguments as in the session shell driver. Rerun a cell after a cut session: finished questions are skipped.",
+        ),
     ]
     for i, (name, script, args) in enumerate(s["jobs"], 1):
         if s.get("limit"):
-            cells.append(code(f"job{i}", f'LIMIT_ARG = f"--limit {{LIMIT}}" if LIMIT else ""\njob("{name}", "{script}", "{args} " + LIMIT_ARG)'))
+            cells.append(
+                code(
+                    f"job{i}",
+                    f'LIMIT_ARG = f"--limit {{LIMIT}}" if LIMIT else ""\njob("{name}", "{script}", "{args} " + LIMIT_ARG)',
+                )
+            )
         else:
             cells.append(code(f"job{i}", f'job("{name}", "{script}", "{args}")'))
     cells.append(code("stop", "unserve()   # free the GPU"))
     copy_tags = "\n".join(
-        f'if os.path.exists(f"{{T4}}/results/{t}"):\n    shutil.copytree(f"{{T4}}/results/{t}", f"{{REPO}}/results/t4/{t}", dirs_exist_ok=True)' for t in s["tags"])
-    sums = "\n".join(f"!cd {{REPO}} && python3 experiments/_shared/{x}" for x in s["summaries"])
+        f'if os.path.exists(f"{{T4}}/results/{t}"):\n    shutil.copytree(f"{{T4}}/results/{t}", f"{{REPO}}/results/t4/{t}", dirs_exist_ok=True)'
+        for t in s["tags"]
+    )
+    sums = "\n".join(
+        f"!cd {{REPO}} && python3 experiments/_shared/{x}" for x in s["summaries"]
+    )
     cells += [
-        md("sum-md", """
+        md(
+            "sum-md",
+            """
 ## 4. Summaries
 
 Copy the raw results into the cloned repo's `results/t4/` and run the summariser there. It reads `results/t4/<tag>/*.jsonl`; the clone
 already holds the earlier sessions' committed results, which the comparisons need. Output: `results/t4/summary_*.md` in the clone.
-"""),
-        code("summarise", f"""
+""",
+        ),
+        code(
+            "summarise",
+            f"""
 os.makedirs(f"{{REPO}}/results/t4", exist_ok=True)
 {copy_tags}
 {sums}
 print([f for f in sorted(os.listdir(f"{{REPO}}/results/t4")) if f.startswith("summary_")])
-"""),
-        md("save-md", """
+""",
+        ),
+        md(
+            "save-md",
+            """
 ## 5. Save
 
 The raw results and logs are in `/content/mpr_<session>_results.tgz` (and on Drive if `SAVE_TO_DRIVE`). To commit them to the repo,
 download the archive (uncomment the last line) and unpack it under `results/t4/` locally. Release the GPU when done
 (Runtime > Disconnect and delete runtime).
-"""),
-        code("save", f"""
+""",
+        ),
+        code(
+            "save",
+            f"""
 save()
-summary = f"{{REPO}}/results/t4/{s['main_summary']}"
+summary = f"{{REPO}}/results/t4/{s["main_summary"]}"
 if os.path.exists(summary):
     shutil.copy(summary, "/content/")
 # from google.colab import files; files.download(f"/content/mpr_{{SESSION}}_results.tgz")   # uncomment to download
-"""),
+""",
+        ),
     ]
     return {
-        "nbformat": 4, "nbformat_minor": 5,
+        "nbformat": 4,
+        "nbformat_minor": 5,
         "metadata": {
             "colab": {"provenance": [], "gpuType": "T4"},
             "kernelspec": {"name": "python3", "display_name": "Python 3"},

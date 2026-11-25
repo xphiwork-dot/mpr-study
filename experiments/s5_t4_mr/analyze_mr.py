@@ -30,17 +30,22 @@ import mr  # noqa: E402
 
 GROUPS = {"2-4": range(2, 5), "5-7": range(5, 8), "8-10": range(8, 11)}
 B = 2000
-RUN_NAMES = {"SparseRAG": "StructuredReason_SparseRAG_k20_s5",
-             "DenseRAG": "StructuredReason_DenseRAG_k20_s5"}
+RUN_NAMES = {
+    "SparseRAG": "StructuredReason_SparseRAG_k20_s5",
+    "DenseRAG": "StructuredReason_DenseRAG_k20_s5",
+}
 
 
 def boot_ci(vals, seed=0, b=B):
     import numpy as np
+
     v = np.asarray(vals, dtype=float)
     if len(v) == 0:
         return None
     rng = np.random.default_rng(seed)
-    means = np.sort(np.array([v[rng.integers(0, len(v), len(v))].mean() for _ in range(b)]))
+    means = np.sort(
+        np.array([v[rng.integers(0, len(v), len(v))].mean() for _ in range(b)])
+    )
     return float(means[int(0.025 * b)]), float(means[int(0.975 * b) - 1])
 
 
@@ -63,7 +68,9 @@ def load_runs(results_dir):
         path = os.path.join(results_dir, name + ".jsonl")
         if os.path.exists(path):
             raw = load_jsonl(path)
-            runs[mem] = {mr.row_key(r): r for r in raw if str(r.get("response", "")).strip()}
+            runs[mem] = {
+                mr.row_key(r): r for r in raw if str(r.get("response", "")).strip()
+            }
             runs[mem + "_raw_n"] = len(raw)
     return runs
 
@@ -72,7 +79,9 @@ def load_baseline(tag, prefix):
     path = os.path.join(ROOT, "results", "t4", tag, prefix + ".jsonl")
     if not os.path.exists(path):
         return None
-    return {mr.row_key(r): r for r in load_jsonl(path) if str(r.get("response", "")).strip()}
+    return {
+        mr.row_key(r): r for r in load_jsonl(path) if str(r.get("response", "")).strip()
+    }
 
 
 def scores(rows, keys):
@@ -89,15 +98,19 @@ def subset_keys(items, name):
     if name == "leak-free-3digit":
         return [f"{i['uid']}:{i['rc_id']}" for i in items if not i["leak_big"]]
     if name in GROUPS:
-        return [f"{i['uid']}:{i['rc_id']}" for i in items if int(i["hop"]) in GROUPS[name]]
+        return [
+            f"{i['uid']}:{i['rc_id']}" for i in items if int(i["hop"]) in GROUPS[name]
+        ]
     raise ValueError(name)
 
 
 def score_line(rows, keys, label):
     e, c = scores(rows, keys)
     n = len(keys)
-    return (f"| {label} | {n} | {fmt(sum(e) / n, boot_ci(e))} | "
-            f"{fmt(sum(c) / n, boot_ci(c))} |")
+    return (
+        f"| {label} | {n} | {fmt(sum(e) / n, boot_ci(e))} | "
+        f"{fmt(sum(c) / n, boot_ci(c))} |"
+    )
 
 
 def paired(rows_a, rows_b, keys, metric):
@@ -139,12 +152,21 @@ def validate(results_dir, items, data_dir):
             if int(r.get("calls") or 0) != mr.MRConfig().expected_calls:
                 bad_calls.append(k)
         rep["memories"][mem] = {
-            "unique_rows": len(rows), "expected": len(expected),
-            "missing": missing, "missing_n": len(missing), "extra": extra[:20],
-            "extra_n": len(extra), "bad_ground_truth": bad_gt[:20],
-            "bad_ground_truth_n": len(bad_gt), "bad_hop_n": len(bad_hop),
+            "unique_rows": len(rows),
+            "expected": len(expected),
+            "missing": missing,
+            "missing_n": len(missing),
+            "extra": extra[:20],
+            "extra_n": len(extra),
+            "bad_ground_truth": bad_gt[:20],
+            "bad_ground_truth_n": len(bad_gt),
+            "bad_hop_n": len(bad_hop),
             "bad_calls_n": len(bad_calls),
-            "complete": not missing and not extra and not bad_gt and not bad_hop and not bad_calls,
+            "complete": not missing
+            and not extra
+            and not bad_gt
+            and not bad_hop
+            and not bad_calls,
         }
     rep["raw_lines"] = raw_counts
     rep["complete"] = all(v["complete"] for v in rep["memories"].values())
@@ -152,18 +174,33 @@ def validate(results_dir, items, data_dir):
 
 
 def main():
-    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--results-dir", default=os.path.join(ROOT, "results", "t4", "s5_mr"))
-    ap.add_argument("--slice", default=os.path.join(ROOT, "results", "t4", "slices", "s306.json"))
+    ap = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+    ap.add_argument(
+        "--results-dir", default=os.path.join(ROOT, "results", "t4", "s5_mr")
+    )
+    ap.add_argument(
+        "--slice", default=os.path.join(ROOT, "results", "t4", "slices", "s306.json")
+    )
     ap.add_argument("--data-dir", default=os.environ.get("MPR_QA_DIR"))
     ap.add_argument("--out", default=None)
     ap.add_argument("--allow-partial", action="store_true")
-    ap.add_argument("--hardware", default="one Colab free-tier Tesla T4 session via colab_mr.sh")
+    ap.add_argument(
+        "--hardware", default="one Colab free-tier Tesla T4 session via colab_mr.sh"
+    )
     a = ap.parse_args()
     if not a.data_dir:
-        for cand in (os.path.join(ROOT, "data", "mpr_dataset", "question_answer"),
-                     os.path.join(os.path.dirname(ROOT), "mpr-study", "data", "mpr_dataset",
-                                  "question_answer")):
+        for cand in (
+            os.path.join(ROOT, "data", "mpr_dataset", "question_answer"),
+            os.path.join(
+                os.path.dirname(ROOT),
+                "mpr-study",
+                "data",
+                "mpr_dataset",
+                "question_answer",
+            ),
+        ):
             if os.path.isdir(cand):
                 a.data_dir = cand
                 break
@@ -175,7 +212,9 @@ def main():
     validation = validate(a.results_dir, items, a.data_dir)
     if not validation["complete"] and not a.allow_partial:
         print(json.dumps(validation, indent=2))
-        raise SystemExit("MR rows are incomplete; pass --allow-partial to write a partial summary")
+        raise SystemExit(
+            "MR rows are incomplete; pass --allow-partial to write a partial summary"
+        )
 
     nr = {m: load_baseline("s1", f"NaiveReason_{m}_k20") for m in RUN_NAMES}
     sr = {m: load_baseline("s2", f"SequentialReason_{m}_k20_s5") for m in RUN_NAMES}
@@ -207,8 +246,9 @@ def main():
         f"- Slice: `{os.path.basename(a.slice)}`, {len(items)} unique questions; "
         f"leak-free any-number {sum(1 for i in items if not i['leak_any'])}, "
         f"3+ digit {sum(1 for i in items if not i['leak_big'])}.",
-        f"- Raw rows: " + ", ".join(f"{m} {validation['raw_lines'].get(m, 0)}" for m in RUN_NAMES) +
-        f"; failure records {validation['failures']}.",
+        f"- Raw rows: "
+        + ", ".join(f"{m} {validation['raw_lines'].get(m, 0)}" for m in RUN_NAMES)
+        + f"; failure records {validation['failures']}.",
     ]
     for mem, v in validation["memories"].items():
         lines.append(
@@ -216,8 +256,13 @@ def main():
             f"extra {v['extra_n']}, bad ground truth {v['bad_ground_truth_n']}, "
             f"bad hop {v['bad_hop_n']}, bad call count {v['bad_calls_n']}."
         )
-    lines += ["", "## Scores on the frozen 306-question slice", "",
-              "| run | n | EM [95% CI] | contains [95% CI] |", "|---|---|---|---|"]
+    lines += [
+        "",
+        "## Scores on the frozen 306-question slice",
+        "",
+        "| run | n | EM [95% CI] | contains [95% CI] |",
+        "|---|---|---|---|",
+    ]
     for mem, rows in runs.items():
         if mem.endswith("_raw_n") or not isinstance(rows, dict):
             continue
@@ -231,8 +276,13 @@ def main():
                 kk = [k for k in keys if k in sr[mem]]
                 lines.append(score_line(sr[mem], kk, f"SR {mem} (s2, matched)"))
 
-    lines += ["", "## Subsets", "",
-              "| run | subset | n | EM [95% CI] | contains [95% CI] |", "|---|---|---|---|---|"]
+    lines += [
+        "",
+        "## Subsets",
+        "",
+        "| run | subset | n | EM [95% CI] | contains [95% CI] |",
+        "|---|---|---|---|---|",
+    ]
     for mem, rows in runs.items():
         if mem.endswith("_raw_n") or not isinstance(rows, dict):
             continue
@@ -241,9 +291,13 @@ def main():
             if keys:
                 lines.append(score_line(rows, keys, f"MR {mem} | {sname}"))
 
-    lines += ["", "## Paired comparisons (MR minus baseline, same questions)", "",
-              "| retriever | baseline | subset | n | dEM [95% CI] | dContains [95% CI] |",
-              "|---|---|---|---|---|---|"]
+    lines += [
+        "",
+        "## Paired comparisons (MR minus baseline, same questions)",
+        "",
+        "| retriever | baseline | subset | n | dEM [95% CI] | dContains [95% CI] |",
+        "|---|---|---|---|---|---|",
+    ]
     for mem, rows in runs.items():
         if mem.endswith("_raw_n") or not isinstance(rows, dict):
             continue
@@ -255,48 +309,90 @@ def main():
                 re = paired(rows, base, keys, 0)
                 rc = paired(rows, base, keys, 1)
                 if re:
-                    lines.append(f"| {mem} | {bname} | {sname} | {re[0]} | "
-                                 f"{re[1]:+.3f} [{re[2][0]:+.3f}, {re[2][1]:+.3f}] | "
-                                 f"{rc[1]:+.3f} [{rc[2][0]:+.3f}, {rc[2][1]:+.3f}] |")
-    lines += ["", "## BM25 (SparseRAG) minus e5 (DenseRAG), same questions", "",
-              "| subset | n | dEM [95% CI] | dContains [95% CI] |", "|---|---|---|---|"]
+                    lines.append(
+                        f"| {mem} | {bname} | {sname} | {re[0]} | "
+                        f"{re[1]:+.3f} [{re[2][0]:+.3f}, {re[2][1]:+.3f}] | "
+                        f"{rc[1]:+.3f} [{rc[2][0]:+.3f}, {rc[2][1]:+.3f}] |"
+                    )
+    lines += [
+        "",
+        "## BM25 (SparseRAG) minus e5 (DenseRAG), same questions",
+        "",
+        "| subset | n | dEM [95% CI] | dContains [95% CI] |",
+        "|---|---|---|---|",
+    ]
     if "SparseRAG" in runs and "DenseRAG" in runs:
         for sname in ("all", "leak-free", "2-4", "5-7", "8-10"):
             keys = subset_keys(items, sname)
             re = paired(runs["SparseRAG"], runs["DenseRAG"], keys, 0)
             rc = paired(runs["SparseRAG"], runs["DenseRAG"], keys, 1)
             if re:
-                lines.append(f"| {sname} | {re[0]} | {re[1]:+.3f} [{re[2][0]:+.3f}, {re[2][1]:+.3f}] | "
-                             f"{rc[1]:+.3f} [{rc[2][0]:+.3f}, {rc[2][1]:+.3f}] |")
+                lines.append(
+                    f"| {sname} | {re[0]} | {re[1]:+.3f} [{re[2][0]:+.3f}, {re[2][1]:+.3f}] | "
+                    f"{rc[1]:+.3f} [{rc[2][0]:+.3f}, {rc[2][1]:+.3f}] |"
+                )
 
-    lines += ["", "## MR trace diagnostics", "",
-              "| retriever | rows | calls | prompt tok | completion tok | duplicate branch pairs | "
-              "selection fallbacks | truncated thought calls | final-path depth distribution |",
-              "|---|---|---|---|---|---|---|---|---|"]
+    lines += [
+        "",
+        "## MR trace diagnostics",
+        "",
+        "| retriever | rows | calls | prompt tok | completion tok | duplicate branch pairs | "
+        "selection fallbacks | truncated thought calls | final-path depth distribution |",
+        "|---|---|---|---|---|---|---|---|---|",
+    ]
     for mem, rows in runs.items():
         if mem.endswith("_raw_n") or not isinstance(rows, dict) or not rows:
             continue
         calls = sum(int(r.get("calls") or 0) for r in rows.values())
         pt = sum(int(r.get("prompt_tokens") or 0) for r in rows.values())
         ct = sum(int(r.get("completion_tokens") or 0) for r in rows.values())
-        dup = sum(int((r.get("trace") or {}).get("duplicate_candidate_pairs") or 0) for r in rows.values())
-        pairs = sum(int((r.get("trace") or {}).get("candidate_pairs_total") or 0) for r in rows.values())
-        fall = sum(int(((r.get("trace") or {}).get("stats") or {}).get("selection_fallbacks") or 0)
-                   for r in rows.values())
-        trunc = sum(sum((((r.get("trace") or {}).get("stats") or {}).get("truncations") or {}).values())
-                    for r in rows.values())
-        depths = Counter((r.get("trace") or {}).get("final_path_depth") for r in rows.values())
-        dist = " ".join(f"{k}:{v}" for k, v in sorted(depths.items(), key=lambda x: (x[0] is None, x[0])))
-        lines.append(f"| MR {mem} | {len(rows)} | {calls} | {pt} | {ct} | {dup}/{pairs} | {fall} | "
-                     f"{trunc} | {dist} |")
+        dup = sum(
+            int((r.get("trace") or {}).get("duplicate_candidate_pairs") or 0)
+            for r in rows.values()
+        )
+        pairs = sum(
+            int((r.get("trace") or {}).get("candidate_pairs_total") or 0)
+            for r in rows.values()
+        )
+        fall = sum(
+            int(
+                ((r.get("trace") or {}).get("stats") or {}).get("selection_fallbacks")
+                or 0
+            )
+            for r in rows.values()
+        )
+        trunc = sum(
+            sum(
+                (
+                    ((r.get("trace") or {}).get("stats") or {}).get("truncations") or {}
+                ).values()
+            )
+            for r in rows.values()
+        )
+        depths = Counter(
+            (r.get("trace") or {}).get("final_path_depth") for r in rows.values()
+        )
+        dist = " ".join(
+            f"{k}:{v}"
+            for k, v in sorted(depths.items(), key=lambda x: (x[0] is None, x[0]))
+        )
+        lines.append(
+            f"| MR {mem} | {len(rows)} | {calls} | {pt} | {ct} | {dup}/{pairs} | {fall} | "
+            f"{trunc} | {dist} |"
+        )
     lines += ["", "## Timing", ""]
     if timing:
-        lines += ["| stage | file | questions | calls | prompt tok | completion tok | wall s | workers | failures | deadline hit |",
-                  "|---|---|---|---|---|---|---|---|---|---|"]
+        lines += [
+            "| stage | file | questions | calls | prompt tok | completion tok | wall s | workers | failures | deadline hit |",
+            "|---|---|---|---|---|---|---|---|---|---|",
+        ]
         for t in timing:
-            lines.append(f"| {t.get('stage')} | {t.get('file')} | {t.get('questions_done')} | "
-                         f"{t.get('calls')} | {t.get('prompt_tokens')} | {t.get('completion_tokens')} | "
-                         f"{t.get('wall_s')} | {t.get('workers')} | {t.get('failures')} | {t.get('deadline_hit')} |")
+            lines.append(
+                f"| {t.get('stage')} | {t.get('file')} | {t.get('questions_done')} | "
+                f"{t.get('calls')} | {t.get('prompt_tokens')} | {t.get('completion_tokens')} | "
+                f"{t.get('wall_s')} | {t.get('workers')} | {t.get('failures')} | {t.get('deadline_hit')} |"
+            )
+
         def totals(stage=None):
             sel = [t for t in timing if stage is None or t.get("stage") == stage]
             return {
@@ -306,6 +402,7 @@ def main():
                 "completion": sum(int(t.get("completion_tokens") or 0) for t in sel),
                 "wall": sum(float(t.get("wall_s") or 0) for t in sel),
             }
+
         full, allst = totals("full"), totals()
         smoke = totals("smoke")
         lines += [
@@ -322,12 +419,16 @@ def main():
     else:
         lines.append("No timing.jsonl found.")
 
-    lines += ["", "## Caveats", "",
-              f"- {a.hardware[0].upper() + a.hardware[1:]}, one slice, one experiment seed. Not a reproduction of the paper's A800/full-precision numbers.",
-              "- MR branch calls are sampled; NR/SR baselines are historical greedy runs. Any MR-vs-NR/SR difference mixes structure with decoding.",
-              "- The MR reference keeps every old path and does not force depth growth; selected paths can stay shallow. Depths above are observed, not assumed.",
-              "- Intervals are over questions only; no correction for the many subset/retriever comparisons in this report.",
-              ""]
+    lines += [
+        "",
+        "## Caveats",
+        "",
+        f"- {a.hardware[0].upper() + a.hardware[1:]}, one slice, one experiment seed. Not a reproduction of the paper's A800/full-precision numbers.",
+        "- MR branch calls are sampled; NR/SR baselines are historical greedy runs. Any MR-vs-NR/SR difference mixes structure with decoding.",
+        "- The MR reference keeps every old path and does not force depth growth; selected paths can stay shallow. Depths above are observed, not assumed.",
+        "- Intervals are over questions only; no correction for the many subset/retriever comparisons in this report.",
+        "",
+    ]
     out = a.out or os.path.join(a.results_dir, "summary_mr.md")
     with open(out, "w", encoding="utf-8") as f:
         f.write("\n".join(lines) + "\n")
@@ -335,7 +436,9 @@ def main():
     if generated_from.startswith(ROOT + os.sep):
         generated_from = os.path.relpath(generated_from, ROOT)
     write = {"validation": validation, "generated_from": generated_from}
-    with open(os.path.join(a.results_dir, "analysis_validation.json"), "w", encoding="utf-8") as f:
+    with open(
+        os.path.join(a.results_dir, "analysis_validation.json"), "w", encoding="utf-8"
+    ) as f:
         json.dump(write, f, indent=2, sort_keys=True)
         f.write("\n")
     print("\n".join(lines))
