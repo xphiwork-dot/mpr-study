@@ -27,6 +27,7 @@ CLI (on the Kaggle kernel or a machine with the input cache, dataset and pinned 
   python dr.py --slice results/slices/s306.json --memories sparse,dense --tag results/runs \
                --workers 32 --time-budget-s 5400 --status-file results/status.json
 """
+
 import argparse
 import hashlib
 import json
@@ -39,13 +40,22 @@ from concurrent.futures import FIRST_COMPLETED, ThreadPoolExecutor, wait
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 # `lib.py` sits next to this file in the Kaggle dataset; in the repo it is in ../_shared
-for _cand in (os.environ.get("MPR_SHARED_DIR"), os.path.join(HERE, "..", "_shared"), HERE):
+for _cand in (
+    os.environ.get("MPR_SHARED_DIR"),
+    os.path.join(HERE, "..", "_shared"),
+    HERE,
+):
     if _cand and os.path.isfile(os.path.join(_cand, "lib.py")):
         sys.path.insert(0, _cand)
         break
 import lib  # noqa: E402
 
-MEMS = {"ignoramus": "Ignoramus", "oracle": "Oracle", "sparse": "SparseRAG", "dense": "DenseRAG"}
+MEMS = {
+    "ignoramus": "Ignoramus",
+    "oracle": "Oracle",
+    "sparse": "SparseRAG",
+    "dense": "DenseRAG",
+}
 SETTINGS_PATH = os.path.join(HERE, "settings.json")
 
 
@@ -96,7 +106,9 @@ def parse_division(text, n, question, policy="ref_faithful_drop_blank"):
     }
     if not subs:
         if policy == "upstream_strict":
-            subs = [""]  # upstream would use the empty string here; not used in the experiment
+            subs = [
+                ""
+            ]  # upstream would use the empty string here; not used in the experiment
         else:
             subs = [question]
             meta["fallback"] = True
@@ -108,9 +120,13 @@ def build_current_state(sub_questions, answers, qid):
     lines = []
     for qqid in range(len(sub_questions)):
         if qqid < qid:
-            lines.append("%d. %s (Answer: %s)" % (qqid + 1, sub_questions[qqid], answers[qqid]))
+            lines.append(
+                "%d. %s (Answer: %s)" % (qqid + 1, sub_questions[qqid], answers[qqid])
+            )
         elif qqid == qid:
-            lines.append("%d. %s (Current Sub-question)" % (qqid + 1, sub_questions[qqid]))
+            lines.append(
+                "%d. %s (Current Sub-question)" % (qqid + 1, sub_questions[qqid])
+            )
         else:
             lines.append("%d. %s" % (qqid + 1, sub_questions[qqid]))
     return "\n".join(lines)
@@ -166,7 +182,9 @@ def default_index_factory(uid, data, need_dense, encoder):
 
 
 class Runner:
-    def __init__(self, settings, prompts=None, chat=None, user_loader=None, index_factory=None):
+    def __init__(
+        self, settings, prompts=None, chat=None, user_loader=None, index_factory=None
+    ):
         self.s = settings
         self.P = prompts if prompts is not None else lib.load_prompts()
         self.chat_fn = chat or lib.chat
@@ -191,8 +209,12 @@ class Runner:
             if need_dense and self.enc is None:
                 self.enc = lib.get_encoder()
             if uid not in self.index:
-                self.index[uid] = self.index_factory(uid, self.data[uid], need_dense, self.enc)
-            elif need_dense and self.index[uid].emb is None:  # first built for BM25 only
+                self.index[uid] = self.index_factory(
+                    uid, self.data[uid], need_dense, self.enc
+                )
+            elif (
+                need_dense and self.index[uid].emb is None
+            ):  # first built for BM25 only
                 self.index[uid].add_dense(self.enc)
             return self.data[uid], self.index[uid]
 
@@ -217,13 +239,19 @@ class Runner:
         template = getattr(self.P, self.template_name(kind, mem))
         return template.format(**params)
 
-    def call(self, kind, mem, params, max_tokens, acc, trace, references=None, stage=None):
+    def call(
+        self, kind, mem, params, max_tokens, acc, trace, references=None, stage=None
+    ):
         p = dict(params)
         if mem != "ignoramus":
-            p["references"] = references  # RAGMethod.response:42 sets it; Ignoramus templates have no {references}
+            p["references"] = (
+                references  # RAGMethod.response:42 sets it; Ignoramus templates have no {references}
+            )
         prompt = self.format_prompt(kind, mem, p)
         try:
-            text, pt, ct, secs = self.chat_fn(prompt, max_tokens, temperature=self.temperature)
+            text, pt, ct, secs = self.chat_fn(
+                prompt, max_tokens, temperature=self.temperature
+            )
         except Exception as e:  # noqa: BLE001 - transport, server or parse errors all fail the question
             trace["stage"] = stage or kind
             raise QuestionFailure(stage or kind, e, trace) from e
@@ -231,15 +259,17 @@ class Runner:
         acc["prompt_tokens"] += pt
         acc["completion_tokens"] += ct
         acc["secs"] += secs
-        trace["calls"].append({
-            "kind": kind,
-            "prompt_sha256": sha256_text(prompt),
-            "prompt_tokens": pt,
-            "completion_tokens": ct,
-            "secs": round(secs, 4),
-            "max_tokens": max_tokens,
-            "empty_response": not str(text).strip(),
-        })
+        trace["calls"].append(
+            {
+                "kind": kind,
+                "prompt_sha256": sha256_text(prompt),
+                "prompt_tokens": pt,
+                "completion_tokens": ct,
+                "secs": round(secs, 4),
+                "max_tokens": max_tokens,
+                "empty_response": not str(text).strip(),
+            }
+        )
         return text
 
     # ---------- the DR flow ----------
@@ -252,9 +282,13 @@ class Runner:
         trace = {"stage": "divide", "calls": []}
 
         divide_raw = self.call(
-            "Decomposition_Divide", mem,
+            "Decomposition_Divide",
+            mem,
             {"question": question, "max_sub_question": self.n},
-            self.max_tokens["divide"], acc, trace, stage="divide",
+            self.max_tokens["divide"],
+            acc,
+            trace,
+            stage="divide",
         )
         subs, pmeta = parse_division(divide_raw, self.n, question, self.policy)
 
@@ -265,9 +299,18 @@ class Runner:
             key = solve_retrieval_key(question, sub_question)
             ids, references = self.refs(mem, ix, key, qa)
             answer = self.call(
-                "Decomposition_Solve", mem,
-                {"question": question, "current_state": current_state, "sub_question": sub_question},
-                self.max_tokens["solve"], acc, trace, references=references, stage=f"solve[{qid}]",
+                "Decomposition_Solve",
+                mem,
+                {
+                    "question": question,
+                    "current_state": current_state,
+                    "sub_question": sub_question,
+                },
+                self.max_tokens["solve"],
+                acc,
+                trace,
+                references=references,
+                stage=f"solve[{qid}]",
             )
             answers.append(answer)
             states.append(current_state)
@@ -279,9 +322,14 @@ class Runner:
         merge_key = merge_retrieval_key(merge_state)
         merge_ids, merge_references = self.refs(mem, ix, merge_key, qa)
         response = self.call(
-            "Decomposition_Merge", mem,
+            "Decomposition_Merge",
+            mem,
             {"question": question, "current_state": merge_state},
-            self.max_tokens["merge"], acc, trace, references=merge_references, stage="merge",
+            self.max_tokens["merge"],
+            acc,
+            trace,
+            references=merge_references,
+            stage="merge",
         )
 
         row = {
@@ -322,15 +370,31 @@ class Runner:
         acc = {"calls": 0, "prompt_tokens": 0, "completion_tokens": 0, "secs": 0.0}
         trace = {"stage": "naive", "calls": []}
         ids, references = self.refs(mem, ix, question, qa)
-        response = self.call("Naive", mem, {"question": question}, 64, acc, trace,
-                             references=references, stage="naive")
+        response = self.call(
+            "Naive",
+            mem,
+            {"question": question},
+            64,
+            acc,
+            trace,
+            references=references,
+            stage="naive",
+        )
         return {
-            "uid": item["uid"], "rc_id": item["rc_id"], "k_hop": int(item["hop"]),
-            "memory": MEMS[mem], "reason": "NaiveReason", "response": response,
-            "ground_truth": qa["answer"], "first_retrieved": ids,
-            "calls": acc["calls"], "prompt_tokens": acc["prompt_tokens"],
-            "completion_tokens": acc["completion_tokens"], "secs": acc["secs"],
-            "call_trace": trace["calls"], "settings_sha256": self.settings_sha256,
+            "uid": item["uid"],
+            "rc_id": item["rc_id"],
+            "k_hop": int(item["hop"]),
+            "memory": MEMS[mem],
+            "reason": "NaiveReason",
+            "response": response,
+            "ground_truth": qa["answer"],
+            "first_retrieved": ids,
+            "calls": acc["calls"],
+            "prompt_tokens": acc["prompt_tokens"],
+            "completion_tokens": acc["completion_tokens"],
+            "secs": acc["secs"],
+            "call_trace": trace["calls"],
+            "settings_sha256": self.settings_sha256,
         }
 
     def run_item(self, mem, item):
@@ -338,17 +402,37 @@ class Runner:
         try:
             return self.solve(mem, item), None
         except QuestionFailure as f:
-            return None, {"uid": item["uid"], "rc_id": item["rc_id"], "memory": MEMS[mem],
-                          "stage": f.stage, "error": repr(f.error),
-                          "trace": f.trace, "ts": time.time()}
+            return None, {
+                "uid": item["uid"],
+                "rc_id": item["rc_id"],
+                "memory": MEMS[mem],
+                "stage": f.stage,
+                "error": repr(f.error),
+                "trace": f.trace,
+                "ts": time.time(),
+            }
         except Exception as e:  # noqa: BLE001 - a bug in the flow also fails the question, not the run
-            return None, {"uid": item["uid"], "rc_id": item["rc_id"], "memory": MEMS[mem],
-                          "stage": "unknown", "error": repr(e), "traceback": traceback.format_exc(),
-                          "ts": time.time()}
+            return None, {
+                "uid": item["uid"],
+                "rc_id": item["rc_id"],
+                "memory": MEMS[mem],
+                "stage": "unknown",
+                "error": repr(e),
+                "traceback": traceback.format_exc(),
+                "ts": time.time(),
+            }
 
     # ---------- resumable run ----------
-    def run(self, items, memories, out_dir, workers, deadline=None, on_progress=None,
-            max_consecutive_failures=20):
+    def run(
+        self,
+        items,
+        memories,
+        out_dir,
+        workers,
+        deadline=None,
+        on_progress=None,
+        max_consecutive_failures=20,
+    ):
         os.makedirs(out_dir, exist_ok=True)
         summary = {"memories": {}, "started": time.time(), "deadline": deadline}
         for mem in memories:
@@ -357,9 +441,19 @@ class Runner:
             fpath = os.path.join(out_dir, f"failures_{MEMS[mem]}.jsonl")
             done = {lib.qkey(r) for r in lib.read_jsonl(path)}
             todo = [it for it in items if f"{it['uid']}:{it['rc_id']}" not in done]
-            ms = {"name": name, "path": path, "rows_before": len(done), "todo": len(todo),
-                  "rows": len(done), "failures": 0, "calls": 0, "prompt_tokens": 0,
-                  "completion_tokens": 0, "wall_s": 0.0, "stopped": None}
+            ms = {
+                "name": name,
+                "path": path,
+                "rows_before": len(done),
+                "todo": len(todo),
+                "rows": len(done),
+                "failures": 0,
+                "calls": 0,
+                "prompt_tokens": 0,
+                "completion_tokens": 0,
+                "wall_s": 0.0,
+                "stopped": None,
+            }
             summary["memories"][name] = ms
             print(f"[{name}] {len(done)} done, {len(todo)} to do", flush=True)
             if not todo:
@@ -392,7 +486,9 @@ class Runner:
                     if not submit(ex):
                         break
                 while pending:
-                    finished, _ = wait(list(pending), timeout=15, return_when=FIRST_COMPLETED)
+                    finished, _ = wait(
+                        list(pending), timeout=15, return_when=FIRST_COMPLETED
+                    )
                     for fu in finished:
                         pending.pop(fu)
                         row, failure = fu.result()
@@ -407,19 +503,27 @@ class Runner:
                             fw.write(failure)
                             ms["failures"] += 1
                             consec += 1
-                            print(f"  failure {failure['uid']}:{failure['rc_id']} {failure['memory']} "
-                                  f"stage={failure['stage']} error={failure['error'][:200]}", flush=True)
+                            print(
+                                f"  failure {failure['uid']}:{failure['rc_id']} {failure['memory']} "
+                                f"stage={failure['stage']} error={failure['error'][:200]}",
+                                flush=True,
+                            )
                         if on_progress:
                             on_progress(summary)
                         if consec >= max_consecutive_failures:
                             stopping = True
-                            ms["stopped"] = f"circuit_breaker after {consec} consecutive failures"
+                            ms["stopped"] = (
+                                f"circuit_breaker after {consec} consecutive failures"
+                            )
                             print(f"  CIRCUIT BREAKER: {ms['stopped']}", flush=True)
                         if deadline and time.time() > deadline - 120:
                             if not stopping:
                                 stopping = True
                                 ms["stopped"] = ms["stopped"] or "deadline"
-                                print("  deadline reached: no new questions, draining in-flight calls", flush=True)
+                                print(
+                                    "  deadline reached: no new questions, draining in-flight calls",
+                                    flush=True,
+                                )
                     while len(pending) < workers * 2 and not stopping:
                         if deadline and time.time() > deadline - 120:
                             stopping = True
@@ -433,8 +537,11 @@ class Runner:
             summary["memories"][name]["stopped"] = ms["stopped"]
             if on_progress:
                 on_progress(summary)
-            print(f"[{name}] finished: rows={ms['rows']} failures={ms['failures']} "
-                  f"calls={ms['calls']} wall={ms['wall_s']}s stopped={ms['stopped']}", flush=True)
+            print(
+                f"[{name}] finished: rows={ms['rows']} failures={ms['failures']} "
+                f"calls={ms['calls']} wall={ms['wall_s']}s stopped={ms['stopped']}",
+                flush=True,
+            )
             if stopping and str(ms["stopped"] or "").startswith("circuit_breaker"):
                 break
         summary["finished"] = time.time()
@@ -445,8 +552,18 @@ def config_hash(settings):
     return sha256_text(json.dumps(settings, sort_keys=True))
 
 
-def run(slice_path, out_dir, settings, memories=("sparse", "dense"), workers=32,
-        deadline=None, limit=0, on_progress=None, status_file=None, only_keys=None):
+def run(
+    slice_path,
+    out_dir,
+    settings,
+    memories=("sparse", "dense"),
+    workers=32,
+    deadline=None,
+    limit=0,
+    on_progress=None,
+    status_file=None,
+    only_keys=None,
+):
     items = lib.load_slice(slice_path)["items"]
     if limit:
         items = items[:limit]
@@ -455,6 +572,7 @@ def run(slice_path, out_dir, settings, memories=("sparse", "dense"), workers=32,
         items = [it for it in items if f"{it['uid']}:{it['rc_id']}" in wanted]
     runner = Runner(settings)
     if status_file:
+
         def progress(summary):
             tmp = status_file + ".tmp"
             cur = {}
@@ -470,35 +588,67 @@ def run(slice_path, out_dir, settings, memories=("sparse", "dense"), workers=32,
             os.replace(tmp, status_file)
     else:
         progress = None
-    summary = runner.run(items, list(memories), out_dir, workers, deadline=deadline,
-                         on_progress=progress, max_consecutive_failures=20)
+    summary = runner.run(
+        items,
+        list(memories),
+        out_dir,
+        workers,
+        deadline=deadline,
+        on_progress=progress,
+        max_consecutive_failures=20,
+    )
     return summary
 
 
 def main():
-    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
     ap.add_argument("--slice", required=True)
     ap.add_argument("--out", required=True, help="result directory")
     ap.add_argument("--settings", default=SETTINGS_PATH)
     ap.add_argument("--memories", default="sparse,dense")
     ap.add_argument("--workers", type=int, default=None)
-    ap.add_argument("--time-budget-s", type=float, default=0, help="stop submitting when this many seconds elapsed")
-    ap.add_argument("--limit", type=int, default=0, help="debug: first N questions only")
+    ap.add_argument(
+        "--time-budget-s",
+        type=float,
+        default=0,
+        help="stop submitting when this many seconds elapsed",
+    )
+    ap.add_argument(
+        "--limit", type=int, default=0, help="debug: first N questions only"
+    )
     ap.add_argument("--status-file", default=None)
-    ap.add_argument("--only-keys", default=None, help="comma-separated uid:rc_id subset (smoke stage)")
+    ap.add_argument(
+        "--only-keys",
+        default=None,
+        help="comma-separated uid:rc_id subset (smoke stage)",
+    )
     a = ap.parse_args()
     settings = load_settings(a.settings)
     deadline = (time.time() + a.time_budget_s) if a.time_budget_s else None
-    summary = run(a.slice, a.out, settings, memories=a.memories.split(","),
-                  workers=a.workers or int(settings["run"]["workers"]), deadline=deadline,
-                  limit=a.limit, status_file=a.status_file,
-                  only_keys=a.only_keys.split(",") if a.only_keys else None)
-    print(json.dumps({k: v for k, v in summary.items() if k != "memories"}, indent=None))
+    summary = run(
+        a.slice,
+        a.out,
+        settings,
+        memories=a.memories.split(","),
+        workers=a.workers or int(settings["run"]["workers"]),
+        deadline=deadline,
+        limit=a.limit,
+        status_file=a.status_file,
+        only_keys=a.only_keys.split(",") if a.only_keys else None,
+    )
+    print(
+        json.dumps({k: v for k, v in summary.items() if k != "memories"}, indent=None)
+    )
     failures = sum(m["failures"] for m in summary["memories"].values())
     expected = int(settings["run"]["expected_rows_per_system"])
     short = [m["name"] for m in summary["memories"].values() if m["rows"] < expected]
     ok = not short and failures == 0
-    print(f"DR run {'OK' if ok else 'INCOMPLETE'}: failures={failures} short={short}", flush=True)
+    print(
+        f"DR run {'OK' if ok else 'INCOMPLETE'}: failures={failures} short={short}",
+        flush=True,
+    )
     sys.exit(0 if ok else 2)
 
 

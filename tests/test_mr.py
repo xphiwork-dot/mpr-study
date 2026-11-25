@@ -17,7 +17,9 @@ import unittest
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PARENT = os.path.dirname(ROOT)
-UPSTREAM = os.environ.get("MPR_TEST_UPSTREAM", os.path.join(PARENT, "mpr-study", "upstream", "MPR"))
+UPSTREAM = os.environ.get(
+    "MPR_TEST_UPSTREAM", os.path.join(PARENT, "mpr-study", "upstream", "MPR")
+)
 PROMPTS = os.path.join(UPSTREAM, "baselines", "prompts.py")
 if os.path.exists(PROMPTS):
     os.environ.setdefault("MPR_PROMPTS", PROMPTS)
@@ -28,6 +30,7 @@ import lib  # noqa: E402
 
 try:
     import numpy  # noqa: F401
+
     HAVE_NUMPY = True
 except Exception:  # noqa: BLE001
     HAVE_NUMPY = False
@@ -48,11 +51,21 @@ class FakeChat:
         self.middle_text = middle_text
 
     def __call__(self, prompt, max_tokens, *, temperature, top_p=None, seed=None):
-        self.calls.append({"prompt": prompt, "max_tokens": max_tokens,
-                           "temperature": temperature, "top_p": top_p, "seed": seed})
-        is_selection = prompt.startswith("SELECT") or "Here are multiple reasoning paths" in prompt
+        self.calls.append(
+            {
+                "prompt": prompt,
+                "max_tokens": max_tokens,
+                "temperature": temperature,
+                "top_p": top_p,
+                "seed": seed,
+            }
+        )
+        is_selection = (
+            prompt.startswith("SELECT") or "Here are multiple reasoning paths" in prompt
+        )
         is_middle = prompt.startswith("MIDDLE") or (
-            "Previous Thoughts:" in prompt and "generate your thoughts for the current step" in prompt
+            "Previous Thoughts:" in prompt
+            and "generate your thoughts for the current step" in prompt
         )
         if is_selection:
             text = self.selections.pop(0)
@@ -62,9 +75,16 @@ class FakeChat:
         else:
             self.n += 1
             text = f"T{self.n}"
-        return {"text": text, "prompt_tokens": 10, "completion_tokens": 5,
-                "finish_reason": "stop", "seconds": 0.001, "temperature": temperature,
-                "top_p": top_p, "seed": seed}
+        return {
+            "text": text,
+            "prompt_tokens": 10,
+            "completion_tokens": 5,
+            "finish_reason": "stop",
+            "seconds": 0.001,
+            "temperature": temperature,
+            "top_p": top_p,
+            "seed": seed,
+        }
 
 
 def fake_retrieve(uid, query):
@@ -76,7 +96,8 @@ def fake_prompts():
         Structured_Start_RAG_Prompt_Template="START\n{references}\n{question}",
         Structured_Middle_RAG_Prompt_Template=(
             "MIDDLE\ngenerate your thoughts for the current step\n{references}\n"
-            "Previous Thoughts:\n{previous_thoughts}\n{question}"),
+            "Previous Thoughts:\n{previous_thoughts}\n{question}"
+        ),
         Structured_Final_RAG_Prompt_Template="FINAL\n{references}\nPrevious Thoughts:\n{previous_thoughts}\n{question}",
         Structured_Selection_RAG_Prompt_Template="SELECT\nReasoning Paths:\n{reasoning_paths}\n{question}",
         Naive_RAG_Prompt_Template="NAIVE\n{references}\n{question}",
@@ -87,7 +108,10 @@ class UpstreamReferenceTest(unittest.TestCase):
     def setUp(self):
         if not os.path.exists(PROMPTS):
             self.skipTest("pinned upstream clone not available")
-        for p in (os.path.join(UPSTREAM, "reasonings"), os.path.join(UPSTREAM, "baselines")):
+        for p in (
+            os.path.join(UPSTREAM, "reasonings"),
+            os.path.join(UPSTREAM, "baselines"),
+        ):
             if p not in sys.path:
                 sys.path.insert(0, p)
         self.P = lib.load_prompts()
@@ -107,13 +131,17 @@ class UpstreamReferenceTest(unittest.TestCase):
                 ids, refs = fake_retrieve(0, knowledge_key)
                 params = dict(param_dict)
                 params["references"] = refs
-                prompt = getattr(self._P, f"{call_type}_RAG_Prompt_Template").format(**params)
+                prompt = getattr(self._P, f"{call_type}_RAG_Prompt_Template").format(
+                    **params
+                )
                 self.calls.append(("response", call_type, prompt, knowledge_key))
                 self.n += 1
                 return f"T{self.n}"
 
             def inference(self, call_type, param_dict):
-                prompt = getattr(self._P, f"{call_type}_RAG_Prompt_Template").format(**param_dict)
+                prompt = getattr(self._P, f"{call_type}_RAG_Prompt_Template").format(
+                    **param_dict
+                )
                 self.calls.append(("inference", call_type, prompt, None))
                 return self.sels.pop(0)
 
@@ -132,7 +160,9 @@ class UpstreamReferenceTest(unittest.TestCase):
             ours.append((kind, ev["kind"], ev["prompt_sha256"], ev["retrieval_query"]))
         self.assertEqual(len(up.calls), 12)
         self.assertEqual(len(ours), 12)
-        for (uk, uk_name, uprompt, ukey), (ok, ok_name, osha, okey) in zip(up.calls, ours):
+        for (uk, uk_name, uprompt, ukey), (ok, ok_name, osha, okey) in zip(
+            up.calls, ours
+        ):
             self.assertEqual(uk, ok)
             self.assertEqual(uk_name, ok_name)
             self.assertEqual(mr.sha256_text(uprompt), osha)
@@ -151,7 +181,10 @@ class UpstreamReferenceTest(unittest.TestCase):
         with open(path, encoding="utf-8") as f:
             src = f.read()
         self.assertIn("self.knowledge_model.inference('Structured_Selection'", src)
-        self.assertIn("path_buffer[:current_path_id] + path_buffer[current_path_id:] + new_path_list", src)
+        self.assertIn(
+            "path_buffer[:current_path_id] + path_buffer[current_path_id:] + new_path_list",
+            src,
+        )
         self.assertIn("for current_step in range(1, max_step-1):", src)
         self.assertIn("for branch_id in range(self.config['branch_size']):", src)
 
@@ -193,7 +226,10 @@ class ParsingTest(unittest.TestCase):
             "2.0": (0, "fallback_non_digit"),
             "": (0, "fallback_non_digit"),
             "Path 2": (0, "fallback_non_digit"),
-            "\u0662": (0, "fallback_non_digit"),  # upstream isdigit/eval would accept this
+            "\u0662": (
+                0,
+                "fallback_non_digit",
+            ),  # upstream isdigit/eval would accept this
         }
         for text, expected in cases.items():
             self.assertEqual(mr.parse_selection(text, 3), expected, repr(text))
@@ -245,7 +281,9 @@ class DuplicateAndLeakTest(unittest.TestCase):
         self.assertEqual(tr["duplicate_candidate_pairs"], 3)
 
         chat2 = FakeChat(["0", "2", "4", "6"], middle_text=lambda n: f"unique-{n}")
-        runner2 = mr.MRRunner(cfg, fake_prompts(), chat2, fake_retrieve, memory="sparse")
+        runner2 = mr.MRRunner(
+            cfg, fake_prompts(), chat2, fake_retrieve, memory="sparse"
+        )
         tr2 = runner2.solve(0, "RC", "Q")["trace"]
         self.assertEqual(tr2["duplicate_candidate_pairs"], 0)
 
@@ -271,20 +309,50 @@ class DuplicateAndLeakTest(unittest.TestCase):
         chat = FakeChat(["0", "2", "4", "6"] * 10)
 
         def fake_vllm(prompt, max_tokens, **kwargs):
-            return chat(prompt, max_tokens, temperature=kwargs.get("temperature"),
-                        top_p=kwargs.get("top_p"), seed=kwargs.get("seed"))
+            return chat(
+                prompt,
+                max_tokens,
+                temperature=kwargs.get("temperature"),
+                top_p=kwargs.get("top_p"),
+                seed=kwargs.get("seed"),
+            )
 
-        old = (mr.MemoryStore, mr.vllm_chat, lib.load_prompts, lib.load_slice, lib.load_user)
+        old = (
+            mr.MemoryStore,
+            mr.vllm_chat,
+            lib.load_prompts,
+            lib.load_slice,
+            lib.load_user,
+        )
         mr.MemoryStore, mr.vllm_chat = Store, fake_vllm
-        lib.load_prompts, lib.load_slice, lib.load_user = fake_prompts, lambda path: {"items": items}, lambda uid: data
+        lib.load_prompts, lib.load_slice, lib.load_user = (
+            fake_prompts,
+            lambda path: {"items": items},
+            lambda uid: data,
+        )
         try:
             with tempfile.TemporaryDirectory() as d:
                 args = types.SimpleNamespace(
-                    stage="full", slice="unused", data_dir="unused", cache_dir="unused",
-                    output_dir=d, memories="sparse", topk=20, max_step=5, branch_size=2,
-                    expected_calls=12, seed=0, workers=1, max_attempts=2, limit=0,
-                    deadline=0, vllm_url="unused", model="qwen", device=None,
-                    request_timeout=10)
+                    stage="full",
+                    slice="unused",
+                    data_dir="unused",
+                    cache_dir="unused",
+                    output_dir=d,
+                    memories="sparse",
+                    topk=20,
+                    max_step=5,
+                    branch_size=2,
+                    expected_calls=12,
+                    seed=0,
+                    workers=1,
+                    max_attempts=2,
+                    limit=0,
+                    deadline=0,
+                    vllm_url="unused",
+                    model="qwen",
+                    device=None,
+                    request_timeout=10,
+                )
                 self.assertEqual(mr.cmd_run(args), 0)
                 self.assertTrue(chat.calls, "cmd_run must actually call the model")
                 self.assertTrue(retrieval_queries, "cmd_run must actually retrieve")
@@ -293,17 +361,31 @@ class DuplicateAndLeakTest(unittest.TestCase):
                 for q in retrieval_queries:
                     self.assertNotIn(sentinel, q)
         finally:
-            (mr.MemoryStore, mr.vllm_chat, lib.load_prompts, lib.load_slice, lib.load_user) = old
+            (
+                mr.MemoryStore,
+                mr.vllm_chat,
+                lib.load_prompts,
+                lib.load_slice,
+                lib.load_user,
+            ) = old
 
 
 class ResumeAndCoverageTest(unittest.TestCase):
     def test_cut_tail_and_duplicate_keys(self):
         with tempfile.TemporaryDirectory() as d:
             path = os.path.join(d, "rows.jsonl")
-            mr._append_jsonl(path, {"uid": 0, "rc_id": "A", "response": "x", "calls": 12})
-            mr._append_jsonl(path, {"uid": 0, "rc_id": "A", "response": "y", "calls": 12})
-            mr._append_jsonl(path, {"uid": 1, "rc_id": "B", "response": "", "calls": 12})
-            mr._append_jsonl(path, {"uid": 3, "rc_id": "D", "response": "d", "calls": 12})
+            mr._append_jsonl(
+                path, {"uid": 0, "rc_id": "A", "response": "x", "calls": 12}
+            )
+            mr._append_jsonl(
+                path, {"uid": 0, "rc_id": "A", "response": "y", "calls": 12}
+            )
+            mr._append_jsonl(
+                path, {"uid": 1, "rc_id": "B", "response": "", "calls": 12}
+            )
+            mr._append_jsonl(
+                path, {"uid": 3, "rc_id": "D", "response": "d", "calls": 12}
+            )
             with open(path, "a", encoding="utf-8") as f:
                 f.write('{"uid": 2, "rc_id": "C", "response": "cut')
             rows = mr.load_valid_rows(path)
@@ -311,7 +393,9 @@ class ResumeAndCoverageTest(unittest.TestCase):
             self.assertEqual(rows["0:A"]["response"], "y")
 
     def test_smoke_items_span_all_hop_groups(self):
-        items = lib.load_slice(os.path.join(ROOT, "results", "t4", "slices", "s306.json"))["items"]
+        items = lib.load_slice(
+            os.path.join(ROOT, "results", "t4", "slices", "s306.json")
+        )["items"]
         smoke = mr.smoke_items(items)
         groups = {"2-4": range(2, 5), "5-7": range(5, 8), "8-10": range(8, 11)}
         for rng in groups.values():
@@ -321,10 +405,16 @@ class ResumeAndCoverageTest(unittest.TestCase):
 
 class CommandIntegrationTest(unittest.TestCase):
     def test_cmd_run_resume_and_coverage(self):
-        items = [{"uid": 0, "hop": 2, "rc_id": "RC1"},
-                 {"uid": 0, "hop": 3, "rc_id": "RC2"}]
-        data = {"qa": {"2": {"RC1": {"question": "Q1", "answer": "A1"}},
-                        "3": {"RC2": {"question": "Q2", "answer": "A2"}}}}
+        items = [
+            {"uid": 0, "hop": 2, "rc_id": "RC1"},
+            {"uid": 0, "hop": 3, "rc_id": "RC2"},
+        ]
+        data = {
+            "qa": {
+                "2": {"RC1": {"question": "Q1", "answer": "A1"}},
+                "3": {"RC2": {"question": "Q2", "answer": "A2"}},
+            }
+        }
 
         class Store:
             def __init__(self, *a, **k):
@@ -339,10 +429,21 @@ class CommandIntegrationTest(unittest.TestCase):
         chat = FakeChat(["0", "2", "4", "6"] * 10)
 
         def fake_vllm(prompt, max_tokens, **kwargs):
-            return chat(prompt, max_tokens, temperature=kwargs.get("temperature"),
-                        top_p=kwargs.get("top_p"), seed=kwargs.get("seed"))
+            return chat(
+                prompt,
+                max_tokens,
+                temperature=kwargs.get("temperature"),
+                top_p=kwargs.get("top_p"),
+                seed=kwargs.get("seed"),
+            )
 
-        old = (mr.MemoryStore, mr.vllm_chat, lib.load_prompts, lib.load_slice, lib.load_user)
+        old = (
+            mr.MemoryStore,
+            mr.vllm_chat,
+            lib.load_prompts,
+            lib.load_slice,
+            lib.load_user,
+        )
         mr.MemoryStore = Store
         mr.vllm_chat = fake_vllm
         lib.load_prompts = fake_prompts
@@ -351,11 +452,26 @@ class CommandIntegrationTest(unittest.TestCase):
         try:
             with tempfile.TemporaryDirectory() as d:
                 args = types.SimpleNamespace(
-                    stage="full", slice="unused", data_dir="unused", cache_dir="unused",
-                    output_dir=d, memories="sparse,dense", topk=20, max_step=5,
-                    branch_size=2, expected_calls=12, seed=0, workers=2, max_attempts=2,
-                    limit=0, deadline=0, vllm_url="unused", model="qwen", device=None,
-                    request_timeout=10)
+                    stage="full",
+                    slice="unused",
+                    data_dir="unused",
+                    cache_dir="unused",
+                    output_dir=d,
+                    memories="sparse,dense",
+                    topk=20,
+                    max_step=5,
+                    branch_size=2,
+                    expected_calls=12,
+                    seed=0,
+                    workers=2,
+                    max_attempts=2,
+                    limit=0,
+                    deadline=0,
+                    vllm_url="unused",
+                    model="qwen",
+                    device=None,
+                    request_timeout=10,
+                )
                 self.assertEqual(mr.cmd_run(args), 0)
                 for label in ("SparseRAG", "DenseRAG"):
                     path = os.path.join(d, f"StructuredReason_{label}_k20_s5.jsonl")
@@ -363,14 +479,24 @@ class CommandIntegrationTest(unittest.TestCase):
                     self.assertEqual(len(rows), 2)
                     self.assertEqual({r["calls"] for r in rows.values()}, {12})
                 # second run is a no-op (resume)
-                before = os.path.getsize(os.path.join(d, "StructuredReason_SparseRAG_k20_s5.jsonl"))
+                before = os.path.getsize(
+                    os.path.join(d, "StructuredReason_SparseRAG_k20_s5.jsonl")
+                )
                 self.assertEqual(mr.cmd_run(args), 0)
-                after = os.path.getsize(os.path.join(d, "StructuredReason_SparseRAG_k20_s5.jsonl"))
+                after = os.path.getsize(
+                    os.path.join(d, "StructuredReason_SparseRAG_k20_s5.jsonl")
+                )
                 self.assertEqual(before, after)
                 cov = mr.coverage_report(d, items, "unused", ["sparse", "dense"])
                 self.assertTrue(all(v["complete"] for v in cov["memories"].values()))
         finally:
-            (mr.MemoryStore, mr.vllm_chat, lib.load_prompts, lib.load_slice, lib.load_user) = old
+            (
+                mr.MemoryStore,
+                mr.vllm_chat,
+                lib.load_prompts,
+                lib.load_slice,
+                lib.load_user,
+            ) = old
 
 
 class SharedGridRegressionTest(unittest.TestCase):
@@ -381,11 +507,15 @@ class SharedGridRegressionTest(unittest.TestCase):
         import grid
 
         prompts = fake_prompts()
-        prompts.Sequential_Start_RAG_Prompt_Template = "SSTART {max_step} {references} {question}"
+        prompts.Sequential_Start_RAG_Prompt_Template = (
+            "SSTART {max_step} {references} {question}"
+        )
         prompts.Sequential_Middle_RAG_Prompt_Template = (
-            "SMID {current_step} {max_step} {references} {previous_thoughts} {question}")
+            "SMID {current_step} {max_step} {references} {previous_thoughts} {question}"
+        )
         prompts.Sequential_Final_RAG_Prompt_Template = (
-            "SFINAL {references} {previous_thoughts} {question}")
+            "SFINAL {references} {previous_thoughts} {question}"
+        )
         data = {"qa": {"2": {"RC1": {"question": "Q", "answer": "A"}}}}
         index = types.SimpleNamespace()
 
@@ -395,7 +525,11 @@ class SharedGridRegressionTest(unittest.TestCase):
         old = lib.chat
         lib.chat = fake_chat
         try:
-            for reason, steps, expected in (("naive", 5, 1), ("seq", 5, 5), ("seq", 3, 3)):
+            for reason, steps, expected in (
+                ("naive", 5, 1),
+                ("seq", 5, 5),
+                ("seq", 3, 3),
+            ):
                 args = types.SimpleNamespace(reason=reason, max_step=steps, topk=20)
                 runner = grid.Runner(args, prompts)
                 runner.user = lambda uid, need_dense: (data, index)
@@ -423,10 +557,17 @@ class VLLMClientTest(unittest.TestCase):
                     self.end_headers()
                     self.wfile.write(b'{"error":"bad request"}')
                     return
-                payload = json.dumps({
-                    "choices": [{"message": {"content": " answer "}, "finish_reason": "stop"}],
-                    "usage": {"prompt_tokens": 3, "completion_tokens": 1},
-                }).encode()
+                payload = json.dumps(
+                    {
+                        "choices": [
+                            {
+                                "message": {"content": " answer "},
+                                "finish_reason": "stop",
+                            }
+                        ],
+                        "usage": {"prompt_tokens": 3, "completion_tokens": 1},
+                    }
+                ).encode()
                 self.send_response(200)
                 self.send_header("Content-Type", "application/json")
                 self.send_header("Content-Length", str(len(payload)))
@@ -441,14 +582,24 @@ class VLLMClientTest(unittest.TestCase):
         th.start()
         try:
             url = f"http://127.0.0.1:{srv.server_port}"
-            out = mr.vllm_chat("hello", 7, temperature=0.7, top_p=1.0, seed=123,
-                               url=url, model="qwen", retries=1)
+            out = mr.vllm_chat(
+                "hello",
+                7,
+                temperature=0.7,
+                top_p=1.0,
+                seed=123,
+                url=url,
+                model="qwen",
+                retries=1,
+            )
             self.assertEqual(out["text"], " answer ")
             self.assertEqual(seen[-1]["seed"], 123)
             self.assertEqual(seen[-1]["top_p"], 1.0)
             self.assertEqual(seen[-1]["max_tokens"], 7)
             with self.assertRaises(mr.MRFailure):
-                mr.vllm_chat("hello", 7, temperature=0.0, url=url, model="bad", retries=1)
+                mr.vllm_chat(
+                    "hello", 7, temperature=0.0, url=url, model="bad", retries=1
+                )
         finally:
             srv.shutdown()
             srv.server_close()
@@ -488,7 +639,9 @@ class KernelMountTest(unittest.TestCase):
             self.kernel.INPUT_CANDIDATES = [root]
             got, slice_path = self.kernel.find_input(wait_s=0)
             self.assertEqual(got, os.path.abspath(root))
-            self.assertEqual(slice_path, os.path.join(os.path.abspath(root), "s306.json"))
+            self.assertEqual(
+                slice_path, os.path.join(os.path.abspath(root), "s306.json")
+            )
 
     def test_bounded_walk_fallback_and_clear_failure(self):
         actual = self._layout("input", "datasets", "xunphi", "mpr-mr-inputs")
@@ -522,24 +675,38 @@ class EmptyRetryTest(unittest.TestCase):
             def __init__(self):
                 self.calls = 0
 
-            def __call__(self, prompt, max_tokens, *, temperature, top_p=None, seed=None):
+            def __call__(
+                self, prompt, max_tokens, *, temperature, top_p=None, seed=None
+            ):
                 self.calls += 1
-                return {"text": "   ", "prompt_tokens": 1, "completion_tokens": 0,
-                        "finish_reason": "stop", "seconds": 0.0,
-                        "temperature": temperature, "top_p": top_p, "seed": seed}
+                return {
+                    "text": "   ",
+                    "prompt_tokens": 1,
+                    "completion_tokens": 0,
+                    "finish_reason": "stop",
+                    "seconds": 0.0,
+                    "temperature": temperature,
+                    "top_p": top_p,
+                    "seed": seed,
+                }
 
         cfg = mr.MRConfig(empty_retries=2)
         chat = EmptyChat()
         runner = mr.MRRunner(cfg, fake_prompts(), chat, fake_retrieve, memory="sparse")
-        with self.assertRaisesRegex(mr.MRFailure, "empty Structured_Start response after 3 attempts"):
+        with self.assertRaisesRegex(
+            mr.MRFailure, "empty Structured_Start response after 3 attempts"
+        ):
             runner.solve(0, "RC", "Q")
         self.assertEqual(chat.calls, cfg.empty_retries + 1)
 
     def test_selection_empty_retries_return_a_recorded_fallback(self):
         class SelectEmptyChat(FakeChat):
-            def __call__(self, prompt, max_tokens, *, temperature, top_p=None, seed=None):
-                out = super().__call__(prompt, max_tokens, temperature=temperature,
-                                       top_p=top_p, seed=seed)
+            def __call__(
+                self, prompt, max_tokens, *, temperature, top_p=None, seed=None
+            ):
+                out = super().__call__(
+                    prompt, max_tokens, temperature=temperature, top_p=top_p, seed=seed
+                )
                 if out["text"] in ("", "   "):
                     out["text"] = "   "
                 return out
@@ -557,8 +724,10 @@ class EmptyRetryTest(unittest.TestCase):
 class AnalyzeMRTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.analyze = load_module("analyze_mr_under_test",
-                                  os.path.join(ROOT, "experiments", "s5_t4_mr", "analyze_mr.py"))
+        cls.analyze = load_module(
+            "analyze_mr_under_test",
+            os.path.join(ROOT, "experiments", "s5_t4_mr", "analyze_mr.py"),
+        )
 
     def test_boot_ci_is_seeded_and_brackets_the_mean(self):
         vals = [0.0] * 50 + [1.0] * 50
@@ -588,25 +757,34 @@ class AnalyzeMRTest(unittest.TestCase):
             {"uid": 0, "hop": 2, "rc_id": "RC1"},
             {"uid": 0, "hop": 3, "rc_id": "RC2"},
         ]
-        data = {"qa": {"2": {"RC1": {"answer": "A1"}},
-                       "3": {"RC2": {"answer": "A2"}}}}
+        data = {"qa": {"2": {"RC1": {"answer": "A1"}}, "3": {"RC2": {"answer": "A2"}}}}
 
         def row(hop, rc):
-            return {"uid": 0, "rc_id": rc, "k_hop": hop, "ground_truth": data["qa"][str(hop)][rc]["answer"],
-                    "response": "A1", "calls": 12}
+            return {
+                "uid": 0,
+                "rc_id": rc,
+                "k_hop": hop,
+                "ground_truth": data["qa"][str(hop)][rc]["answer"],
+                "response": "A1",
+                "calls": 12,
+            }
 
         old = lib.load_user
         lib.load_user = lambda uid: data
         try:
             with tempfile.TemporaryDirectory() as d:
                 for mem in ("SparseRAG", "DenseRAG"):
-                    with open(os.path.join(d, f"StructuredReason_{mem}_k20_s5.jsonl"), "w") as f:
+                    with open(
+                        os.path.join(d, f"StructuredReason_{mem}_k20_s5.jsonl"), "w"
+                    ) as f:
                         f.write(json.dumps(row(2, "RC1")) + "\n")
                 rep = self.analyze.validate(d, items, "unused")
                 self.assertFalse(rep["complete"])
                 self.assertEqual(rep["memories"]["SparseRAG"]["missing"], ["0:RC2"])
                 for mem in ("SparseRAG", "DenseRAG"):
-                    with open(os.path.join(d, f"StructuredReason_{mem}_k20_s5.jsonl"), "a") as f:
+                    with open(
+                        os.path.join(d, f"StructuredReason_{mem}_k20_s5.jsonl"), "a"
+                    ) as f:
                         f.write(json.dumps(row(3, "RC2")) + "\n")
                 rep = self.analyze.validate(d, items, "unused")
                 self.assertTrue(rep["complete"])
@@ -629,7 +807,9 @@ class KernelDriverPinTest(unittest.TestCase):
     def test_parse_driver_major(self):
         text = "0, Tesla T4, 15360 MiB, 580.65.06\n1, Tesla T4, 15360 MiB, 580.65.06"
         self.assertEqual(self.kernel.parse_driver_major(text), 580)
-        self.assertEqual(self.kernel.parse_driver_major("0, Tesla T4, 15360 MiB, 470.82.01"), 470)
+        self.assertEqual(
+            self.kernel.parse_driver_major("0, Tesla T4, 15360 MiB, 470.82.01"), 470
+        )
         self.assertIsNone(self.kernel.parse_driver_major(""))
         self.assertIsNone(self.kernel.parse_driver_major("nvidia-smi failed"))
 

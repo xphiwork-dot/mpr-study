@@ -10,6 +10,7 @@ Resumable: every finished (memory, user, question) is one jsonl line; a rerun sk
 
 Usage: grid.py --slice cache/slice.json --reason naive --memories ignoramus,oracle,sparse,dense --tag s1
 """
+
 import argparse
 import json
 import os
@@ -21,7 +22,12 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import lib  # noqa: E402
 
-MEMS = {"ignoramus": "Ignoramus", "oracle": "Oracle", "sparse": "SparseRAG", "dense": "DenseRAG"}
+MEMS = {
+    "ignoramus": "Ignoramus",
+    "oracle": "Oracle",
+    "sparse": "SparseRAG",
+    "dense": "DenseRAG",
+}
 
 
 class Runner:
@@ -39,8 +45,12 @@ class Runner:
             if need_dense and self.enc is None:
                 self.enc = lib.get_encoder()
             if uid not in self.index:
-                self.index[uid] = lib.UserIndex(uid, self.data[uid], need_dense=need_dense, encoder=self.enc)
-            elif need_dense and self.index[uid].emb is None:  # index first built for BM25 only
+                self.index[uid] = lib.UserIndex(
+                    uid, self.data[uid], need_dense=need_dense, encoder=self.enc
+                )
+            elif (
+                need_dense and self.index[uid].emb is None
+            ):  # index first built for BM25 only
                 self.index[uid].add_dense(self.enc)
             return self.data[uid], self.index[uid]
 
@@ -82,19 +92,55 @@ class Runner:
             thoughts = []
 
             def fmt():
-                return "\n".join("(Step %d) %s" % (i + 1, t) for i, t in enumerate(thoughts))
+                return "\n".join(
+                    "(Step %d) %s" % (i + 1, t) for i, t in enumerate(thoughts)
+                )
 
             first_ids, r = self.refs(mem, ix, q, qa)
-            thoughts.append(self.call("Sequential_Start", mem, {"max_step": n, "question": q, "references": r}, 200, acc))
+            thoughts.append(
+                self.call(
+                    "Sequential_Start",
+                    mem,
+                    {"max_step": n, "question": q, "references": r},
+                    200,
+                    acc,
+                )
+            )
             for step in range(1, n - 1):
                 _, r = self.refs(mem, ix, thoughts[-1], qa)
-                thoughts.append(self.call("Sequential_Middle", mem, {
-                    "current_step": step + 1, "max_step": n, "question": q, "references": r,
-                    "previous_thoughts": fmt()}, 200, acc))
+                thoughts.append(
+                    self.call(
+                        "Sequential_Middle",
+                        mem,
+                        {
+                            "current_step": step + 1,
+                            "max_step": n,
+                            "question": q,
+                            "references": r,
+                            "previous_thoughts": fmt(),
+                        },
+                        200,
+                        acc,
+                    )
+                )
             _, r = self.refs(mem, ix, thoughts[-1], qa)
-            resp = self.call("Sequential_Final", mem, {"question": q, "references": r, "previous_thoughts": fmt()}, 64, acc)
-        row = {"uid": item["uid"], "rc_id": item["rc_id"], "k_hop": item["hop"], "memory": lib_name(mem),
-               "response": resp, "ground_truth": qa["answer"], "first_retrieved": first_ids, **acc}
+            resp = self.call(
+                "Sequential_Final",
+                mem,
+                {"question": q, "references": r, "previous_thoughts": fmt()},
+                64,
+                acc,
+            )
+        row = {
+            "uid": item["uid"],
+            "rc_id": item["rc_id"],
+            "k_hop": item["hop"],
+            "memory": lib_name(mem),
+            "response": resp,
+            "ground_truth": qa["answer"],
+            "first_retrieved": first_ids,
+            **acc,
+        }
         if thoughts is not None:
             row["thoughts"] = thoughts
         return row
@@ -105,7 +151,9 @@ def lib_name(mem):
 
 
 def main():
-    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
     ap.add_argument("--slice", required=True)
     ap.add_argument("--reason", choices=["naive", "seq"], required=True)
     ap.add_argument("--memories", default="ignoramus,oracle,sparse,dense")
@@ -113,7 +161,9 @@ def main():
     ap.add_argument("--max-step", type=int, default=5)
     ap.add_argument("--tag", required=True, help="output subdirectory under results/")
     ap.add_argument("--workers", type=int, default=48)
-    ap.add_argument("--limit", type=int, default=0, help="debug: only the first N questions")
+    ap.add_argument(
+        "--limit", type=int, default=0, help="debug: only the first N questions"
+    )
     a = ap.parse_args()
 
     items = lib.load_slice(a.slice)["items"]
@@ -150,13 +200,28 @@ def main():
                 ct += row["completion_tokens"]
                 if k % 50 == 0 or k == len(todo):
                     el = time.time() - tm
-                    print(f"  {k}/{len(todo)}  {el:.0f}s  {n / el:.1f} calls/s  in {pt / el:.0f} tok/s  out {ct / el:.0f} tok/s", flush=True)
+                    print(
+                        f"  {k}/{len(todo)}  {el:.0f}s  {n / el:.1f} calls/s  in {pt / el:.0f} tok/s  out {ct / el:.0f} tok/s",
+                        flush=True,
+                    )
         el = time.time() - tm
         if n == 0:
             continue
         with open(os.path.join(lib.OUT, a.tag, "timing.jsonl"), "a") as f:
-            f.write(json.dumps({"file": name, "questions": len(todo), "calls": n, "prompt_tokens": pt,
-                                "completion_tokens": ct, "wall_s": round(el, 1), "workers": a.workers}) + "\n")
+            f.write(
+                json.dumps(
+                    {
+                        "file": name,
+                        "questions": len(todo),
+                        "calls": n,
+                        "prompt_tokens": pt,
+                        "completion_tokens": ct,
+                        "wall_s": round(el, 1),
+                        "workers": a.workers,
+                    }
+                )
+                + "\n"
+            )
     print(f"grid done in {time.time() - t0:.0f}s, failures={failures}", flush=True)
     sys.exit(1 if failures else 0)
 
